@@ -1,0 +1,19 @@
+meta {
+  name: Get the audit trail
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/audit
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+docs {
+  S3. Every event, including internal ones.
+}

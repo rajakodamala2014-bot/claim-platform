@@ -1,11 +1,11 @@
 package com.claims.platform.claims;
 
-import com.claims.platform.claims.core.application.ClaimRepository;
-import com.claims.platform.claims.core.domain.Actor;
-import com.claims.platform.claims.core.domain.Claim;
-import com.claims.platform.claims.core.domain.ClaimFixture;
-import com.claims.platform.claims.core.domain.ClaimStatus;
-import com.claims.platform.claims.platform.infrastructure.OutboxRelay;
+import com.claims.platform.claims.core.repository.ClaimRepository;
+import com.claims.platform.claims.core.entity.Actor;
+import com.claims.platform.claims.core.entity.Claim;
+import com.claims.platform.claims.core.entity.ClaimFixture;
+import com.claims.platform.claims.core.entity.ClaimStatus;
+import com.claims.platform.claims.platform.producer.impl.KafkaOutboxPublisher;
 import com.claims.platform.common.event.EventEnvelope;
 import com.claims.platform.common.event.EventTypes;
 import com.claims.platform.common.messaging.Topics;
@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
-import static com.claims.platform.claims.core.domain.ClaimFixture.*;
+import static com.claims.platform.claims.core.entity.ClaimFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -58,7 +58,7 @@ class OutboxAndPaymentsIT {
     @Autowired
     TransactionTemplate tx;
     @Autowired
-    OutboxRelay relay;
+    KafkaOutboxPublisher relay;
     @Autowired
     JdbcTemplate sql;
     @Autowired
@@ -142,7 +142,7 @@ class OutboxAndPaymentsIT {
             assertThat(dead).isNotEmpty();
             assertThat(dead.getFirst().value()).isEqualTo("{not json");
             assertThat(header(dead.getFirst(), "kafka_dlt-exception-cause-fqcn"))
-                    .isEqualTo("com.claims.platform.messaging.MalformedMessageException");
+                    .isEqualTo("com.claims.platform.messaging.exception.MalformedMessageException");
         }
     }
 

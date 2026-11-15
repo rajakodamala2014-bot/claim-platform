@@ -1,0 +1,51 @@
+meta {
+  name: Submit the claim
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+headers {
+  Content-Type: application/json
+  Idempotency-Key: {{$guid}}
+}
+body:json {
+  {
+      "policyNumber": "SG-MTR-POL-1001",
+      "lineOfBusiness": "MOTOR",
+      "incidentAt": "2026-11-10T09:00:00Z",
+      "incident": {
+        "peril": "COLLISION",
+        "description": "Rear-ended at the traffic lights",
+        "location": "Orchard Road",
+        "vehicleRegistration": "SBA1234X",
+        "driverName": "Priya Nair",
+        "damageDescription": "Rear bumper and boot",
+        "thirdParties": [
+          { "name": "John Lim", "vehicleRegistration": "SGX9876Z", "insurer": "NTUC Income" }
+        ]
+      },
+      "claimedAmount": { "amount": "6000.00", "currency": "SGD" },
+      "uploadIds": ["{{uploadId}}"],
+      "contact": { "phone": "+6591234567" }
+    }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.claimId) bru.setEnvVar('claimId', body.claimId);
+  if (body && body.claimNumber) bru.setEnvVar('claimNumber', body.claimNumber);
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  C3. Stores claimId and claimNumber. Wait a second before the work queue so Insights can fold the event.
+}

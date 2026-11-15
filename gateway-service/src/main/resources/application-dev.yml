@@ -1,7 +1,4 @@
-# Local development only. Tokens come from the dev issuer (claims-service, POST /dev/token).
+# Local signing key shared by login and every service. Production can set OIDC_ISSUER_URI instead.
 platform:
   security:
     dev-secret: ${DEV_JWT_SECRET:local-dev-only-secret-change-me-0123456789abcdef}
-
-gateway:
-  dev-token-route: true

@@ -54,7 +54,8 @@ class ClaimsServiceIT {
                 .containsExactly("AU", "HK", "ID", "MY", "SG", "TH");
         assertThat(jdbc.queryForObject("select count(*) from information_schema.tables where table_schema in "
                 + "('platform','core','intake','handling','settlement') and table_name <> 'flyway_schema_history'",
-                Integer.class)).isEqualTo(17);
+                Integer.class)).isEqualTo(18);
+        assertThat(jdbc.queryForObject("select count(*) from platform.app_user", Integer.class)).isEqualTo(10);
     }
 
     @Test

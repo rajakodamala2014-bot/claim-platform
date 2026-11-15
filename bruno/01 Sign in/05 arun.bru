@@ -1,0 +1,32 @@
+meta {
+  name: Sign in as arun
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "arun",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('arunToken', res.getBody().access_token);
+  }
+}
+
+docs {
+  Handler, Singapore motor. Subject h-arun.
+}

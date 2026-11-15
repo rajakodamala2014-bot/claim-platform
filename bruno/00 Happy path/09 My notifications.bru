@@ -1,0 +1,21 @@
+meta {
+  name: My notifications
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{gateway}}/claimant/v1/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+
+docs {
+  N1. "We have received your claim" arrives a second or two after submit.
+}

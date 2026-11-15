@@ -48,9 +48,9 @@ class RateLimitTest extends GatewayTestBase {
 
     @Test
     void anonymousCallsAreLimitedByClientAddressAndThePortalIsNot() throws Exception {
-        assertThat(send("POST", "/dev/token", null, "{}").statusCode()).isEqualTo(200);
-        assertThat(send("POST", "/dev/token", null, "{}").statusCode()).isEqualTo(200);
-        assertThat(send("POST", "/dev/token", null, "{}").statusCode()).isEqualTo(429);
+        assertThat(send("POST", "/auth/login", null, "{}").statusCode()).isEqualTo(200);
+        assertThat(send("POST", "/auth/login", null, "{}").statusCode()).isEqualTo(200);
+        assertThat(send("POST", "/auth/login", null, "{}").statusCode()).isEqualTo(429);
 
         for (int i = 0; i < 10; i++) {
             assertThat(get("/assets/index.js", null).statusCode()).isEqualTo(200);

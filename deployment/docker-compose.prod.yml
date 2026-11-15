@@ -1,0 +1,80 @@
+# Overrides for a real (shared / server) deployment. Use together with the base file:
+#
+#   cd deployment
+#   cp .env.example .env        # then fill in every value
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# What changes compared with the local stack:
+#   * every secret comes from .env instead of the well-known local defaults
+#   * only the gateway is published on the host; services, database and Kafka stay on the compose network
+#   * containers restart automatically
+#
+# The services still run with the 'dev' Spring profile because that profile enables the built-in sign-in
+# (POST /auth/login, HS256 tokens). All of its default secrets are overridden below. With an external identity
+# provider, set OIDC_ISSUER_URI on the four services instead and drop DEV_JWT_SECRET.
+
+x-secrets: &jwt
+  DEV_JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (at least 32 characters)}
+
+x-db: &db
+  DB_USER: ${DB_USER:?set DB_USER in .env}
+  DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+
+services:
+  postgres:
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports: !reset []
+
+  redpanda:
+    restart: unless-stopped
+    ports: !reset []
+
+  redpanda-console:
+    profiles: ["ops"]            # not started unless asked for: docker compose --profile ops up -d redpanda-console
+
+  policy-system:
+    restart: unless-stopped
+    ports: !reset []
+
+  payments-simulator:
+    restart: unless-stopped
+    ports: !reset []
+
+  claims-service:
+    restart: unless-stopped
+    ports: !reset []
+    environment:
+      <<: [*jwt, *db]
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?set PUBLIC_BASE_URL in .env (the URL users open, e.g. https://claims.example.com)}
+      DOCUMENT_SIGNING_SECRET: ${DOCUMENT_SIGNING_SECRET:?set DOCUMENT_SIGNING_SECRET in .env}
+      PAYMENTS_WEBHOOK_SECRET: ${PAYMENTS_WEBHOOK_SECRET:?set PAYMENTS_WEBHOOK_SECRET in .env}
+      FIELD_ENCRYPTION_KEY: ${FIELD_ENCRYPTION_KEY:?set FIELD_ENCRYPTION_KEY in .env (base64 of 32 random bytes)}
+
+  insights-service:
+    restart: unless-stopped
+    ports: !reset []
+    environment:
+      <<: [*jwt, *db]
+
+  notification-service:
+    restart: unless-stopped
+    ports: !reset []
+    environment:
+      <<: [*jwt, *db]
+      PROVIDER_CALLBACK_SECRET: ${PROVIDER_CALLBACK_SECRET:?set PROVIDER_CALLBACK_SECRET in .env}
+
+  claims-ui:
+    restart: unless-stopped
+    ports: !reset []
+
+  gateway:
+    restart: unless-stopped
+    ports: !override
+      - "${GATEWAY_PORT:-8000}:8000"
+    environment:
+      <<: *jwt
+      RATE_LIMIT_AUTHENTICATED: ${RATE_LIMIT_AUTHENTICATED:-300}
+      RATE_LIMIT_ANONYMOUS: ${RATE_LIMIT_ANONYMOUS:-60}

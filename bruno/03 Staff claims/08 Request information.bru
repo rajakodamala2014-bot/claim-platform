@@ -1,0 +1,36 @@
+meta {
+  name: Request information
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/info-requests
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "items": ["Police report", "Repair quote"]
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+  const body = res.getBody();
+  if (body && body.result) bru.setEnvVar('requestId', body.result);
+}
+
+docs {
+  S7. Claim moves to AWAITING_INFO and the SLA clock pauses. result is the information-request id.
+}

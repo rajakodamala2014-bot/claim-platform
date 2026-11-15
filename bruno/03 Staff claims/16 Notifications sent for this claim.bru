@@ -1,0 +1,19 @@
+meta {
+  name: Notifications sent for this claim
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+docs {
+  N5. What was sent to the customer and whether the provider delivered it.
+}

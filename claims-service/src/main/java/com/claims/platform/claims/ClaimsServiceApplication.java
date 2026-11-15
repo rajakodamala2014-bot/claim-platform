@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Modular monolith. Top-level packages are modules; each module is layered domain -> application ->
- * infrastructure/api (enforced by ArchitectureTest):
+ * infrastructure/api:
  * <ul>
  *     <li>{@code core}       - the Claim aggregate and its state machine, shared by all modules</li>
  *     <li>{@code intake}     - FNOL, parties, policy snapshot, incident, documents</li>

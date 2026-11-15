@@ -35,7 +35,7 @@ class GatewaySecurityConfig {
                         .requestMatchers("/claimant/**").hasRole("CLAIMANT")
                         .requestMatchers("/staff/**").hasAnyRole("HANDLER", "TEAM_LEAD", "MANAGER")
                         .requestMatchers("/admin/**").hasRole("MANAGER")
-                        // the rest carries no user token: the portal's static files, the dev token issuer,
+                        // the rest carries no user token: the portal's static files, POST /auth/login,
                         // provider callbacks (HMAC, checked by notification-service) and paths the routing
                         // table answers with 404
                         .anyRequest().permitAll())

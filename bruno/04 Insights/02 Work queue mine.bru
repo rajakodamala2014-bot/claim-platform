@@ -1,0 +1,23 @@
+meta {
+  name: Work queue, mine
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{gateway}}/staff/v1/work-queue
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+params:query {
+  view: mine
+  market: SG
+}
+
+docs {
+  I1. Claims assigned to the caller.
+}

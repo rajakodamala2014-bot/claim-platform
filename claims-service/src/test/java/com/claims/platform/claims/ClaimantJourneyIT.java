@@ -1,9 +1,9 @@
 package com.claims.platform.claims;
 
-import com.claims.platform.claims.core.application.ClaimRepository;
-import com.claims.platform.claims.core.domain.Actor;
-import com.claims.platform.claims.core.domain.Claim;
-import com.claims.platform.claims.core.domain.ClaimId;
+import com.claims.platform.claims.core.repository.ClaimRepository;
+import com.claims.platform.claims.core.entity.Actor;
+import com.claims.platform.claims.core.entity.Claim;
+import com.claims.platform.claims.core.entity.ClaimId;
 import com.claims.platform.common.web.Headers;
 import com.claims.platform.testsupport.TestPostgres;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("dev")
 class ClaimantJourneyIT {
     private static final WireMockServer POLICY_SYSTEM = new WireMockServer(WireMockConfiguration.options()
-            .dynamicPort().usingFilesUnderDirectory("../docker/policy-system"));
+            .dynamicPort().usingFilesUnderDirectory("../deployment/docker/policy-system"));
 
     static {
         POLICY_SYSTEM.start();
@@ -206,7 +206,8 @@ class ClaimantJourneyIT {
     // ------------------------------------------------------------------ helpers
 
     private String token(String username) {
-        ResponseEntity<JsonNode> response = http.postForEntity("/dev/token", Map.of("username", username), JsonNode.class);
+        ResponseEntity<JsonNode> response = http.postForEntity("/auth/login",
+                Map.of("username", username, "password", "ChangeMe123!"), JsonNode.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return response.getBody().get("access_token").asText();
     }

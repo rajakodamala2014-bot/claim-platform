@@ -1,0 +1,47 @@
+meta {
+  name: Submit a property claim
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+headers {
+  Content-Type: application/json
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "policyNumber": "SG-PRP-POL-2001",
+    "lineOfBusiness": "PROPERTY",
+    "incidentAt": "2026-11-08T18:30:00Z",
+    "incident": {
+      "peril": "WATER_DAMAGE",
+      "description": "Burst pipe in the kitchen",
+      "location": "10 Marina Boulevard",
+      "propertyAddress": "10 Marina Boulevard, #12-01, Singapore 018983",
+      "damagedItems": [
+        { "description": "Kitchen cabinets", "estimatedValue": { "amount": "2500.00", "currency": "SGD" } }
+      ]
+    },
+    "claimedAmount": { "amount": "2500.00", "currency": "SGD" },
+    "contact": { "phone": "+6591234567", "email": "priya@example.com" }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.claimId) bru.setEnvVar('propertyClaimId', body.claimId);
+}
+
+docs {
+  C3 for a home policy. Does not replace claimId used by the motor happy path. Property perils are FIRE, FLOOD, THEFT, WATER_DAMAGE and STORM.
+}

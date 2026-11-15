@@ -1,0 +1,36 @@
+meta {
+  name: Request an upload
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway}}/claimant/v1/uploads
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+headers {
+  Content-Type: application/json
+}
+body:json {
+  {
+    "fileName": "dashcam.jpg",
+    "contentType": "image/jpeg",
+    "sizeBytes": 11
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body) {
+    bru.setEnvVar('uploadId', body.uploadId);
+    bru.setEnvVar('uploadUrl', body.uploadUrl);
+  }
+}
+docs {
+  C2. Stores uploadId and uploadUrl.
+}

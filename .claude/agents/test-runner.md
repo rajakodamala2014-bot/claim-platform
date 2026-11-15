@@ -8,7 +8,7 @@ You run and diagnose tests for the claims platform (Maven multi-module, Java 21,
 
 ## Commands (always from the repo root, always `-pl <module> -am`, never `-f module/pom.xml`)
 - Whole build as CI runs it: `./scripts/ci.sh` (= `./mvnw -B -ntp verify`).
-- Unit/slice/ArchUnit tests only (`*Test`, surefire): `./mvnw -B -ntp -pl <module> -am test`
+- Unit/slice tests only (`*Test`, surefire): `./mvnw -B -ntp -pl <module> -am test`
 - One test class: `./mvnw -B -ntp -pl <module> -am test -Dtest=<Class> -Dsurefire.failIfNoSpecifiedTests=false`
 - One integration test (`*IT`, failsafe): `./mvnw -B -ntp -pl <module> -am verify -Dit.test=<Class> -Dtest=none -Dsurefire.failIfNoSpecifiedTests=false -Dfailsafe.failIfNoSpecifiedTests=false`
 - Redirect long output to a file in the scratchpad and grep it: `grep -E "Tests run:|BUILD|<<< (FAIL|ERR)"`.

@@ -1,18 +1,18 @@
 package com.claims.platform.claims;
 
-import com.claims.platform.claims.core.application.ClaimRepository;
-import com.claims.platform.claims.core.domain.Actor;
-import com.claims.platform.claims.core.domain.Channel;
-import com.claims.platform.claims.core.domain.Claim;
-import com.claims.platform.claims.core.domain.ClaimFixture;
-import com.claims.platform.claims.core.domain.ClaimStatus;
-import com.claims.platform.claims.core.domain.CoverStatus;
-import com.claims.platform.claims.core.domain.NewClaim;
-import com.claims.platform.claims.handling.application.CloseCoolingOffClaims;
-import com.claims.platform.claims.handling.application.ExpireInformationRequests;
-import com.claims.platform.claims.intake.application.IntakeRecords;
-import com.claims.platform.claims.intake.application.RetryCoverChecks;
-import com.claims.platform.claims.platform.infrastructure.JobLock;
+import com.claims.platform.claims.core.repository.ClaimRepository;
+import com.claims.platform.claims.core.entity.Actor;
+import com.claims.platform.claims.core.entity.Channel;
+import com.claims.platform.claims.core.entity.Claim;
+import com.claims.platform.claims.core.entity.ClaimFixture;
+import com.claims.platform.claims.core.entity.ClaimStatus;
+import com.claims.platform.claims.core.entity.CoverStatus;
+import com.claims.platform.claims.core.entity.NewClaim;
+import com.claims.platform.claims.handling.service.ClaimClosureService;
+import com.claims.platform.claims.handling.service.InformationRequestService;
+import com.claims.platform.claims.intake.repository.IntakeRepository;
+import com.claims.platform.claims.intake.service.CoverCheckRetryService;
+import com.claims.platform.claims.platform.common.JobLock;
 import com.claims.platform.testsupport.TestKafka;
 import com.claims.platform.testsupport.TestPostgres;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.claims.platform.claims.core.domain.ClaimFixture.*;
+import static com.claims.platform.claims.core.entity.ClaimFixture.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.serviceUnavailable;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BackgroundJobsIT {
     private static final AtomicLong SEQ = new AtomicLong(9000);
     private static final WireMockServer POLICY_SYSTEM = new WireMockServer(WireMockConfiguration.options()
-            .dynamicPort().usingFilesUnderDirectory("../docker/policy-system"));
+            .dynamicPort().usingFilesUnderDirectory("../deployment/docker/policy-system"));
 
     static {
         POLICY_SYSTEM.start();
@@ -68,17 +68,17 @@ class BackgroundJobsIT {
     @Autowired
     ClaimRepository claims;
     @Autowired
-    IntakeRecords intake;
+    IntakeRepository intake;
     @Autowired
     TransactionTemplate tx;
     @Autowired
     JdbcTemplate sql;
     @Autowired
-    RetryCoverChecks retryCoverChecks;
+    CoverCheckRetryService coverCheckRetryService;
     @Autowired
-    ExpireInformationRequests expireInformationRequests;
+    InformationRequestService informationRequestService;
     @Autowired
-    CloseCoolingOffClaims closeCoolingOffClaims;
+    ClaimClosureService claimClosureService;
     @Autowired
     JobLock jobLock;
 
@@ -87,7 +87,7 @@ class BackgroundJobsIT {
         Claim pending = ClaimFixture.inStatus(ClaimStatus.SUBMITTED, SEQ.incrementAndGet()); // SG-MTR-POL-1001, cust-priya
         save(pending);
 
-        RetryCoverChecks.Result result = retryCoverChecks.runOnce();
+        CoverCheckRetryService.CoverCheckRetryResult result = coverCheckRetryService.retryPendingCoverChecks();
 
         assertThat(result.triaged()).isGreaterThanOrEqualTo(1);
         Claim triaged = claims.findById(pending.id()).orElseThrow();
@@ -104,11 +104,11 @@ class BackgroundJobsIT {
         var outage = POLICY_SYSTEM.stubFor(get(urlPathEqualTo("/api/v1/policies")).withQueryParam("holderId", equalTo(holder))
                 .atPriority(1).willReturn(serviceUnavailable()));
 
-        retryCoverChecks.runOnce();
+        coverCheckRetryService.retryPendingCoverChecks();
         assertThat(claims.findById(waiting.id()).orElseThrow().status()).isEqualTo(ClaimStatus.SUBMITTED);
 
         POLICY_SYSTEM.removeStub(outage); // back to the shared stub: this holder has no policies
-        retryCoverChecks.runOnce();
+        coverCheckRetryService.retryPendingCoverChecks();
         Claim declined = claims.findById(waiting.id()).orElseThrow();
         assertThat(declined.status()).isEqualTo(ClaimStatus.TRIAGED);
         assertThat(declined.coverStatus()).isEqualTo(CoverStatus.DECLINED);
@@ -121,7 +121,7 @@ class BackgroundJobsIT {
         save(claim);
         sql.update("UPDATE handling.info_request SET due_at = now() - interval '1 hour' WHERE claim_id = ?", claim.id().value());
 
-        assertThat(expireInformationRequests.runOnce()).isGreaterThanOrEqualTo(1);
+        assertThat(informationRequestService.expireOverdueInformationRequests()).isGreaterThanOrEqualTo(1);
 
         Claim back = claims.findById(claim.id()).orElseThrow();
         assertThat(back.status()).isEqualTo(ClaimStatus.UNDER_ASSESSMENT);
@@ -138,7 +138,7 @@ class BackgroundJobsIT {
         sql.update("UPDATE core.claim SET status_changed_at = now() - interval '15 days' WHERE id = ?", old.id().value());
         sql.update("UPDATE core.claim SET status_changed_at = now() - interval '13 days' WHERE id = ?", recent.id().value());
 
-        closeCoolingOffClaims.runOnce();
+        claimClosureService.closeClaimsAfterCoolingOff();
 
         assertThat(claims.findById(old.id()).orElseThrow().status()).isEqualTo(ClaimStatus.CLOSED);
         assertThat(claims.findById(recent.id()).orElseThrow().status()).isEqualTo(ClaimStatus.SETTLED);

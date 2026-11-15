@@ -3,10 +3,11 @@ package com.claims.platform.insights;
 import com.claims.platform.common.event.EventEnvelope;
 import com.claims.platform.common.event.EventTypes;
 import com.claims.platform.common.messaging.Topics;
-import com.claims.platform.insights.application.CheckSlaAlerts;
+import com.claims.platform.insights.service.SlaAlertService;
+import com.claims.platform.insights.service.SlaAlertService.SlaAlertResult;
 import com.claims.platform.testsupport.TestKafka;
 import com.claims.platform.testsupport.TestPostgres;
-import com.claims.platform.web.security.PlatformSecurityAutoConfiguration;
+import com.claims.platform.web.config.PlatformSecurityAutoConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -67,7 +68,7 @@ class InsightsIT {
     @Autowired
     JdbcTemplate sql;
     @Autowired
-    CheckSlaAlerts checkSlaAlerts;
+    SlaAlertService slaAlertService;
 
     @Test
     void readModelsFollowTheClaimsAndServeEveryStaffScreen() throws Exception {
@@ -148,8 +149,8 @@ class InsightsIT {
 
         // SLA alert: A breached -> one SlaBreached on insights.alerts, not repeated on the next run
         try (KafkaConsumer<String, String> alerts = TestKafka.consumer(Topics.INSIGHTS_ALERTS)) {
-            CheckSlaAlerts.Result first = checkSlaAlerts.runOnce();
-            CheckSlaAlerts.Result second = checkSlaAlerts.runOnce();
+            SlaAlertResult first = slaAlertService.publishDueSlaAlerts();
+            SlaAlertResult second = slaAlertService.publishDueSlaAlerts();
             assertThat(first.breached()).isGreaterThanOrEqualTo(1);
             assertThat(second.breached()).isZero();
             List<ConsumerRecord<String, String>> received = TestKafka.poll(alerts, r -> a.toString().equals(r.key()), 1, Duration.ofSeconds(20));

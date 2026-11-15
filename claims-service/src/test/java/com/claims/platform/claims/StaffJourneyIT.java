@@ -1,6 +1,6 @@
 package com.claims.platform.claims;
 
-import com.claims.platform.claims.settlement.api.PaymentsWebhookController;
+import com.claims.platform.claims.settlement.controller.PaymentCallbackController;
 import com.claims.platform.common.web.Headers;
 import com.claims.platform.testsupport.TestPostgres;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StaffJourneyIT {
     private static final String WEBHOOK_SECRET = "local-dev-only-payments-webhook-secret-0123456789";
     private static final WireMockServer POLICY_SYSTEM = new WireMockServer(WireMockConfiguration.options()
-            .dynamicPort().usingFilesUnderDirectory("../docker/policy-system"));
+            .dynamicPort().usingFilesUnderDirectory("../deployment/docker/policy-system"));
 
     static {
         POLICY_SYSTEM.start();
@@ -127,7 +127,7 @@ class StaffJourneyIT {
         v = String.valueOf(approved.get("version").asLong());
 
         // staff outside the market can't even read it
-        String myHandler = customToken("h-my", "HANDLER", List.of("MY"));
+        String myHandler = token("faiz");
         assertThat(expect(HttpMethod.GET, base, myHandler, null, null, HttpStatus.FORBIDDEN).get("code").asText())
                 .isEqualTo("FORBIDDEN_MARKET");
 
@@ -195,7 +195,7 @@ class StaffJourneyIT {
         assertThat(sql.queryForObject("SELECT channel FROM core.claim WHERE id = ?::uuid", String.class,
                 result.get("claimId").asText())).isEqualTo("STAFF");
 
-        HttpHeaders myHeaders = bearer(customToken("h-my", "HANDLER", List.of("MY")));
+        HttpHeaders myHeaders = bearer(token("faiz"));
         myHeaders.set(Headers.IDEMPOTENCY_KEY, UUID.randomUUID().toString());
         ResponseEntity<String> foreign = http.exchange("/staff/v1/claims", HttpMethod.POST, new HttpEntity<>(body, myHeaders), String.class);
         assertThat(foreign.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -231,19 +231,15 @@ class StaffJourneyIT {
         String body = json.writeValueAsString(result);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Signature", "sha256=" + PaymentsWebhookController.sign(WEBHOOK_SECRET.getBytes(StandardCharsets.UTF_8), body));
-        ResponseEntity<String> response = http.exchange(PaymentsWebhookController.PATH, HttpMethod.POST,
+        headers.set("X-Signature", "sha256=" + PaymentCallbackController.sign(WEBHOOK_SECRET.getBytes(StandardCharsets.UTF_8), body));
+        ResponseEntity<String> response = http.exchange(PaymentCallbackController.PATH, HttpMethod.POST,
                 new HttpEntity<>(body, headers), String.class);
         assertThat(response.getStatusCode()).as(response.getBody()).isEqualTo(HttpStatus.OK);
         return json.readTree(response.getBody()).get("outcome").asText();
     }
 
     private String token(String username) {
-        return http.postForEntity("/dev/token", Map.of("username", username), JsonNode.class).getBody().get("access_token").asText();
-    }
-
-    private String customToken(String sub, String role, List<String> markets) {
-        return http.postForEntity("/dev/token", Map.of("sub", sub, "role", role, "markets", markets), JsonNode.class)
+        return http.postForEntity("/auth/login", Map.of("username", username, "password", "ChangeMe123!"), JsonNode.class)
                 .getBody().get("access_token").asText();
     }
 

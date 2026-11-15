@@ -1,39 +1,39 @@
-### Claims platform — full happy path through the gateway (docker compose up -d --build)
+### Claims platform — full happy path through the gateway (docker compose -f deployment/docker-compose.yml up -d --build)
 ### Run top to bottom in IntelliJ HTTP Client or VS Code REST Client (response handlers use the IntelliJ syntax).
 ### Stage numbers follow the business flow: report -> pick up -> info request -> assess & decide -> approve -> settle.
 
 @gw = http://localhost:8000
 @claims = http://localhost:8080
 
-### 0a. Customer logs in (stand-in for OTP login)
-POST {{claims}}/dev/token
+### 0a. Customer logs in
+POST {{claims}}/auth/login
 Content-Type: application/json
 
-{"username": "priya"}
+{"username": "priya", "password": "ChangeMe123!"}
 
 > {% client.global.set("priya", response.body.access_token); %}
 
-### 0b. Handler, team lead, manager log in (stand-in for company SSO)
-POST {{claims}}/dev/token
+### 0b. Handler, team lead, manager log in
+POST {{claims}}/auth/login
 Content-Type: application/json
 
-{"username": "arun"}
+{"username": "arun", "password": "ChangeMe123!"}
 
 > {% client.global.set("arun", response.body.access_token); %}
 
 ###
-POST {{claims}}/dev/token
+POST {{claims}}/auth/login
 Content-Type: application/json
 
-{"username": "meera"}
+{"username": "meera", "password": "ChangeMe123!"}
 
 > {% client.global.set("meera", response.body.access_token); %}
 
 ###
-POST {{claims}}/dev/token
+POST {{claims}}/auth/login
 Content-Type: application/json
 
-{"username": "lee"}
+{"username": "lee", "password": "ChangeMe123!"}
 
 > {% client.global.set("lee", response.body.access_token); %}
 

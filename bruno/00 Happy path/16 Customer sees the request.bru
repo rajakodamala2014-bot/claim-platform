@@ -1,0 +1,21 @@
+meta {
+  name: Customer sees the request
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{gateway}}/claimant/v1/claims/{{claimId}}/info-requests
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+
+docs {
+  C7.
+}

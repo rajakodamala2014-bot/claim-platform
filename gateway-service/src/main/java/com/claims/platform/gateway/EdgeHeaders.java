@@ -1,7 +1,7 @@
 package com.claims.platform.gateway;
 
 import com.claims.platform.common.web.Headers;
-import com.claims.platform.web.correlation.CorrelationIdFilter;
+import com.claims.platform.web.common.CorrelationIdFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.unit.DataSize;

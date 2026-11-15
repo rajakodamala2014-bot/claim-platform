@@ -1,0 +1,23 @@
+meta {
+  name: Work queue, team
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{gateway}}/staff/v1/work-queue
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+params:query {
+  view: team
+  market: SG
+}
+
+docs {
+  I1. The team lead sees the team queue.
+}

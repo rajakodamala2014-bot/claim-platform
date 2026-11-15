@@ -1,0 +1,21 @@
+meta {
+  name: SLA watch
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/sla?market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+docs {
+  I6. Closure of a settled claim happens later, after the cooling-off job.
+}

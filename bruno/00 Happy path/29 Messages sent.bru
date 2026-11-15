@@ -1,0 +1,21 @@
+meta {
+  name: Messages sent
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+docs {
+  N5.
+}

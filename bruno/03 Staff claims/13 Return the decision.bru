@@ -1,0 +1,34 @@
+meta {
+  name: Return the decision
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/decisions/{{decisionId}}/approval
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "action": "RETURN",
+    "comment": "Attach the repair invoice before this can be approved"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S10 return. Sends the claim back to UNDER_ASSESSMENT. Do not run this if you still want the happy path to settle.
+}

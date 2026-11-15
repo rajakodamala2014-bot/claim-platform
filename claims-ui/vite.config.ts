@@ -12,7 +12,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/claimant': { target: gateway, changeOrigin: true },
-      '/dev/token': { target: gateway, changeOrigin: true },
+      '/staff': { target: gateway, changeOrigin: true },
+      '/admin': { target: gateway, changeOrigin: true },
+      '/auth': { target: gateway, changeOrigin: true },
     },
   },
   test: {

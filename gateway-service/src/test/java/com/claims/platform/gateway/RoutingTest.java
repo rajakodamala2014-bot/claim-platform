@@ -89,11 +89,11 @@ class RoutingTest extends GatewayTestBase {
     }
 
     @Test
-    void devTokenIssuerIsRoutedToClaimsInTheDevProfile() throws Exception {
-        HttpResponse<String> response = send("POST", "/dev/token", null, "{\"username\":\"priya\"}");
+    void loginIsRoutedToClaims() throws Exception {
+        HttpResponse<String> response = send("POST", "/auth/login", null, "{\"username\":\"priya\",\"password\":\"ChangeMe123!\"}");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        CLAIMS.verify(postRequestedFor(urlEqualTo("/dev/token")));
+        CLAIMS.verify(postRequestedFor(urlEqualTo("/auth/login")));
     }
 
     @Test

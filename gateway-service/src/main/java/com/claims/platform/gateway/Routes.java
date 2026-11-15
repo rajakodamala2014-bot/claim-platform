@@ -66,11 +66,7 @@ class Routes {
                         .or(path("/staff/v1/insights/**"))));
 
         // ---- Claims Service ----
-        RequestPredicate claims = path("/claimant/v1/**").or(path("/staff/v1/claims/**"));
-        if (properties.devTokenRoute()) {
-            // local token issuer (claims-service 'dev' profile) standing in for the identity provider
-            claims = claims.or(POST("/dev/token"));
-        }
+        RequestPredicate claims = path("/claimant/v1/**").or(path("/staff/v1/claims/**")).or(POST("/auth/login"));
         table.add(api(CLAIMS, upstreams.claims(), claims));
 
         // Everything else under an API prefix is not exposed: service-to-service endpoints, actuators and

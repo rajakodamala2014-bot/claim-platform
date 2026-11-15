@@ -17,10 +17,6 @@
         <dependency>
             <groupId>com.claims.platform</groupId>
             <artifactId>claims-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.claims.platform</groupId>
-            <artifactId>claims-web</artifactId>
             <exclusions>
                 <!-- stand-in for an external system: no end-user auth -->
                 <exclusion>

@@ -206,8 +206,8 @@ export function sameOriginUrl(url: string): string {
 }
 
 export const api = {
-  login: (username: string) =>
-    request<{ access_token: string; sub: string; role: string }>('POST', '/dev/token', { username }),
+  login: (username: string, password: string) =>
+    request<{ access_token: string; sub: string; role: string }>('POST', '/auth/login', { username, password }),
 
   policies: () => request<{ items: Policy[] }>('GET', '/claimant/v1/policies'),
 
@@ -256,4 +256,161 @@ export const api = {
   preferences: () => request<Preferences>('GET', '/claimant/v1/notification-preferences'),
 
   savePreferences: (p: Preferences) => request<Preferences>('PUT', '/claimant/v1/notification-preferences', p),
+};
+
+export interface QueueItem {
+  claimId: string;
+  claimNumber: string;
+  market: string;
+  lineOfBusiness: string;
+  policyNumber: string;
+  status: string;
+  coverDeclined: boolean;
+  handlerId: string | null;
+  teamId: string | null;
+  submittedAt: string;
+  slaDueAt: string;
+  slaState: string;
+  reserve: Money;
+}
+
+export interface ApprovalItem {
+  claimId: string;
+  claimNumber: string;
+  market: string;
+  lineOfBusiness: string;
+  decisionId: string;
+  outcome: 'APPROVE' | 'REJECT';
+  amount: Money;
+  proposedBy: string;
+  proposedAt: string;
+  teamId: string;
+}
+
+export interface WorkloadItem {
+  handlerId: string;
+  openClaims: number;
+  byStatus: Record<string, number>;
+  oldestSubmittedAt: string;
+}
+
+export interface PerformanceItem {
+  handlerId: string;
+  closedClaims: number;
+  averageCycleHours: number;
+  slaMetPercent: number | null;
+  reopenRatePercent: number;
+}
+
+export interface ExposureItem {
+  market: string;
+  lineOfBusiness: string;
+  outstandingClaims: number;
+  totalReserve: Money;
+}
+
+export interface StaffClaim {
+  claimId: string;
+  claimNumber: string;
+  market: string;
+  lineOfBusiness: string;
+  policyNumber: string;
+  claimantId: string;
+  status: string;
+  coverStatus: string;
+  handlerId: string | null;
+  teamId: string | null;
+  submittedAt: string;
+  claimedAmount: Money | null;
+  sla: { dueAt: string; paused: boolean };
+  reserve: { outstanding: Money };
+  assessment: { liability: string; assessedAmount: Money; notes: string | null } | null;
+  decision: {
+    decisionId: string;
+    outcome: string;
+    amount: Money;
+    reasonCode: string | null;
+    proposedBy: string;
+    approvalRequired: boolean;
+    status: string;
+  } | null;
+  approvedAmount: Money | null;
+  settlement: {
+    settlementId: string;
+    amount: Money;
+    payeeName: string;
+    status: string;
+    failureReason: string | null;
+    accountNumberMasked: string;
+  } | null;
+  version: number;
+}
+
+export interface CommandResult<T = unknown> {
+  claimId: string;
+  status: string;
+  version: number;
+  result: T;
+}
+
+function match(version: number): Record<string, string> {
+  return { 'If-Match': `"${version}"` };
+}
+
+/** Staff and supervisor calls. The gateway allows these only for HANDLER, TEAM_LEAD and MANAGER. */
+export const staffApi = {
+  queue: (view: string, cursor?: string | null) =>
+    request<{ items: QueueItem[]; nextCursor: string | null }>(
+      'GET',
+      `/staff/v1/work-queue?view=${encodeURIComponent(view)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+    ),
+  search: (q: string) => request<{ items: QueueItem[] }>('GET', `/staff/v1/search?q=${encodeURIComponent(q)}`),
+  approvals: () => request<{ items: ApprovalItem[] }>('GET', '/staff/v1/approvals'),
+  workload: () => request<{ items: WorkloadItem[] }>('GET', '/staff/v1/insights/workload'),
+  performance: () => request<{ items: PerformanceItem[] }>('GET', '/staff/v1/insights/performance'),
+  sla: () => request<{ items: QueueItem[] }>('GET', '/staff/v1/insights/sla'),
+  exposure: () => request<{ items: ExposureItem[] }>('GET', '/staff/v1/insights/exposure'),
+  claim: (id: string) => request<{ claim: StaffClaim }>('GET', `/staff/v1/claims/${id}`),
+  pickup: (id: string, version: number) =>
+    request<CommandResult<string>>('POST', `/staff/v1/claims/${id}/assignment`, {}, match(version)),
+  assign: (id: string, version: number, assigneeId: string, teamId: string) =>
+    request<CommandResult<string>>('POST', `/staff/v1/claims/${id}/assignment`, { assigneeId, teamId }, match(version)),
+  startAssessment: (id: string, version: number) =>
+    request<CommandResult>('POST', `/staff/v1/claims/${id}/start-assessment`, undefined, match(version)),
+  setReserve: (id: string, version: number, amount: string, currency: string, reason: string) =>
+    request<CommandResult>('POST', `/staff/v1/claims/${id}/reserves`, { amount: { amount, currency }, reason }, match(version)),
+  requestInfo: (id: string, version: number, items: string[]) =>
+    request<CommandResult>('POST', `/staff/v1/claims/${id}/info-requests`, { items }, match(version)),
+  assess: (id: string, version: number, liability: string, amount: string, currency: string, notes: string) =>
+    request<CommandResult>(
+      'POST',
+      `/staff/v1/claims/${id}/assessments`,
+      { liability, assessedAmount: { amount, currency }, notes },
+      match(version),
+    ),
+  decide: (id: string, version: number, outcome: 'APPROVE' | 'REJECT', amount: string, currency: string, reasonCode: string) =>
+    request<CommandResult>('POST', `/staff/v1/claims/${id}/decisions`, {
+      outcome,
+      amount: amount ? { amount, currency } : null,
+      reasonCode: reasonCode || null,
+    }, match(version)),
+  review: (id: string, decisionId: string, version: number, action: 'APPROVE' | 'RETURN', comment: string) =>
+    request<CommandResult>(
+      'POST',
+      `/staff/v1/claims/${id}/decisions/${decisionId}/approval`,
+      { action, comment: comment || null },
+      match(version),
+    ),
+  settle: (id: string, version: number, name: string, bankCode: string, accountNumber: string, amount: string, currency: string) =>
+    request<CommandResult>('POST', `/staff/v1/claims/${id}/settlements`, {
+      payee: { name, bankCode, accountNumber },
+      amount: { amount, currency },
+    }, match(version)),
+  retrySettlement: (id: string, settlementId: string, version: number, name: string, bankCode: string, accountNumber: string) =>
+    request<CommandResult>(
+      'POST',
+      `/staff/v1/claims/${id}/settlements/${settlementId}/retry`,
+      name ? { payee: { name, bankCode, accountNumber } } : {},
+      match(version),
+    ),
 };

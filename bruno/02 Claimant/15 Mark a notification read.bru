@@ -1,0 +1,18 @@
+meta {
+  name: Mark a notification read
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{gateway}}/claimant/v1/notifications/{{notificationId}}/read
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+docs {
+  N2. 204 when the message belongs to the caller. 404 otherwise.
+}

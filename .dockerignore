@@ -4,5 +4,5 @@
 .vscode/
 *.iml
 data/
-docker/postgres/
+deployment/
 claims-ui/

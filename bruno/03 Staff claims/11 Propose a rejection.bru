@@ -1,0 +1,34 @@
+meta {
+  name: Propose a rejection
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "outcome": "REJECT",
+    "reasonCode": "NOT_COVERED"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S9 reject. Use this on a claim that is still UNDER_ASSESSMENT, not on the claim already waiting for approval.
+}

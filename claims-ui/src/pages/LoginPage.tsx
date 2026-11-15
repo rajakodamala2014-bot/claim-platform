@@ -1,35 +1,38 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAuth } from '../auth';
 import { ErrorBox } from '../components/ui';
 
-/**
- * Local stand-in for the customer OTP login: picks one of the claims-service dev personas
- * (POST /dev/token, 'dev' profile only). A real deployment would redirect to the identity provider here.
- */
-const PERSONAS = [
-  { username: 'priya', name: 'Priya Nair', market: 'SG' },
-  { username: 'tan', name: 'Tan Wei Ling', market: 'SG' },
-  { username: 'wong', name: 'Wong Siu Ming', market: 'HK' },
-  { username: 'aisyah', name: 'Nur Aisyah Binti Ahmad', market: 'MY' },
-  { username: 'somchai', name: 'Somchai Jaidee', market: 'TH' },
-  { username: 'budi', name: 'Budi Santoso', market: 'ID' },
-  { username: 'olivia', name: 'Olivia Smith', market: 'AU' },
-];
+const ACCOUNTS = [
+  ['priya', 'Customer, Singapore'],
+  ['tan', 'Customer, Singapore'],
+  ['wong', 'Customer, Hong Kong'],
+  ['aisyah', 'Customer, Malaysia'],
+  ['arun', 'Handler, Singapore'],
+  ['kumar', 'Handler, Singapore'],
+  ['faiz', 'Handler, Malaysia'],
+  ['meera', 'Team lead, Singapore and Malaysia'],
+  ['ho', 'Team lead, Hong Kong'],
+  ['lee', 'Manager, all markets'],
+] as const;
 
+/** Username and password against platform.app_user. The gateway forwards POST /auth/login to claims-service. */
 export function LoginPage() {
   const { login } = useAuth();
-  const [busy, setBusy] = useState<string | null>(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  async function signIn(username: string) {
-    setBusy(username);
+  async function signIn(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
     setError(null);
     try {
-      await login(username);
+      await login(username, password);
     } catch (e) {
       setError(e);
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
@@ -37,20 +40,18 @@ export function LoginPage() {
     <div className="login">
       <div className="login-card">
         <img src="/favicon.svg" alt="" width={40} height={40} />
-        <h1>My Claims</h1>
-        <p className="muted">Report an incident, track your claim and reply to your claims handler.</p>
-        <p className="small muted">Local demo sign-in: choose a customer.</p>
+        <h1>Claims</h1>
+        <p className="muted">Sign in with your account. Customers, handlers, team leads and managers each see only their own work.</p>
         <ErrorBox error={error} />
+        <form className="stack" onSubmit={(e) => void signIn(e)}>
+          <label>Username<input value={username} autoComplete="username" onChange={(e) => setUsername(e.target.value)} required /></label>
+          <label>Password<input type="password" value={password} autoComplete="current-password" onChange={(e) => setPassword(e.target.value)} required /></label>
+          <button className="btn btn-primary" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
+        </form>
+        <p className="small muted">Seeded accounts use the password <code>ChangeMe123!</code></p>
         <ul className="persona-list">
-          {PERSONAS.map((p) => (
-            <li key={p.username}>
-              <button className="persona" disabled={busy !== null} onClick={() => void signIn(p.username)}>
-                <span className="avatar">{p.name.charAt(0)}</span>
-                <span className="persona-name">{p.name}</span>
-                <span className="chip">{p.market}</span>
-                {busy === p.username && <span className="spinner" />}
-              </button>
-            </li>
+          {ACCOUNTS.map(([id, label]) => (
+            <li key={id} className="small"><code>{id}</code> · {label}</li>
           ))}
         </ul>
       </div>

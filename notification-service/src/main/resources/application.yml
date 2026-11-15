@@ -36,6 +36,9 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 platform:
+  openapi:
+    title: Notification Service API
+    description: Customer inbox and preferences, staff delivery log, template administration and provider callbacks.
   messaging:
     processed-event-table: notification.processed_event
   security:
@@ -63,4 +66,4 @@ management:
 logging:
   structured:
     format:
-      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
+      console: com.claims.platform.web.common.MaskingJsonLogFormatter

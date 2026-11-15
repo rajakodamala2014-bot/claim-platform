@@ -1,0 +1,24 @@
+meta {
+  name: Performance
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/performance
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+params:query {
+  ~team: team-sg-motor
+  ~from: 2026-10-01T00:00:00Z
+  ~to: 2026-11-15T00:00:00Z
+}
+
+docs {
+  I5. Closed claims per handler. Defaults to the last 30 days.
+}

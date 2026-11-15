@@ -6,7 +6,7 @@ React 18 + Vite + TypeScript single-page app for customers. It uses only the cla
 
 | Screen | Route | APIs |
 |---|---|---|
-| Sign in (dev personas) | any, when signed out | `POST /dev/token` (claims-service `dev` profile) |
+| Sign in | any, when signed out | `POST /auth/login` (claims-service, `platform.app_user`) |
 | Your claims | `/claims` | C4 (cursor pagination) |
 | Report an incident | `/claims/new` | C1 policies, C2 upload + signed PUT, C3 submit (`Idempotency-Key` per draft) |
 | Claim detail | `/claims/:id` | C5, C6 timeline, C7/C8 information requests, C9 withdraw, C10 appeal |
@@ -16,15 +16,15 @@ React 18 + Vite + TypeScript single-page app for customers. It uses only the cla
 ## Run
 
 ```sh
-docker compose up -d --build     # builds the claims-ui service too; open http://localhost:8000 (gateway)
-docker compose up -d --build claims-ui   # rebuild just the UI after a change
-# or, with the stack running, hot reload on http://localhost:5173 (proxies /claimant and /dev/token to :8000)
+docker compose -f deployment/docker-compose.yml up -d --build     # builds the claims-ui service too; open http://localhost:8000 (gateway)
+docker compose -f deployment/docker-compose.yml up -d --build claims-ui   # rebuild just the UI after a change
+# or, with the stack running, hot reload on http://localhost:5173 (proxies /claimant, /staff, /admin and /auth to :8000)
 cd claims-ui && npm install && npm run dev
 npm test                         # vitest unit tests
 npm run build                    # type-check + production build into dist/
 ```
 
-Sign in as `priya` (SG; motor + property policies), or `wong`, `aisyah`, `somchai`, `budi`, `olivia`.
+Sign in as `priya` (password `ChangeMe123!`; SG motor + property policies), or `tan`, `wong`, `aisyah`. Staff: `arun`, `kumar`, `faiz`, `meera`, `ho`, `lee`.
 Policy `SG-MTR-POL-1500` exercises the Policy-system timeout (claim saved with cover pending).
 
 ## Notes

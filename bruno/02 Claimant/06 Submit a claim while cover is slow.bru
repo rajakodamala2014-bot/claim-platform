@@ -1,0 +1,46 @@
+meta {
+  name: Submit a claim while cover is slow
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+headers {
+  Content-Type: application/json
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "policyNumber": "SG-MTR-POL-1500",
+    "lineOfBusiness": "MOTOR",
+    "incidentAt": "2026-11-10T09:00:00Z",
+    "incident": {
+      "peril": "THEFT",
+      "description": "Car stolen from the car park",
+      "location": "Raffles Place",
+      "vehicleRegistration": "SBA1234X",
+      "driverName": "Priya Nair",
+      "damageDescription": "Vehicle missing",
+      "policeReportNumber": "PR-2026-1500"
+    },
+    "claimedAmount": { "amount": "20000.00", "currency": "SGD" }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.claimId) bru.setEnvVar('slowClaimId', body.claimId);
+}
+
+docs {
+  SG-MTR-POL-1500 waits 3 seconds in the Policy stub, longer than the 2 second cover-check timeout. The claim is created with cover PENDING and a job retries the check.
+}

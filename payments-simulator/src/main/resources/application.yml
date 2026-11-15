@@ -31,4 +31,4 @@ management:
 logging:
   structured:
     format:
-      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
+      console: com.claims.platform.web.common.MaskingJsonLogFormatter

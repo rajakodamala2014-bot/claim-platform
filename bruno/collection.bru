@@ -1,0 +1,28 @@
+meta {
+  name: Claims Platform
+}
+
+docs {
+  Open this folder in Bruno and select the **Local** environment.
+
+  The stack is `docker compose up -d --build`. Almost every request goes through the gateway at `http://localhost:8000`.
+
+  Seeded password for every account is `ChangeMe123!`.
+
+  | Username | Role |
+  | --- | --- |
+  | priya, tan | Customer, Singapore |
+  | wong | Customer, Hong Kong |
+  | aisyah | Customer, Malaysia |
+  | arun, kumar | Handler, Singapore |
+  | faiz | Handler, Malaysia |
+  | meera | Team lead, Singapore and Malaysia |
+  | ho | Team lead, Hong Kong |
+  | lee | Manager, all markets |
+
+  Run **00 Happy path** from top to bottom. Each step stores the token, claim id, ETag, upload URL, information-request id, decision id and settlement ids for the next request.
+
+  Staff changes send `If-Match` with the quoted ETag from the previous claim read (`"3"`). A missing header is 428. A stale one is 412.
+
+  `POST /internal/**` is not routed by the gateway. The payment callback goes to claims-service on port 8080. The provider callback goes to notification-service on port 8082. Both sign the raw body with `X-Signature: sha256=<hmac>`.
+}

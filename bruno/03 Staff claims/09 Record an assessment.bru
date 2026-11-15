@@ -1,0 +1,35 @@
+meta {
+  name: Record an assessment
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/assessments
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "liability": "FULL",
+    "assessedAmount": { "amount": "12000.00", "currency": "SGD" },
+    "notes": "Third party at fault, CCTV confirms"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S8. Liability is FULL, PARTIAL or NONE.
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Assign the claim to Kumar
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/assignment
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "assigneeId": "h-kumar",
+    "teamId": "team-sg-motor"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S4 for a team lead. Reassigns the current claim, so do not run it in the middle of the happy path unless you want Kumar to own it.
+}

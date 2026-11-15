@@ -16,8 +16,6 @@ gateway:
     insights: ${INSIGHTS_URL:http://localhost:8081}
     notification: ${NOTIFICATION_URL:http://localhost:8082}
     ui: ${UI_URL:http://localhost:3000}
-  # POST /dev/token -> claims-service; only the dev profile turns this on
-  dev-token-route: false
   max-body-size: 20MB
   rate-limit:
     enabled: true
@@ -55,4 +53,4 @@ management:
 logging:
   structured:
     format:
-      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
+      console: com.claims.platform.web.common.MaskingJsonLogFormatter

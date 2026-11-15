@@ -1,0 +1,48 @@
+meta {
+  name: Register a claim for a customer
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  Content-Type: application/json
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "claimantId": "cust-priya",
+    "claimantName": "Priya Nair",
+    "policyNumber": "SG-MTR-POL-1001",
+    "lineOfBusiness": "MOTOR",
+    "incidentAt": "2026-11-12T04:15:00Z",
+    "incident": {
+      "peril": "WINDSCREEN",
+      "description": "Stone chip on the expressway",
+      "location": "ECP",
+      "vehicleRegistration": "SBA1234X",
+      "driverName": "Priya Nair",
+      "damageDescription": "Windscreen cracked"
+    },
+    "claimedAmount": { "amount": "800.00", "currency": "SGD" },
+    "contact": { "phone": "+6591234567" }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.claimId) bru.setEnvVar('registeredClaimId', body.claimId);
+}
+
+docs {
+  S1. Staff file a claim for a customer. The policy must be in a market the caller covers. Does not replace claimId from the customer submission.
+}

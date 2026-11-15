@@ -1,0 +1,32 @@
+meta {
+  name: Approve the decision
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/decisions/{{decisionId}}/approval
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+body:json {
+  {
+    "action": "APPROVE"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S10. The claim becomes APPROVED.
+}

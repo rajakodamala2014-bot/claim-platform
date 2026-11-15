@@ -14,14 +14,10 @@
         limiting, circuit breakers and header rewriting in front of the claims, insights and notification services.</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.claims.platform</groupId>
-            <artifactId>claims-common</artifactId>
-        </dependency>
         <!-- correlation ids, problem+json, JWT decoder/converter, masked JSON logs (servlet stack) -->
         <dependency>
             <groupId>com.claims.platform</groupId>
-            <artifactId>claims-web</artifactId>
+            <artifactId>claims-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

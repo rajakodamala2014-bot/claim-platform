@@ -1,0 +1,26 @@
+meta {
+  name: Pick up the claim
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/assignment
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  If-Match: {{etag}}
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S4. An empty body means the caller takes the claim. A second handler gets 409 CLAIM_ALREADY_ASSIGNED.
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Set the reserve
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/reserves
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+body:json {
+  {
+    "amount": { "amount": "5000.00", "currency": "SGD" },
+    "reason": "Initial estimate"
+  }
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S6. Sets the outstanding reserve. The amount is the new total, not a delta.
+}

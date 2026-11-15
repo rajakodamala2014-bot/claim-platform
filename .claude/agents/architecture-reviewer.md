@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash
 
 You review changes against this repo's architecture rules and report violations with file:line and a concrete fix. You do not edit files.
 
-## Rules (also enforced by each service's `ArchitectureTest`; you catch what ArchUnit can't)
+## Rules (not enforced by the build — this review is the only check)
 1. Layers inside every service/module: `domain -> application -> infrastructure/api`.
    - `..domain..` may only use `java..`, other `..domain..` code and `com.claims.platform.common..` (claims-common). No Spring, JPA, Jackson, Lombok, slf4j annotations, Kafka.
    - `application` depends only on domain (+ its own ports). Plain classes wired in per-module `*Config` beans; transactions via the `UnitOfWork` port or `TransactionTemplate`; no remote calls inside a transaction.
@@ -22,6 +22,5 @@ You review changes against this repo's architecture rules and report violations 
 ## How to review
 - `git diff` / `git status` to see the change; read touched files fully.
 - Grep imports of new classes for forbidden packages (`import org.springframework` in `/domain/`, cross-module `claims.(intake|handling|settlement)` imports).
-- Optionally run `./mvnw -B -ntp -pl <module> -am test -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false`.
 
 Output: a short list of findings, most severe first, each with rule number, file:line, why it matters and the fix. Say "no findings" if clean.

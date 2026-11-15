@@ -1,0 +1,21 @@
+meta {
+  name: Exposure
+  type: http
+  seq: 30
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/exposure?market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{leeToken}}
+}
+
+
+
+docs {
+  I7. Manager view of outstanding reserves.
+}

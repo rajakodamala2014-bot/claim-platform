@@ -1,0 +1,26 @@
+meta {
+  name: Search claims
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{gateway}}/staff/v1/search
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+params:query {
+  q: {{claimNumber}}
+  ~status: UNDER_ASSESSMENT
+  ~market: SG
+  ~from: 2026-11-01T00:00:00Z
+  ~to: 2026-12-01T00:00:00Z
+}
+
+docs {
+  I2. At least one of q, status, from or to is required. At most 50 rows. Disabled params are ignored until you enable them.
+}

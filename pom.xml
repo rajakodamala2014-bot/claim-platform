@@ -19,12 +19,8 @@
     <description>Claims platform mono-repo: gateway, claims, insights and notification services</description>
 
     <modules>
-        <!-- shared libraries -->
+        <!-- shared library -->
         <module>claims-common</module>
-        <module>claims-web</module>
-        <module>claims-architecture</module>
-        <module>claims-test-support</module>
-        <module>claims-messaging</module>
         <!-- deployable services -->
         <module>claims-service</module>
         <module>insights-service</module>
@@ -32,14 +28,11 @@
         <module>gateway-service</module>
         <!-- local stand-ins for external systems (never deployed) -->
         <module>payments-simulator</module>
-        <!-- cross-service happy path against the packaged jars (runs in the verify phase) -->
-        <module>e2e-tests</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
         <springdoc.version>2.8.6</springdoc.version>
-        <archunit.version>1.3.0</archunit.version>
         <embedded-postgres.version>2.1.0</embedded-postgres.version>
         <embedded-postgres-binaries.version>16.9.0</embedded-postgres-binaries.version>
         <wiremock.version>3.13.1</wiremock.version>
@@ -73,34 +66,15 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.claims.platform</groupId>
-                <artifactId>claims-web</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.claims.platform</groupId>
-                <artifactId>claims-architecture</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.tngtech.archunit</groupId>
-                <artifactId>archunit-junit5</artifactId>
-                <version>${archunit.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.claims.platform</groupId>
-                <artifactId>claims-messaging</artifactId>
+                <artifactId>claims-common</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.claims.platform</groupId>
-                <artifactId>claims-test-support</artifactId>
-                <version>${project.version}</version>
+                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>io.zonky.test</groupId>

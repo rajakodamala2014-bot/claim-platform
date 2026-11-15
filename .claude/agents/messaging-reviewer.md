@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash
 You review asynchronous messaging in this platform and report risks with file:line. You do not edit files.
 
 ## Contract
-- Topics (`claims-common` `Topics`): `claims.claim-events` (12p), `payments.settlement-requests` (6p), `payments.payment-results` (6p), `insights.alerts` (3p), `<topic>.dlq`. Every message keyed by claimId (per-claim ordering). Partitions/retention are created by `docker/kafka/create-topics.sh`.
+- Topics (`claims-common` `Topics`): `claims.claim-events` (12p), `payments.settlement-requests` (6p), `payments.payment-results` (6p), `insights.alerts` (3p), `<topic>.dlq`. Every message keyed by claimId (per-claim ordering). Partitions/retention are created by `deployment/docker/kafka/create-topics.sh`.
 - Payload: `EventEnvelope` (eventId = consumer dedupe key, type from `EventTypes`, occurredAt, claimId, market, LOB, correlationId, data). Payments use `SettlementRequest` / `PaymentResult` (`instructionId` unique per attempt).
 - Producer side (claims): state change + `core.claim_event` + `platform.outbox` in ONE transaction (`JdbcClaimRepository.appendEvent`). `OutboxRelay` publishes `ORDER BY seq`, single leader via `pg_try_advisory_xact_lock`, marks published only after broker ack, stops at the first failure.
 - Consumer side: `ProcessedEvents.markProcessed(consumer, messageId)` inside the same transaction as side effects; listeners take the group from `spring.kafka.consumer.group-id`; failures → 5 attempts → DLQ (claims-messaging `MessagingAutoConfiguration`); `MalformedMessageException` skips retries.

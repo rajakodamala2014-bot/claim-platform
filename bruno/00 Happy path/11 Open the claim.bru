@@ -1,0 +1,25 @@
+meta {
+  name: Open the claim
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S2. Stores the ETag. Every later staff change sends it as If-Match.
+}

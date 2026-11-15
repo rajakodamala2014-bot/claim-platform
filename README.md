@@ -1,245 +1,235 @@
 # Claims Platform
 
-Backend for an insurer processing **MOTOR** and **PROPERTY** claims across six APAC markets (SG, HK, MY, TH, ID, AU — configurable).
-Customers report incidents (FNOL), track them and answer information requests; claims handlers assess, reserve, decide and settle;
-team leads approve decisions above a handler's authority and watch workload, SLAs and money at risk.
+Customers report motor and property claims. Handlers assess them, team leads approve amounts above a limit, and a manager can see workload and reserves. The app covers Singapore, Hong Kong, Malaysia, Thailand, Indonesia, and Australia.
 
-Java 21 · Spring Boot 3.4 · PostgreSQL 16 · Flyway · Kafka (Redpanda locally) · JUnit 5 · AssertJ · Testcontainers · ArchUnit · springdoc-openapi · Maven · docker-compose
+The public address is the gateway. Open **http://localhost:8000** after the stack is up.
 
----
+Sign-in is `POST /auth/login`. Every seeded account uses the password `ChangeMe123!`. Change it before a real deployment.
 
-## Architecture
+| Username | Who |
+|---|---|
+| `priya`, `tan` | Customer, Singapore |
+| `wong` | Customer, Hong Kong |
+| `aisyah` | Customer, Malaysia |
+| `arun`, `kumar` | Handler, Singapore |
+| `faiz` | Handler, Malaysia |
+| `meera` | Team lead, Singapore and Malaysia |
+| `ho` | Team lead, Hong Kong |
+| `lee` | Manager, all markets |
+
+A handler can pick up a claim only after it is `TRIAGED`. A claim stays `SUBMITTED` while the Policy system has not answered. Policy `SG-MTR-POL-1500` is slow on purpose and leaves cover pending.
+
+## What you need
+
+| Task | Tools |
+|---|---|
+| Run the whole stack | Docker Engine 24+ and Compose v2 |
+| Build and test the backend on the host | JDK 21. Maven is the `mvnw` wrapper in this repo |
+| Build the UI on the host | Node 22 |
+
+Java and Node are not required on a server. The Docker build installs them inside the images.
+
+## Build
+
+From the repository root.
+
+**Backend** (compile, unit tests, and integration tests):
+
+```sh
+./mvnw clean verify
+```
+
+On Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+Integration tests use PostgreSQL 16 and Kafka from Docker when Docker is available, and an embedded database and broker when it is not.
+
+**UI** (type-check and production bundle in `claims-ui/dist`):
+
+```sh
+cd claims-ui
+npm ci
+npm test
+npm run build
+```
+
+**Docker images** (backend, UI, and local stand-ins). This is also how a server build works:
+
+```sh
+cd deployment
+docker compose build
+```
+
+## Run locally
+
+One command builds the images and starts the gateway, the three services, the portal, PostgreSQL, Kafka, and the Policy and Payments stand-ins.
+
+```sh
+cd deployment
+docker compose up -d --build
+```
+
+Open http://localhost:8000 and sign in.
+
+| Address | What it is |
+|---|---|
+| http://localhost:8000 | Gateway and the portal |
+| http://localhost:3000 | Portal container, if you open it directly |
+| http://localhost:8080/swagger-ui.html | Claims API |
+| http://localhost:8081/swagger-ui.html | Insights API |
+| http://localhost:8082/swagger-ui.html | Notification API |
+| http://localhost:8083 | Payments simulator. Account numbers ending `0000` fail |
+| http://localhost:8089 | Policy system stand-in |
+| http://localhost:8090 | Kafka console |
+| localhost:5432 | PostgreSQL, user `claims`, password `claims` |
+| localhost:19092 | Kafka for programs running on your machine |
+
+Check that it works:
+
+```sh
+cd deployment
+./smoke.sh
+```
+
+`smoke.sh` needs bash. On Windows, run it from Git Bash.
+
+Stop the stack:
+
+```sh
+cd deployment
+docker compose down
+```
+
+`docker compose down -v` also deletes the database, Kafka data, and uploaded files.
+
+### Run from the IDE
+
+Start only the infrastructure, then run a service with the `dev` profile. The `dev` profile supplies the local signing key. Without it, the service refuses to start.
+
+```sh
+docker compose -f deployment/docker-compose.yml up -d postgres redpanda kafka-init redpanda-console policy-system payments-simulator
+```
+
+```sh
+SPRING_PROFILES_ACTIVE=dev ./mvnw -pl claims-service -am spring-boot:run
+```
+
+Do the same for `insights-service`, `notification-service`, and `gateway-service`. The gateway expects claims on port 8080, insights on 8081, notification on 8082, and the portal on port 3000.
+
+On Windows PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE='dev'
+.\mvnw.cmd -pl claims-service -am spring-boot:run
+```
+
+Hot reload for the UI, with the gateway already on port 8000:
+
+```sh
+cd claims-ui
+npm install
+npm run dev
+```
+
+The Vite server is http://localhost:5173. It forwards `/auth`, `/claimant`, `/staff`, and `/admin` to the gateway.
+
+### Try the business flow
+
+1. Sign in as `priya` and report an incident on policy `SG-MTR-POL-1001`.
+2. Sign in as `arun`. Open the work queue and pick up the claim once its status is `TRIAGED`.
+3. Assess it and propose an approval of SGD 12,000. That is above Arun's limit, so the claim waits for a team lead.
+4. Sign in as `meera` and approve it.
+5. Sign in as `arun` again and instruct payment. The claim becomes `SETTLED` after the payments simulator answers.
+
+The same steps are in the Bruno collection under `bruno/` (open that folder in Bruno and use the **Local** environment) and in `http/happy-path.http`.
+
+## Deploy
+
+Deploy from the `deployment` folder. Full notes, secret meanings, and troubleshooting are in [`deployment/README.md`](deployment/README.md).
+
+```sh
+cd deployment
+cp .env.example .env
+```
+
+Fill in `.env` before the first start. Create the secrets with `openssl rand -hex 32`. Create the bank-account key with `openssl rand -base64 32`. Required values:
+
+| Variable | Purpose |
+|---|---|
+| `PUBLIC_BASE_URL` | Address users open, such as `https://claims.example.com`. Upload links use it |
+| `GATEWAY_PORT` | Host port for the gateway. Default `8000` |
+| `DB_USER`, `DB_PASSWORD` | Database owner. Used when the database volume is first created |
+| `JWT_SECRET` | Signs login tokens. At least 32 characters. Shared by every service |
+| `DOCUMENT_SIGNING_SECRET` | Signs upload URLs. At least 32 characters |
+| `PAYMENTS_WEBHOOK_SECRET` | Checks the payments fallback webhook. At least 32 characters |
+| `FIELD_ENCRYPTION_KEY` | Encrypts bank account numbers. Keep this key. Losing it makes stored account numbers unreadable |
+| `PROVIDER_CALLBACK_SECRET` | Checks e-mail, SMS, and push delivery receipts. At least 32 characters |
+
+Start the production overlay. Only the gateway is published on the host. Containers restart on their own. Secrets come from `.env` instead of the local defaults.
+
+```sh
+cd deployment
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+Put TLS in front of the gateway. The gateway itself speaks plain HTTP. Flyway creates and upgrades the database schemas when each service starts. There is no separate migration command.
+
+Update a running server:
+
+```sh
+git pull
+cd deployment
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+./smoke.sh
+```
+
+Useful checks:
+
+```sh
+cd deployment
+docker compose ps
+docker compose logs -f gateway claims-service
+```
+
+`kafka-init` should show `Exited (0)`. That container only creates topics and then stops.
+
+## How the pieces fit
 
 ```mermaid
 flowchart LR
-    app[Customer app]:::client
-    console[Staff console]:::client
-    idp[Identity provider<br/><i>dev token issuer</i>]:::ext
-
-    subgraph platform [Built here]
-      gw[<b>API Gateway</b><br/>routing · JWT validation<br/>rate limits · circuit breakers]
-      claims[<b>Claims Service</b><br/>intake · handling · settlement<br/>source of truth]
-      insights[<b>Insights Service</b><br/>read models: queues,<br/>workload, SLA, exposure]
-      notif[<b>Notification Service</b><br/>inbox, templates,<br/>email / SMS / push]
-      cdb[(claims db)]
-      idb[(insights db)]
-      ndb[(notification db)]
-    end
-
-    kafka{{Kafka<br/>claims.claim-events<br/>payments.*<br/>insights.alerts}}
-    policy[Policy system<br/><i>WireMock</i>]:::ext
-    payments[Payments system<br/><i>simulator</i>]:::ext
-    store[File storage<br/><i>local signed URLs</i>]:::ext
-
-    app & console --> gw
-    gw -- /claimant/v1/policies, uploads, claims<br/>/staff/v1/claims/** --> claims
-    gw -- /staff/v1/work-queue, search,<br/>approvals, insights/** --> insights
-    gw -- /claimant/v1/notifications*<br/>/staff/v1/claims/{id}/notifications<br/>/admin/v1/templates --> notif
-    app & console -. login .-> idp
-
-    claims --- cdb
-    insights --- idb
-    notif --- ndb
-    claims -- outbox relay --> kafka
-    kafka -- claim events --> insights
-    kafka -- claim events + alerts --> notif
-    insights -- SlaAtRisk / SlaBreached --> kafka
-    kafka <-- settlement requests / payment results --> payments
-    claims -- sync REST, 2s timeout --> policy
-    app -. PUT pre-signed URL .-> store
-
-    classDef client fill:#eef,stroke:#88a
-    classDef ext fill:#f6f6f6,stroke:#999,stroke-dasharray: 4 3
+    user[Browser] --> gw[Gateway :8000]
+    gw --> ui[Portal]
+    gw --> claims[Claims]
+    gw --> insights[Insights]
+    gw --> notif[Notifications]
+    claims --> kafka[(Kafka)]
+    kafka --> insights
+    kafka --> notif
+    claims --> policy[Policy system]
+    kafka --> payments[Payments]
 ```
 
-* **Only Claims changes a claim.** Insights and Notifications only listen to Kafka and read; if either is down, claims still go through.
-* Every write API answers synchronously. The event it produces is stored in the **same transaction** (`claim_event` audit row + `outbox` row) and published by the outbox relay (~500 ms), so APIs never wait for Kafka.
-* All messages are keyed by `claimId`, so the events of one claim stay in order.
-* The **API Gateway** (`gateway-service`, Spring Cloud Gateway Server MVC) is the only public entry point: it routes by path, rejects requests without a valid token or with the wrong role for the surface, rate-limits per client, puts a circuit breaker in front of each service and normalises headers. It holds no business rules and no database.
+* **Gateway** is the only public entry. It checks the token and the role, then forwards the call.
+* **Claims** is the only service that changes a claim. A write saves the claim, the audit row, and an outbox row in one database transaction. A relay publishes the outbox to Kafka about half a second later.
+* **Insights** builds the work queue, search, and dashboards from those events.
+* **Notifications** turns events into inbox messages and e-mail, SMS, or push.
 
-### Inside each service: clean architecture
+Customers call `/claimant/v1/**`. Handlers, team leads, and managers call `/staff/v1/**`. Managers also call `/admin/v1/templates`. Staff changes send `If-Match` with the claim version from the last read. A missing version is HTTP 428. A stale version is HTTP 412.
 
-```
-<module>/domain          plain Java: aggregates, rules, value objects (zero framework imports)
-<module>/application     use cases (one small class each) + ports
-<module>/infrastructure  JDBC/JPA, Kafka, REST adapters, Spring wiring
-<module>/api             controllers + DTOs (separate claimant / staff DTOs)
-```
+Claim path: `SUBMITTED` → `TRIAGED` → `ASSIGNED` → `UNDER_ASSESSMENT` → decision → `APPROVED` or `REJECTED` → payment → `SETTLED` → `CLOSED`. A customer can withdraw before a decision, and can appeal a rejection.
 
-The gateway is the exception: it has no domain, so it is one flat package (`Routes`, `GatewaySecurityConfig`, `RateLimiter`, `UpstreamBreakers`, `EdgeHeaders`).
+Swagger on each service lists every endpoint. The gateway routes are the ones the browser and Bruno should call.
 
-Claims Service is a modular monolith: `core` (Claim aggregate, state machine, reserve ledger), `intake`, `handling`, `settlement`, `platform`.
-`intake`, `handling` and `settlement` never depend on each other. Each module has its own Postgres schema. These rules are enforced by
-an `ArchitectureTest` in every service (shared rules in `claims-architecture`, which has its own tests proving each rule catches a violation).
-
-### Claim lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> SUBMITTED : FNOL (cover check pending)
-    SUBMITTED --> TRIAGED : cover confirmed / declined (flagged)
-    TRIAGED --> ASSIGNED : pick up / assign
-    ASSIGNED --> UNDER_ASSESSMENT : start assessment
-    UNDER_ASSESSMENT --> AWAITING_INFO : request info (SLA paused)
-    AWAITING_INFO --> UNDER_ASSESSMENT : answered / expired
-    UNDER_ASSESSMENT --> DECISION_PENDING : propose decision
-    DECISION_PENDING --> APPROVED : within authority / lead approves
-    DECISION_PENDING --> REJECTED : within authority / lead approves
-    DECISION_PENDING --> UNDER_ASSESSMENT : lead returns it
-    APPROVED --> SETTLEMENT_IN_PROGRESS : instruct payment
-    SETTLEMENT_IN_PROGRESS --> SETTLED : payment confirmed
-    REJECTED --> UNDER_ASSESSMENT : customer appeals
-    REJECTED --> CLOSED : cooling-off
-    SETTLED --> CLOSED : cooling-off
-    SUBMITTED --> WITHDRAWN
-    TRIAGED --> WITHDRAWN
-    ASSIGNED --> WITHDRAWN
-    UNDER_ASSESSMENT --> WITHDRAWN
-    AWAITING_INFO --> WITHDRAWN : customer, before a decision
-    WITHDRAWN --> CLOSED : cooling-off
-    CLOSED --> [*]
-```
-
-The table lives only in `ClaimStatus`; `Claim` is the only code that changes status. Invalid transitions throw a domain exception
-(`CLAIM_INVALID_TRANSITION`, HTTP 409). `ClaimStatusTest` checks all 144 status pairs against an independent copy of this diagram and
-`ClaimCommandMatrixTest` runs every command in every status.
-
-### End-to-end flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Customer
-    participant CL as Claims
-    participant K as Kafka
-    participant I as Insights
-    participant N as Notifications
-    participant H as Handler / Team lead
-    participant P as Payments
-    C->>CL: POST /claimant/v1/claims (Idempotency-Key)
-    CL->>CL: cover check (Policy system, 2s) · TRIAGED
-    CL-->>K: ClaimSubmitted, ClaimTriaged (outbox)
-    K-->>I: unassigned queue
-    K-->>N: "We have received your claim"
-    H->>CL: assignment · start · reserve · decision (If-Match)
-    CL-->>K: DecisionProposed (above limit)
-    K-->>I: approvals inbox
-    H->>CL: team lead approves
-    CL-->>K: ClaimApproved
-    K-->>N: "Your claim is approved"
-    H->>CL: POST settlements
-    CL-->>K: SettlementRequest (payments.settlement-requests)
-    K-->>P: pay
-    P-->>K: PaymentResult (payments.payment-results)
-    K-->>CL: SETTLED, reserve released
-    CL-->>K: PaymentConfirmed, ClaimSettled, ReserveChanged
-    K-->>N: "SGD 12,000 has been paid"
-    K-->>I: exposure drops
-```
-
----
-
-## Key rules
-
-| Topic | Rule |
-|---|---|
-| Money | `amountMinor` (long) + ISO currency; never mixed; minor digits from `java.util.Currency`. |
-| Reserves | Append-only `reserve_movement` ledger (DB trigger forbids UPDATE/DELETE); outstanding exposure = sum of movements; released on settle / reject / withdraw. |
-| Authority | Limits per role × market × LOB (`handling.authority_limit`). Within the proposer's limit the decision is final (200); above it, it waits for a team lead (202). The proposer can't approve their own decision; an approver above their own limit gets `AMOUNT_EXCEEDS_AUTHORITY` (escalate to a manager). Rejections are checked against the outstanding reserve. |
-| SLA | Market SLA from submission to decision; paused while awaiting the customer; Insights alerts at < 4 h and on breach. |
-| Cover check | Policy system unavailable → claim saved as SUBMITTED with cover PENDING; retried every 10 min. Declined cover → triaged and flagged for a handler. |
-| Idempotency | `Idempotency-Key` on claim submission (replays return the original result; different body → 422). Consumers dedupe on `processed_event`. |
-| Concurrency | Staff state changes need `If-Match: "<version>"` (428 if missing, 412 if stale); a pick-up race gives the loser 409 `CLAIM_ALREADY_ASSIGNED`. |
-| Errors | RFC 9457 `application/problem+json` with a stable `code` and the `correlationId`, from one handler per service. The gateway answers in the same shape: `UNAUTHENTICATED` 401, `FORBIDDEN` 403, `ROUTE_NOT_FOUND` 404, `PAYLOAD_TOO_LARGE` 413 (> 20 MB), `RATE_LIMITED` 429 (+ `Retry-After`), `UPSTREAM_UNAVAILABLE` 503. |
-| Edge | Rate limit per client per minute: 300 per token `sub`, 60 per IP for token-less calls (`RATE_LIMIT_AUTHENTICATED` / `RATE_LIMIT_ANONYMOUS`). One circuit breaker per service: opens when half of the last 20 calls could not connect, timed out or answered 502/503/504, stays open 10 s; nothing is retried. `X-Forwarded-*` from callers is discarded and rewritten. |
-| Visibility | Claimants only see their own claims (others are 404) and never see reserves, notes, internal events or handler ids. Staff queries are scoped to the token's `markets`. |
-| Tracing | `X-Correlation-Id` is accepted or minted at the gateway, put in every log line (JSON, PII masked), outbox header and event envelope. |
-
-## APIs
-
-All APIs are documented by springdoc at `/swagger-ui.html` on each service.
-
-* **Claims** — claimant C1–C10: `GET /claimant/v1/policies`, `POST /claimant/v1/uploads`, `POST|GET /claimant/v1/claims`, `GET /claimant/v1/claims/{id}`, `/timeline`, `/info-requests`, `POST .../info-requests/{rid}/responses`, `/withdraw`, `/appeal`.
-  Staff S1–S12: `POST /staff/v1/claims`, `GET /staff/v1/claims/{id}`, `/audit`, `POST .../assignment`, `/start-assessment`, `/reserves`, `/info-requests`, `/assessments`, `/decisions`, `/decisions/{did}/approval`, `/settlements`, `/settlements/{sid}/retry`.
-  Internal: `POST /internal/v1/payments/callback` (signed fallback if Payments can't use Kafka).
-* **Insights** — `GET /staff/v1/work-queue?view=unassigned|mine|team`, `/staff/v1/search`, `/staff/v1/approvals`, `/staff/v1/insights/workload|performance|sla|exposure`.
-* **Notifications** — `GET /claimant/v1/notifications`, `POST /claimant/v1/notifications/{id}/read`, `GET|PUT /claimant/v1/notification-preferences`, `GET /staff/v1/claims/{id}/notifications`, `GET /admin/v1/templates`, `PUT /admin/v1/templates/{id}`, `POST /internal/v1/providers/{provider}/delivery-status`.
-
-## Kafka
-
-| Topic | Producer | Consumers | Partitions / retention |
-|---|---|---|---|
-| `claims.claim-events` | Claims (outbox) | insights-service, notification-service | 12 / 30 d |
-| `payments.settlement-requests` | Claims (outbox) | Payments | 6 / 30 d |
-| `payments.payment-results` | Payments | claims-service | 6 / 30 d |
-| `insights.alerts` | Insights | notification-service | 3 / 7 d |
-| `<topic>.dlq` | any consumer after 5 failed attempts | support / replay | same / 14 d |
-
----
-
-## Running locally
-
-Requirements: JDK 21, Docker (for the full stack). Maven comes via `./mvnw`.
+## Tests
 
 ```sh
-docker compose up -d --build            # everything; gateway on http://localhost:8000
+./scripts/ci.sh          # same as CI: ./mvnw -B -ntp verify
+./mvnw test              # unit tests only
 ```
 
-| Service | Port | Notes |
-|---|---|---|
-| gateway (`gateway-service`) | 8000 | Spring Cloud Gateway with the routing table above; proxies `/` to the **claimant portal**. Health on its management port 8001 (not published) |
-| claims-ui | 3000 | claimant portal (React + Vite, nginx); use it via the gateway at http://localhost:8000 |
-| claims / insights / notification | 8080 / 8081 / 8082 | Swagger UI at `/swagger-ui.html` |
-| payments-simulator | 8083 | account numbers ending `0000` fail |
-| policy-system (WireMock) | 8089 | `SG-MTR-POL-1500` answers after 3 s → cover pending |
-| Redpanda / console | 19092 / 8090 | |
-| PostgreSQL | 5432 | user `claims` / `claims`; databases `claims`, `insights`, `notification` |
+On Windows, `scripts/ci.sh` needs Git Bash. The Maven command is `.\mvnw.cmd -B -ntp verify`.
 
-Infra only, services from the IDE: `docker compose up -d postgres redpanda kafka-init redpanda-console policy-system payments-simulator`,
-then run each service with the `dev` profile (`SPRING_PROFILES_ACTIVE=dev ./mvnw -pl claims-service -am spring-boot:run`; same for `gateway-service`, which expects the services on localhost:8080–8082 and the portal on :3000).
-
-**Logging in:** the identity provider is stood in by `POST /dev/token {"username": "priya"}` (claims-service, `dev` profile only).
-Personas: customers `priya`, `tan` (SG), `wong` (HK), `aisyah` (MY), `somchai` (TH), `budi` (ID), `olivia` (AU), each with a motor and a property policy;
-handlers `arun`, `kumar` and team lead `meera` (SG Motor), manager `lee` (all markets), plus a handler and team lead per other market
-(`chan`/`ho`, `faiz`/`lim`, `niran`/`ploy`, `dewi`/`agus`, `jack`/`emma`).
-
-**Claimant portal:** open http://localhost:8000, sign in as `priya`, report an incident and follow it (see [`claims-ui/README.md`](claims-ui/README.md); `cd claims-ui && npm run dev` for hot reload on :5173).
-
-**Walk the whole happy path:** open [`http/happy-path.http`](http/happy-path.http) in IntelliJ / VS Code REST Client and run the requests top to bottom.
-
-## Testing
-
-```sh
-./scripts/ci.sh        # = ./mvnw -B -ntp verify : unit, slice, ArchUnit, integration and cross-service tests
-./mvnw test            # fast: unit / slice / ArchUnit only
-```
-
-* **Unit**: exhaustive state machine (`ClaimStatusTest`, `ClaimCommandMatrixTest`), authority policy, reserve ledger, money, projections, notification rules.
-* **Slice**: `@WebMvcTest` for every controller, including every error response and the security rules.
-* **Gateway**: the real gateway on a random port in front of WireMock upstreams — every row of the routing table, 401/403 rules, rate limits, circuit breakers and header rewriting.
-* **Integration** (`*IT`): real PostgreSQL 16 and Kafka — repositories, outbox relay ordering, payment-results consumer + DLQ, background jobs, Insights read models, Notifications dispatch/retry. Uses Testcontainers when Docker is available (CI enforces it with `REQUIRE_DOCKER=1`) and falls back to embedded PostgreSQL / an in-JVM Kafka broker otherwise, so they always run.
-* **Cross-service** (`e2e-tests`): starts the packaged jars of all four services as processes and walks a claim from FNOL to settlement (customer inbox, approvals inbox and exposure included).
-
----
-
-## Trade-offs and decisions
-
-| Decision | Why | Cost |
-|---|---|---|
-| Modular monolith for Claims | One transaction for claim + audit + outbox; the aggregate stays consistent. Modules can be split later along their schemas. | One deployable for three teams' worth of logic. |
-| JDBC for the write model, JPA only for simple reference data | JDBC where SQL is the design: the Claim aggregate (version check, append-only ledger/events, outbox order in one transaction), outbox relay and job locks (advisory locks), notification dispatcher (`FOR UPDATE SKIP LOCKED`), Insights aggregates. Spring Data JPA for notification-service preferences, templates and staff directory (one-table CRUD). Entities live in infrastructure and map to domain records, so the domain stays annotation-free. | Two persistence styles in one service; more hand-written mapping on the JDBC side. |
-| Transactional outbox + single-leader relay | No dual writes; per-claim order preserved (`seq`, advisory lock). | Publishing is ~0.5 s behind; a stuck message holds back later ones until it goes (chosen: order over availability). |
-| Insights as read models | Heavy dashboard queries never touch the Claims database. | Data is a few seconds stale; read models must be rebuildable by replaying events. |
-| Notifications plan in the consumer, send in a dispatcher | A slow/down provider never slows consumption or Claims; retries with backoff, then FAILED. | One more moving part (dispatch job). |
-| SLA alerts published directly (no outbox) | Alerts are derived and recomputable; deterministic event ids make re-sends recognisable. | A crash between send and log can re-send an alert (deduped downstream). |
-| Own the gateway: Spring Cloud Gateway Server MVC instead of an nginx stand-in | Edge logic in Java next to the services: central JWT validation, per-client rate limits, circuit breakers, header rewriting. The servlet (MVC) flavor reuses the shared `claims-web` plumbing (JWT decoder, problem+json, correlation ids, masked logs) and virtual threads; the reactive flavor would need all of that rewritten and Redis for its rate limiter. | A fourth deployable to build, run and patch. |
-| Gateway validates JWTs and every service validates them again | Defence in depth: a service reached without the gateway is still safe. The gateway does the coarse check (surface × role); ownership and market scoping stay in the services. | Each token is verified twice (cheap, HS256/JWKS). |
-| Rate-limit buckets in gateway memory | No new infrastructure. | Each gateway instance enforces its own quota; share them through a distributed Bucket4j store (e.g. Redis) before running several instances. |
-| Dev token issuer instead of a real IdP locally | Testable locally and in CI. Production uses `OIDC_ISSUER_URI` (JWKS). | Not exercising real OTP/SSO flows. |
-| Local file storage with signed URLs | Same contract as S3 pre-signed PUTs; MinIO images are no longer published on Docker Hub. | Swap the `DocumentStorage` adapter for S3 in real environments. |
-| Bank account numbers encrypted in the app (AES-256-GCM, `FIELD_ENCRYPTION_KEY`) | Stored as `v1:<ciphertext>` bound to the settlement id; the outbox copy is masked to the last 4 digits once Payments has it; masked in logs and staff views. | Key comes from an env var: move to KMS/HSM envelope encryption and add key rotation (`v2:` prefix). Rows written before V7 stay plaintext until re-saved. |
-| Templates in English, Simplified + Traditional Chinese (`zh`, `zh-Hant` for HK), Malay, Thai, Indonesian | One customer language per market; staff templates English. Lookup falls back `zh-Hant` → `zh` → `en`. | Translations are machine-quality placeholders for review by local teams. |
-
-## What is simulated
-
-Identity provider (dev token issuer), Policy system (WireMock, `docker/policy-system`), Payments system (`payments-simulator`), e-mail/SMS/push providers (fake providers in notification-service; e-mail containing `fail` or phone ending `0000` errors), file storage (local filesystem with HMAC-signed URLs).
+The UI is not part of the Maven build. After UI changes, run `npm test` and `npm run build` in `claims-ui`.

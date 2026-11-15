@@ -8,12 +8,10 @@ import java.net.URI;
 import java.time.Duration;
 
 /**
- * @param devTokenRoute route {@code POST /dev/token} to claims-service (local token issuer; dev profile only)
- * @param maxBodySize   requests declaring a larger body are rejected with 413
+ * @param maxBodySize requests declaring a larger body are rejected with 413
  */
 @ConfigurationProperties(prefix = "gateway")
 public record GatewayProperties(Upstreams upstreams,
-                                @DefaultValue("false") boolean devTokenRoute,
                                 @DefaultValue("20MB") DataSize maxBodySize,
                                 @DefaultValue RateLimit rateLimit,
                                 @DefaultValue Breaker circuitBreaker,

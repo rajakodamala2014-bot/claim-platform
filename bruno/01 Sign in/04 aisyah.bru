@@ -1,0 +1,32 @@
+meta {
+  name: Sign in as aisyah
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "aisyah",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('aisyahToken', res.getBody().access_token);
+  }
+}
+
+docs {
+  Customer, Malaysia. Subject cust-aisyah.
+}

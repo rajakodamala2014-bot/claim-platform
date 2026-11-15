@@ -1,0 +1,21 @@
+meta {
+  name: Audit trail
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/audit
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+docs {
+  S3.
+}

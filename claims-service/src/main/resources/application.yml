@@ -62,6 +62,9 @@ claims:
     field-key: ${FIELD_ENCRYPTION_KEY:}
 
 platform:
+  openapi:
+    title: Claims Service API
+    description: Claim intake, handling and settlement for customers (/claimant/v1) and staff (/staff/v1). Source of truth for claims.
   messaging:
     processed-event-table: platform.processed_event
   security:
@@ -82,4 +85,4 @@ management:
 logging:
   structured:
     format:
-      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
+      console: com.claims.platform.web.common.MaskingJsonLogFormatter

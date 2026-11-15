@@ -1,6 +1,6 @@
 package com.claims.platform.gateway;
 
-import com.claims.platform.web.problem.Problems;
+import com.claims.platform.web.exception.Problems;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bucket;

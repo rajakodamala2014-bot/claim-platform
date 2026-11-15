@@ -1,0 +1,32 @@
+meta {
+  name: Sign in as meera
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "meera",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('meeraToken', res.getBody().access_token);
+  }
+}
+
+docs {
+  Team lead, Singapore and Malaysia. Subject tl-meera.
+}

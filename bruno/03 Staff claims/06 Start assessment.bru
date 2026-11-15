@@ -1,0 +1,26 @@
+meta {
+  name: Start assessment
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/start-assessment
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+headers {
+  If-Match: {{etag}}
+}
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S5. ASSIGNED to UNDER_ASSESSMENT.
+}

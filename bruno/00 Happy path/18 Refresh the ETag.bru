@@ -1,0 +1,25 @@
+meta {
+  name: Refresh the ETag
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+script:post-response {
+  const etag = res.getHeader('etag') || res.getHeader('ETag');
+  if (etag) bru.setEnvVar('etag', etag);
+}
+docs {
+  S2 again, after the customer reply changed the version.
+}

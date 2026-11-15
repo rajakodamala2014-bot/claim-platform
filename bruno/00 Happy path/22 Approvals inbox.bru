@@ -1,0 +1,21 @@
+meta {
+  name: Approvals inbox
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{gateway}}/staff/v1/approvals
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+docs {
+  I3. Meera should see the decision once Insights has caught up.
+}

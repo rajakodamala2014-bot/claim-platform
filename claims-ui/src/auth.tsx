@@ -7,11 +7,27 @@ export interface User {
   markets: string[];
   locale: string;
   roles: string[];
+  team: string | null;
+}
+
+const STAFF_ROLES = ['HANDLER', 'TEAM_LEAD', 'MANAGER'];
+
+export function isClaimant(user: User | null): boolean {
+  return !!user?.roles.includes('CLAIMANT');
+}
+
+export function isStaff(user: User | null): boolean {
+  return !!user?.roles.some((role) => STAFF_ROLES.includes(role));
+}
+
+/** Team leads and managers may approve decisions and open the team dashboards. */
+export function isSupervisor(user: User | null): boolean {
+  return !!user && (user.roles.includes('TEAM_LEAD') || user.roles.includes('MANAGER'));
 }
 
 interface AuthState {
   user: User | null;
-  login: (username: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -35,6 +51,7 @@ export function decodeToken(token: string): User | null {
       markets: claims.markets ?? [],
       locale: claims.locale ?? 'en',
       roles: claims.roles ?? [],
+      team: claims.team ?? null,
     };
   } catch {
     return null;
@@ -54,10 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => setUnauthorizedHandler(logout), [logout]);
 
-  const login = useCallback(async (username: string) => {
-    const res = await api.login(username);
-    if (res.role !== 'CLAIMANT') {
-      throw new Error('This portal is for customers. Staff use the staff workbench.');
+  const login = useCallback(async (username: string, password: string) => {
+    const res = await api.login(username, password);
+    if (res.role !== 'CLAIMANT' && !STAFF_ROLES.includes(res.role)) {
+      throw new Error('This sign-in is not a customer or a member of staff.');
     }
     storeToken(res.access_token);
     setUser(decodeToken(res.access_token));

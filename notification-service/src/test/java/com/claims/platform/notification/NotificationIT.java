@@ -3,11 +3,11 @@ package com.claims.platform.notification;
 import com.claims.platform.common.event.EventEnvelope;
 import com.claims.platform.common.event.EventTypes;
 import com.claims.platform.common.messaging.Topics;
-import com.claims.platform.notification.api.NotificationController;
-import com.claims.platform.notification.application.DispatchNotifications;
+import com.claims.platform.notification.common.HmacSignature;
+import com.claims.platform.notification.service.NotificationDispatchService;
 import com.claims.platform.testsupport.TestKafka;
 import com.claims.platform.testsupport.TestPostgres;
-import com.claims.platform.web.security.PlatformSecurityAutoConfiguration;
+import com.claims.platform.web.config.PlatformSecurityAutoConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -70,7 +70,7 @@ class NotificationIT {
     @Autowired
     JdbcTemplate sql;
     @Autowired
-    DispatchNotifications dispatch;
+    NotificationDispatchService dispatchService;
     @Autowired
     TransactionTemplate tx;
 
@@ -163,7 +163,7 @@ class NotificationIT {
                 new HttpEntity<>(receipt, unsigned), String.class).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         HttpHeaders signed = new HttpHeaders();
         signed.setContentType(MediaType.APPLICATION_JSON);
-        signed.set("X-Signature", "sha256=" + NotificationController.sign(CALLBACK_SECRET.getBytes(StandardCharsets.UTF_8), receipt));
+        signed.set("X-Signature", "sha256=" + HmacSignature.sign(CALLBACK_SECRET.getBytes(StandardCharsets.UTF_8), receipt));
         ResponseEntity<String> delivered = http.exchange("/internal/v1/providers/fake-email/delivery-status", HttpMethod.POST,
                 new HttpEntity<>(receipt, signed), String.class);
         assertThat(delivered.getStatusCode()).as(delivered.getBody()).isEqualTo(HttpStatus.OK);
@@ -224,7 +224,7 @@ class NotificationIT {
     }
 
     private void runDispatch() {
-        tx.execute(s -> dispatch.runOnce());
+        tx.execute(s -> dispatchService.dispatchPendingNotifications());
     }
 
     private JsonNode get(String path, String token, HttpStatus expected) throws Exception {

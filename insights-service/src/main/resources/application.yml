@@ -31,6 +31,9 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 platform:
+  openapi:
+    title: Insights Service API
+    description: Read-only staff views built from claim events - work queues, search, approvals inbox, workload, performance, SLA watch and exposure.
   messaging:
     processed-event-table: insights.processed_event
   security:
@@ -57,4 +60,4 @@ management:
 logging:
   structured:
     format:
-      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
+      console: com.claims.platform.web.common.MaskingJsonLogFormatter

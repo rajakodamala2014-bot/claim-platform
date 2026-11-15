@@ -1,0 +1,22 @@
+meta {
+  name: SLA watch
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/sla
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+params:query {
+  market: SG
+}
+
+docs {
+  I6. Claims at risk of missing the SLA, or already past it. Team leads and managers only.
+}

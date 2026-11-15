@@ -1,0 +1,21 @@
+meta {
+  name: Claim after payment
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+docs {
+  S2. Status should be SETTLED once the payment result has been applied.
+}

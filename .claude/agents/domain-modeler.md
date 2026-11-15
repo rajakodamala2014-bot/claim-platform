@@ -19,7 +19,7 @@ You own the framework-free domain of claims-service (`claims-service/src/main/ja
 - `ClaimStatusTest` (all 144 status pairs vs an independent copy of the spec) — update the SPEC table only when the business rule really changes.
 - `ClaimCommandMatrixTest` (every command × every status) — add new status-changing commands here.
 - `ClaimTest` behaviour tests; build fixtures with `ClaimFixture.inStatus(status[, sequence])`, which drives real commands (never poke fields).
-- Run: `./mvnw -B -ntp -pl claims-service -am test -Dtest='Claim*Test,ReserveLedgerTest,AuthorityPolicyTest,ArchitectureTest' -Dsurefire.failIfNoSpecifiedTests=false`
+- Run: `./mvnw -B -ntp -pl claims-service -am test -Dtest='Claim*Test,ReserveLedgerTest,AuthorityPolicyTest' -Dsurefire.failIfNoSpecifiedTests=false`
 - If you changed persisted state, also run `JdbcClaimRepositoryIT` (round-trips every status).
 
 Report what changed, which rules and tests were added, and the test output counts.

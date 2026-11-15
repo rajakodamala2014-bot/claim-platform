@@ -1,0 +1,4 @@
+com.claims.platform.web.config.PlatformWebAutoConfiguration
+com.claims.platform.web.config.PlatformSecurityAutoConfiguration
+com.claims.platform.web.config.PlatformOpenApiAutoConfiguration
+com.claims.platform.messaging.config.MessagingAutoConfiguration
