@@ -2,7 +2,6 @@ package com.claims.platform.claims.intake.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.claims.platform.claims.core.dto.response.StaffClaimResponse;
-import com.claims.platform.claims.core.mapper.StaffClaimMapper;
 import com.claims.platform.claims.intake.entity.IncidentDetails;
 import com.claims.platform.claims.intake.entity.Party;
 import com.claims.platform.claims.intake.entity.PolicySnapshot;

@@ -5,16 +5,13 @@ import com.claims.platform.claims.core.exception.ErrorCode;
 import com.claims.platform.claims.platform.dto.response.TokenResponse;
 import com.claims.platform.claims.platform.entity.AppUser;
 import com.claims.platform.claims.platform.repository.AppUserRepository;
-import com.claims.platform.web.config.PlatformSecurityAutoConfiguration;
 import com.claims.platform.web.config.PlatformSecurityProperties;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -34,10 +31,11 @@ public class AuthService {
     private final String issuer;
     private final Clock clock;
 
-    public AuthService(AppUserRepository users, PasswordEncoder passwords, PlatformSecurityProperties properties, Clock clock) {
+    public AuthService(AppUserRepository users, PasswordEncoder passwords, JwtEncoder encoder,
+                       PlatformSecurityProperties properties, Clock clock) {
         this.users = users;
         this.passwords = passwords;
-        this.encoder = new NimbusJwtEncoder(new ImmutableSecret<>(PlatformSecurityAutoConfiguration.devKey(properties.devSecret())));
+        this.encoder = encoder;
         this.issuer = properties.devIssuer();
         this.clock = clock;
     }
