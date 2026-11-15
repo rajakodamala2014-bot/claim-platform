@@ -1,0 +1,248 @@
+### Claims platform — full happy path through the gateway (docker compose up -d --build)
+### Run top to bottom in IntelliJ HTTP Client or VS Code REST Client (response handlers use the IntelliJ syntax).
+### Stage numbers follow the business flow: report -> pick up -> info request -> assess & decide -> approve -> settle.
+
+@gw = http://localhost:8000
+@claims = http://localhost:8080
+
+### 0a. Customer logs in (stand-in for OTP login)
+POST {{claims}}/dev/token
+Content-Type: application/json
+
+{"username": "priya"}
+
+> {% client.global.set("priya", response.body.access_token); %}
+
+### 0b. Handler, team lead, manager log in (stand-in for company SSO)
+POST {{claims}}/dev/token
+Content-Type: application/json
+
+{"username": "arun"}
+
+> {% client.global.set("arun", response.body.access_token); %}
+
+###
+POST {{claims}}/dev/token
+Content-Type: application/json
+
+{"username": "meera"}
+
+> {% client.global.set("meera", response.body.access_token); %}
+
+###
+POST {{claims}}/dev/token
+Content-Type: application/json
+
+{"username": "lee"}
+
+> {% client.global.set("lee", response.body.access_token); %}
+
+### Stage 1.2 — C1: my policies for the "Report an incident" form (Policy system, cached 5 min)
+GET {{gw}}/claimant/v1/policies
+Authorization: Bearer {{priya}}
+
+### Stage 1.4 — C2: ask for a secure upload link
+POST {{gw}}/claimant/v1/uploads
+Authorization: Bearer {{priya}}
+Content-Type: application/json
+
+{"fileName": "dashcam.jpg", "contentType": "image/jpeg", "sizeBytes": 11}
+
+> {%
+    client.global.set("uploadId", response.body.uploadId);
+    client.global.set("uploadUrl", response.body.uploadUrl);
+%}
+
+### ... the app PUTs the file straight to storage
+PUT {{uploadUrl}}
+Content-Type: image/jpeg
+
+hello photo
+
+### Stage 1.5 — C3: submit the claim (cover check inline; returns the claim number)
+POST {{gw}}/claimant/v1/claims
+Authorization: Bearer {{priya}}
+Content-Type: application/json
+Idempotency-Key: {{$uuid}}
+X-Correlation-Id: demo-happy-path
+
+{
+  "policyNumber": "SG-MTR-POL-1001",
+  "lineOfBusiness": "MOTOR",
+  "incidentAt": "2026-11-10T09:00:00Z",
+  "incident": {
+    "peril": "COLLISION",
+    "description": "Rear-ended at the traffic lights",
+    "location": "Orchard Road",
+    "vehicleRegistration": "SBA1234X",
+    "driverName": "Priya Nair",
+    "damageDescription": "Rear bumper and boot",
+    "thirdParties": [{"name": "John Lim", "vehicleRegistration": "SGX9876Z", "insurer": "NTUC Income"}]
+  },
+  "claimedAmount": {"amount": "6000.00", "currency": "SGD"},
+  "uploadIds": ["{{uploadId}}"],
+  "contact": {"phone": "+6591234567"}
+}
+
+> {%
+    client.global.set("claimId", response.body.claimId);
+    client.global.set("claimNumber", response.body.claimNumber);
+%}
+
+### Stage 1.7 — Notifications: "We have received your claim ..." (a second or two later)
+GET {{gw}}/claimant/v1/notifications
+Authorization: Bearer {{priya}}
+
+### Stage 2.8 — I1: the handler's work queue (Insights), oldest SLA first
+GET {{gw}}/staff/v1/work-queue?view=unassigned&market=SG
+Authorization: Bearer {{arun}}
+
+### S2: claim workspace; ETag = version for the next If-Match
+GET {{gw}}/staff/v1/claims/{{claimId}}
+Authorization: Bearer {{arun}}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 2.9 — S4: pick up (a second handler doing this now gets 409 CLAIM_ALREADY_ASSIGNED)
+POST {{gw}}/staff/v1/claims/{{claimId}}/assignment
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 2.10 — S5: start the review
+POST {{gw}}/staff/v1/claims/{{claimId}}/start-assessment
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 2.11 — S6: initial reserve SGD 5,000 (manager's "money at risk" updates)
+POST {{gw}}/staff/v1/claims/{{claimId}}/reserves
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"amount": {"amount": "5000.00", "currency": "SGD"}, "reason": "Initial estimate"}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 3.12 — S7: request information (claim AWAITING_INFO, SLA paused)
+POST {{gw}}/staff/v1/claims/{{claimId}}/info-requests
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"items": ["Police report", "Repair quote"]}
+
+> {% client.global.set("requestId", response.body.result); %}
+
+### Stage 3.13 — C7: the customer sees what is needed
+GET {{gw}}/claimant/v1/claims/{{claimId}}/info-requests
+Authorization: Bearer {{priya}}
+
+### Stage 3.14 — C8: the customer answers (back to UNDER_ASSESSMENT, SLA resumes)
+POST {{gw}}/claimant/v1/claims/{{claimId}}/info-requests/{{requestId}}/responses
+Authorization: Bearer {{priya}}
+Content-Type: application/json
+
+{"answer": "Police report PR-2026-1182 and the workshop quote are attached", "uploadIds": []}
+
+### refresh the ETag after the customer's change
+GET {{gw}}/staff/v1/claims/{{claimId}}
+Authorization: Bearer {{arun}}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 4.15 — S8: assessment, and the reserve follows the repair quote
+POST {{gw}}/staff/v1/claims/{{claimId}}/assessments
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"liability": "FULL", "assessedAmount": {"amount": "12000.00", "currency": "SGD"}, "notes": "Third party at fault, CCTV confirms"}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+###
+POST {{gw}}/staff/v1/claims/{{claimId}}/reserves
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"amount": {"amount": "12000.00", "currency": "SGD"}, "reason": "Repair quote received"}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 4.16-17 — S9: propose approval of SGD 12,000 (above Arun's SGD 10,000 limit -> 202, DECISION_PENDING)
+POST {{gw}}/staff/v1/claims/{{claimId}}/decisions
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"outcome": "APPROVE", "amount": {"amount": "12000.00", "currency": "SGD"}}
+
+> {%
+    client.global.set("decisionId", response.body.result.decisionId);
+    client.global.set("etag", response.headers.valueOf("ETag"));
+%}
+
+### I3: the team lead's approvals inbox (Insights)
+GET {{gw}}/staff/v1/approvals
+Authorization: Bearer {{meera}}
+
+### S10: the team lead approves (Arun approving his own proposal would get 403 SELF_APPROVAL_NOT_ALLOWED)
+POST {{gw}}/staff/v1/claims/{{claimId}}/decisions/{{decisionId}}/approval
+Authorization: Bearer {{meera}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"action": "APPROVE"}
+
+> {% client.global.set("etag", response.headers.valueOf("ETag")); %}
+
+### Stage 5.19 — S11: instruct payment (Payments simulator answers on Kafka; account ending 0000 would fail)
+POST {{gw}}/staff/v1/claims/{{claimId}}/settlements
+Authorization: Bearer {{arun}}
+If-Match: {{etag}}
+Content-Type: application/json
+
+{"payee": {"name": "Priya Nair", "bankCode": "DBSSSGSG", "accountNumber": "123456789"}, "amount": {"amount": "12000.00", "currency": "SGD"}}
+
+### Stage 5.20 — a few seconds later: SETTLED, reserve released
+GET {{gw}}/staff/v1/claims/{{claimId}}
+Authorization: Bearer {{arun}}
+
+### Stage 5.21 — the customer is told: "SGD 12000.00 has been paid to your account"
+GET {{gw}}/claimant/v1/notifications
+Authorization: Bearer {{priya}}
+
+### C5 / C6: what the customer sees (no reserves, no internal steps)
+GET {{gw}}/claimant/v1/claims/{{claimId}}
+Authorization: Bearer {{priya}}
+
+###
+GET {{gw}}/claimant/v1/claims/{{claimId}}/timeline
+Authorization: Bearer {{priya}}
+
+### S3: the full internal audit trail
+GET {{gw}}/staff/v1/claims/{{claimId}}/audit
+Authorization: Bearer {{arun}}
+
+### N5: what was sent to the customer and whether it was delivered
+GET {{gw}}/staff/v1/claims/{{claimId}}/notifications
+Authorization: Bearer {{arun}}
+
+### Dashboards (Insights): exposure, workload, performance, SLA
+GET {{gw}}/staff/v1/insights/exposure?market=SG
+Authorization: Bearer {{lee}}
+
+###
+GET {{gw}}/staff/v1/insights/workload
+Authorization: Bearer {{meera}}
+
+###
+GET {{gw}}/staff/v1/insights/sla?market=SG
+Authorization: Bearer {{meera}}
+
+### Stage 6.22 — closure happens automatically after the 14-day cooling-off (daily auto-close job)

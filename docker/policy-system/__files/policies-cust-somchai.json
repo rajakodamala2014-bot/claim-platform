@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "policyNumber": "TH-MTR-POL-5001",
+      "holderId": "cust-somchai",
+      "holderName": "Somchai Jaidee",
+      "marketCode": "TH",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "THB",
+      "sumInsuredMinor": 80000000,
+      "excessMinor": 500000,
+      "coveredPerils": [
+        "COLLISION",
+        "THEFT",
+        "FIRE",
+        "FLOOD"
+      ],
+      "vehicle": {
+        "registration": "1กข 1234",
+        "make": "Honda",
+        "model": "City"
+      }
+    },
+    {
+      "policyNumber": "TH-PRP-POL-5002",
+      "holderId": "cust-somchai",
+      "holderName": "Somchai Jaidee",
+      "marketCode": "TH",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "THB",
+      "sumInsuredMinor": 500000000,
+      "excessMinor": 500000,
+      "coveredPerils": [
+        "FIRE",
+        "FLOOD",
+        "THEFT",
+        "WATER_DAMAGE",
+        "STORM"
+      ],
+      "property": {
+        "address": "99 Sukhumvit Road, Khlong Toei, Bangkok 10110"
+      }
+    }
+  ]
+}

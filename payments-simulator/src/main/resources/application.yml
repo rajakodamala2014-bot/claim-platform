@@ -1,0 +1,34 @@
+server:
+  port: ${PORT:8083}
+
+spring:
+  application:
+    name: payments-simulator
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+
+payments:
+  simulator:
+    processing-delay: ${PAYMENT_DELAY:2s}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  structured:
+    format:
+      console: com.claims.platform.web.logging.MaskingJsonLogFormatter

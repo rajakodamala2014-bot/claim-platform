@@ -1,0 +1,221 @@
+{
+  "mappings": [
+    {
+      "name": "C1: active policies of a policy holder",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-priya"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-priya.json"
+      }
+    },
+    {
+      "name": "Unknown holder: no policies",
+      "priority": 10,
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "items": []
+        }
+      }
+    },
+    {
+      "name": "Cover check: covered",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/policies/(SG-MTR-POL-1001|SG-PRP-POL-2001)/cover-checks"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "covered": true,
+          "reason": null
+        }
+      }
+    },
+    {
+      "name": "Cover check: policy not in force",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/policies/SG-MTR-POL-1999/cover-checks"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "covered": false,
+          "reason": "POLICY_NOT_IN_FORCE"
+        }
+      }
+    },
+    {
+      "name": "Cover check: Policy system too slow (exceeds the 2s timeout) -> claim saved with cover pending",
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/policies/SG-MTR-POL-1500/cover-checks"
+      },
+      "response": {
+        "status": 200,
+        "fixedDelayMilliseconds": 3000,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "covered": true,
+          "reason": null
+        }
+      }
+    },
+    {
+      "name": "Unknown policy",
+      "priority": 10,
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/policies/[^/]+/cover-checks"
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": "POLICY_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "name": "Seed: policies of cust-wong (HK)",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-wong"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-wong.json"
+      }
+    },
+    {
+      "name": "Seed: policies of cust-aisyah (MY)",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-aisyah"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-aisyah.json"
+      }
+    },
+    {
+      "name": "Seed: policies of cust-somchai (TH)",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-somchai"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-somchai.json"
+      }
+    },
+    {
+      "name": "Seed: policies of cust-budi (ID)",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-budi"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-budi.json"
+      }
+    },
+    {
+      "name": "Seed: policies of cust-olivia (AU)",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/policies",
+        "queryParameters": {
+          "holderId": {
+            "equalTo": "cust-olivia"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "policies-cust-olivia.json"
+      }
+    },
+    {
+      "name": "Seed: cover check covered for the seeded HK/MY/TH/ID/AU policies",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/policies/(HK|MY|TH|ID|AU)-(MTR|PRP)-POL-[3-7]00[12]/cover-checks"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "covered": true,
+          "reason": null
+        }
+      }
+    }
+  ]
+}

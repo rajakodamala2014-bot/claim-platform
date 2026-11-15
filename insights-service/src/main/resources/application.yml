@@ -1,0 +1,60 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: insights-service
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/insights}
+    username: ${DB_USER:claims}
+    password: ${DB_PASSWORD:claims}
+  flyway:
+    schemas: insights
+    create-schemas: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      group-id: insights-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+platform:
+  messaging:
+    processed-event-table: insights.processed_event
+  security:
+    issuer-uri: ${OIDC_ISSUER_URI:}
+
+insights:
+  sla:
+    # claims due within this window are "at risk"
+    at-risk-window: 4h
+    alert-check-interval: 5m
+    alerts-enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+
+logging:
+  structured:
+    format:
+      console: com.claims.platform.web.logging.MaskingJsonLogFormatter

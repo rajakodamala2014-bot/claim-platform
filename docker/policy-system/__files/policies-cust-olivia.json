@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "policyNumber": "AU-MTR-POL-7001",
+      "holderId": "cust-olivia",
+      "holderName": "Olivia Smith",
+      "marketCode": "AU",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "AUD",
+      "sumInsuredMinor": 4000000,
+      "excessMinor": 80000,
+      "coveredPerils": [
+        "COLLISION",
+        "THEFT",
+        "FIRE",
+        "FLOOD"
+      ],
+      "vehicle": {
+        "registration": "ABC123",
+        "make": "Mazda",
+        "model": "CX-5"
+      }
+    },
+    {
+      "policyNumber": "AU-PRP-POL-7002",
+      "holderId": "cust-olivia",
+      "holderName": "Olivia Smith",
+      "marketCode": "AU",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "AUD",
+      "sumInsuredMinor": 80000000,
+      "excessMinor": 80000,
+      "coveredPerils": [
+        "FIRE",
+        "FLOOD",
+        "THEFT",
+        "WATER_DAMAGE",
+        "STORM"
+      ],
+      "property": {
+        "address": "15 George Street, Sydney NSW 2000"
+      }
+    }
+  ]
+}

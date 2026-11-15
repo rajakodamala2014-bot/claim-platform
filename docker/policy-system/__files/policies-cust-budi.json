@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "policyNumber": "ID-MTR-POL-6001",
+      "holderId": "cust-budi",
+      "holderName": "Budi Santoso",
+      "marketCode": "ID",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "IDR",
+      "sumInsuredMinor": 30000000000,
+      "excessMinor": 100000000,
+      "coveredPerils": [
+        "COLLISION",
+        "THEFT",
+        "FIRE",
+        "FLOOD"
+      ],
+      "vehicle": {
+        "registration": "B 1234 XYZ",
+        "make": "Toyota",
+        "model": "Avanza"
+      }
+    },
+    {
+      "policyNumber": "ID-PRP-POL-6002",
+      "holderId": "cust-budi",
+      "holderName": "Budi Santoso",
+      "marketCode": "ID",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "IDR",
+      "sumInsuredMinor": 200000000000,
+      "excessMinor": 100000000,
+      "coveredPerils": [
+        "FIRE",
+        "FLOOD",
+        "THEFT",
+        "WATER_DAMAGE",
+        "STORM"
+      ],
+      "property": {
+        "address": "Jl. Jend. Sudirman No. 10, Jakarta 10220"
+      }
+    }
+  ]
+}

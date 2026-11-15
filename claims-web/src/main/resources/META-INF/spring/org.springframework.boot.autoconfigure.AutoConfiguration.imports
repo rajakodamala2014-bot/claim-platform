@@ -1,0 +1,2 @@
+com.claims.platform.web.PlatformWebAutoConfiguration
+com.claims.platform.web.security.PlatformSecurityAutoConfiguration

@@ -1,0 +1,66 @@
+server:
+  port: ${PORT:8082}
+
+spring:
+  application:
+    name: notification-service
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/notification}
+    username: ${DB_USER:claims}
+    password: ${DB_PASSWORD:claims}
+  flyway:
+    schemas: notification
+    create-schemas: true
+  # JPA maps only the reference data (preferences, templates, staff directory). Flyway owns the schema; Hibernate
+  # only validates the mapping. Delivery log, claim contacts and processed_event stay on JdbcClient.
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+platform:
+  messaging:
+    processed-event-table: notification.processed_event
+  security:
+    issuer-uri: ${OIDC_ISSUER_URI:}
+
+notifications:
+  dispatch:
+    enabled: true
+    interval: 1s
+    max-attempts: 3
+  # HMAC key providers use to sign delivery-status callbacks (required; the dev profile provides a local one)
+  provider-callback-secret: ${PROVIDER_CALLBACK_SECRET:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+
+logging:
+  structured:
+    format:
+      console: com.claims.platform.web.logging.MaskingJsonLogFormatter

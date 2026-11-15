@@ -13,27 +13,39 @@
 
     <groupId>com.claims.platform</groupId>
     <artifactId>claims-platform</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>claims-platform</name>
-    <description>Multi-module claims platform</description>
+    <description>Claims platform mono-repo: gateway, claims, insights and notification services</description>
 
     <modules>
+        <!-- shared libraries -->
         <module>claims-common</module>
         <module>claims-web</module>
-        <module>identity-service</module>
+        <module>claims-architecture</module>
+        <module>claims-test-support</module>
+        <module>claims-messaging</module>
+        <!-- deployable services -->
         <module>claims-service</module>
-        <module>document-service</module>
-        <module>notification-service</module>
         <module>insights-service</module>
-        <module>api-gateway</module>
+        <module>notification-service</module>
+        <module>gateway-service</module>
+        <!-- local stand-ins for external systems (never deployed) -->
+        <module>payments-simulator</module>
+        <!-- cross-service happy path against the packaged jars (runs in the verify phase) -->
+        <module>e2e-tests</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
-        <jjwt.version>0.12.6</jjwt.version>
-        <spring-cloud.version>2024.0.1</spring-cloud.version>
         <springdoc.version>2.8.6</springdoc.version>
+        <archunit.version>1.3.0</archunit.version>
+        <embedded-postgres.version>2.1.0</embedded-postgres.version>
+        <embedded-postgres-binaries.version>16.9.0</embedded-postgres-binaries.version>
+        <wiremock.version>3.13.1</wiremock.version>
+        <spring-cloud.version>2024.0.3</spring-cloud.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
+        <bucket4j.version>8.14.0</bucket4j.version>
     </properties>
 
     <dependencyManagement>
@@ -46,6 +58,16 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-circuitbreaker</artifactId>
+                <version>${resilience4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j_jdk17-core</artifactId>
+                <version>${bucket4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.claims.platform</groupId>
                 <artifactId>claims-common</artifactId>
                 <version>${project.version}</version>
@@ -56,10 +78,65 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.claims.platform</groupId>
+                <artifactId>claims-architecture</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.claims.platform</groupId>
+                <artifactId>claims-messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.claims.platform</groupId>
+                <artifactId>claims-test-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zonky.test</groupId>
+                <artifactId>embedded-postgres</artifactId>
+                <version>${embedded-postgres.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.zonky.test.postgres</groupId>
+                <artifactId>embedded-postgres-binaries-bom</artifactId>
+                <version>${embedded-postgres-binaries.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wiremock</groupId>
+                <artifactId>wiremock-standalone</artifactId>
+                <version>${wiremock.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- *Test = unit/slice tests (surefire, `mvn test`); *IT = Testcontainers tests (failsafe, `mvn verify`) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

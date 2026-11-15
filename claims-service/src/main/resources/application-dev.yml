@@ -1,0 +1,12 @@
+# Local development only (docker-compose and IDE runs). Never enable in shared environments.
+platform:
+  security:
+    dev-secret: ${DEV_JWT_SECRET:local-dev-only-secret-change-me-0123456789abcdef}
+
+claims:
+  documents:
+    signing-secret: ${DOCUMENT_SIGNING_SECRET:local-dev-only-upload-signing-secret-0123456789}
+  payments:
+    webhook-secret: ${PAYMENTS_WEBHOOK_SECRET:local-dev-only-payments-webhook-secret-0123456789}
+  crypto:
+    field-key: ${FIELD_ENCRYPTION_KEY:uurr5IPsmu2JaE/1QyyBHPz8Q34mpAKdQ61m4Thx2NA=}

@@ -1,0 +1,7 @@
+# Local development only. Tokens come from the dev issuer (claims-service, POST /dev/token).
+platform:
+  security:
+    dev-secret: ${DEV_JWT_SECRET:local-dev-only-secret-change-me-0123456789abcdef}
+
+notifications:
+  provider-callback-secret: ${PROVIDER_CALLBACK_SECRET:local-dev-only-provider-callback-secret-0123456789}

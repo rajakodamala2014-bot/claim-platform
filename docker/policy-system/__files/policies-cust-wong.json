@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "policyNumber": "HK-MTR-POL-3001",
+      "holderId": "cust-wong",
+      "holderName": "Wong Siu Ming",
+      "marketCode": "HK",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "HKD",
+      "sumInsuredMinor": 20000000,
+      "excessMinor": 300000,
+      "coveredPerils": [
+        "COLLISION",
+        "THEFT",
+        "FIRE",
+        "FLOOD"
+      ],
+      "vehicle": {
+        "registration": "KX 1234",
+        "make": "Toyota",
+        "model": "Alphard"
+      }
+    },
+    {
+      "policyNumber": "HK-PRP-POL-3002",
+      "holderId": "cust-wong",
+      "holderName": "Wong Siu Ming",
+      "marketCode": "HK",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "HKD",
+      "sumInsuredMinor": 300000000,
+      "excessMinor": 300000,
+      "coveredPerils": [
+        "FIRE",
+        "FLOOD",
+        "THEFT",
+        "WATER_DAMAGE",
+        "STORM"
+      ],
+      "property": {
+        "address": "Flat 12B, 88 Nathan Road, Tsim Sha Tsui, Hong Kong"
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -8,44 +8,78 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/claims_db
-    username: claims
-    password: claims
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate.jdbc.time_zone: UTC
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/claims}
+    username: ${DB_USER:claims}
+    password: ${DB_PASSWORD:claims}
   flyway:
-    enabled: true
+    # One schema per module; the Flyway history table lives in the first one (platform).
+    schemas: platform,core,intake,handling,settlement
+    create-schemas: true
   jackson:
     serialization:
       write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:19092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: claims-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 claims:
-  security:
-    jwt-secret: claims-platform-dev-secret-change-me!!
-    issuer: claims-platform
-    access-token-ttl: 1h
-    internal-token: dev-internal-token
-    internal-paths:
-      - /api/v1/settlements/*/confirmation
-  identity:
-    base-url: http://localhost:8081
-  events:
-    consumer-urls:
-      - http://localhost:8084/api/v1/internal/events
-      - http://localhost:8085/api/v1/internal/events
+  policy-system:
+    base-url: ${POLICY_BASE_URL:http://localhost:8089}
+    timeout: 2s
+    cache-ttl: 5m
+  documents:
+    storage-dir: ${DOCUMENT_STORAGE_DIR:data/documents}
+    public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
+    # required; no default outside the dev profile so production can't run with a known key
+    signing-secret: ${DOCUMENT_SIGNING_SECRET:}
+    url-ttl: 15m
   outbox:
-    delay-ms: 2000
+    relay:
+      enabled: true
+      interval: 500ms
+      batch-size: 200
+  jobs:
+    enabled: true
+    cover-check-retry-interval: 10m
+    info-request-expiry-cron: "0 0 1 * * *"   # daily 01:00 UTC
+    auto-close-cron: "0 30 1 * * *"           # daily 01:30 UTC
+  payments:
+    # HMAC key of the fallback payments webhook (required; dev profile provides a local one)
+    webhook-secret: ${PAYMENTS_WEBHOOK_SECRET:}
+  crypto:
+    # AES-256 key (base64) for bank account numbers at rest (required; dev profile provides a local one)
+    field-key: ${FIELD_ENCRYPTION_KEY:}
+
+platform:
+  messaging:
+    processed-event-table: platform.processed_event
+  security:
+    # Real environments: the identity provider. Unset -> the dev HS256 key (dev profile) must be configured.
+    issuer-uri: ${OIDC_ISSUER_URI:}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
 
 logging:
-  pattern:
-    level: "%5p [corr=%X{correlationId:-}]"
+  structured:
+    format:
+      console: com.claims.platform.web.logging.MaskingJsonLogFormatter

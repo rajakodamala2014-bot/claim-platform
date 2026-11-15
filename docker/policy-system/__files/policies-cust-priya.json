@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "policyNumber": "SG-MTR-POL-1001",
+      "holderId": "cust-priya",
+      "holderName": "Priya Nair",
+      "marketCode": "SG",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "SGD",
+      "sumInsuredMinor": 3000000,
+      "excessMinor": 50000,
+      "coveredPerils": ["COLLISION", "THEFT", "FIRE", "FLOOD"],
+      "vehicle": { "registration": "SBA1234X", "make": "Toyota", "model": "Corolla" }
+    },
+    {
+      "policyNumber": "SG-PRP-POL-2001",
+      "holderId": "cust-priya",
+      "holderName": "Priya Nair",
+      "marketCode": "SG",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "SGD",
+      "sumInsuredMinor": 15000000,
+      "excessMinor": 25000,
+      "coveredPerils": ["FIRE", "FLOOD", "THEFT", "WATER_DAMAGE"],
+      "property": { "address": "10 Marina Boulevard, #12-01, Singapore 018983" }
+    },
+    {
+      "policyNumber": "SG-MTR-POL-1500",
+      "holderId": "cust-priya",
+      "holderName": "Priya Nair",
+      "marketCode": "SG",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Third Party, Fire and Theft",
+      "status": "ACTIVE",
+      "coverageStart": "2026-03-01",
+      "coverageEnd": "2027-02-28",
+      "currency": "SGD",
+      "sumInsuredMinor": 2000000,
+      "excessMinor": 75000,
+      "coveredPerils": ["THEFT", "FIRE"],
+      "vehicle": { "registration": "SKC8821M", "make": "Honda", "model": "Jazz" }
+    }
+  ]
+}

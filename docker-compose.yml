@@ -1,0 +1,198 @@
+# Claims platform — full local stack.
+#
+#   docker compose up -d --build        everything: infra + 4 services + simulators (gateway on http://localhost:8000)
+#   docker compose up -d postgres redpanda kafka-init redpanda-console policy-system payments-simulator
+#                                       infra only, when running the services from the IDE / mvn spring-boot:run
+#
+# Built by us:   gateway-service :8000 (Spring Cloud Gateway: routing, JWT validation, rate limits, circuit breakers),
+#                claims-service :8080, insights-service :8081, notification-service :8082
+# Stand-ins for things we don't build (local only):
+#   policy-system      WireMock (Policy admin system, sync REST)      :8089
+#   payments-simulator fake Payments system on Kafka                   :8083
+#   identity provider  dev token issuer in claims-service (profile 'dev'), POST /dev/token
+name: claims-platform
+
+x-service-env: &service-env
+  SPRING_PROFILES_ACTIVE: dev
+  DB_USER: claims
+  DB_PASSWORD: claims
+  KAFKA_BOOTSTRAP: redpanda:9092
+  # Shared HS256 key of the local token issuer; real environments use the IdP's issuer-uri/JWKS instead.
+  DEV_JWT_SECRET: local-dev-only-secret-change-me-0123456789abcdef
+
+x-service-build: &service-build
+  context: .
+  dockerfile: docker/service.Dockerfile
+
+x-depends-on-infra: &depends-on-infra
+  postgres:
+    condition: service_healthy
+  kafka-init:
+    condition: service_completed_successfully
+
+services:
+  # ---------------------------------------------------------------- infrastructure
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: claims
+      POSTGRES_PASSWORD: claims
+      POSTGRES_DB: claims
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # creates the insights and notification databases (one database per service)
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claims -d claims"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.27
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --smp 1
+      - --memory 1G
+      - --mode dev-container
+      - --default-log-level=warn
+    ports:
+      - "19092:19092"   # Kafka API for processes on the host (KAFKA_BOOTSTRAP=localhost:19092)
+      - "19644:9644"    # admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  kafka-init:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.27
+    entrypoint: ["/bin/bash", "/scripts/create-topics.sh"]
+    environment:
+      BROKERS: redpanda:9092
+    volumes:
+      - ./docker/kafka:/scripts:ro
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    restart: "no"
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.8.19
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports:
+      - "8090:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------- external systems (stand-ins)
+  policy-system:
+    image: wiremock/wiremock:3.9.2
+    command: ["--port", "8080", "--disable-banner"]
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./docker/policy-system:/home/wiremock:ro
+
+  payments-simulator:
+    build:
+      <<: *service-build
+      args:
+        SERVICE: payments-simulator
+    environment:
+      KAFKA_BOOTSTRAP: redpanda:9092
+      PAYMENT_DELAY: 3s
+    ports:
+      - "8083:8083"
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+
+  # ---------------------------------------------------------------- our services
+  claims-service:
+    build:
+      <<: *service-build
+      args:
+        SERVICE: claims-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://postgres:5432/claims
+      POLICY_BASE_URL: http://policy-system:8080
+      # filesystem DocumentStorage adapter; pre-signed upload URLs point back at the gateway
+      DOCUMENT_STORAGE_DIR: /data/documents
+      PUBLIC_BASE_URL: http://localhost:8000
+    ports:
+      - "8080:8080"
+    volumes:
+      - documents:/data/documents
+    depends_on:
+      <<: *depends-on-infra
+      policy-system:
+        condition: service_started
+
+  insights-service:
+    build:
+      <<: *service-build
+      args:
+        SERVICE: insights-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://postgres:5432/insights
+    ports:
+      - "8081:8081"
+    depends_on: *depends-on-infra
+
+  notification-service:
+    build:
+      <<: *service-build
+      args:
+        SERVICE: notification-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://postgres:5432/notification
+    ports:
+      - "8082:8082"
+    depends_on: *depends-on-infra
+
+  # claimant portal (React + Vite build served by nginx); use it through the gateway: http://localhost:8000
+  claims-ui:
+    build:
+      context: ./claims-ui
+    image: claims-ui
+    ports:
+      - "3000:80"
+
+  # API gateway (gateway-service): the only public entry point. Actuator is on :8001, not published.
+  gateway:
+    build:
+      <<: *service-build
+      args:
+        SERVICE: gateway-service
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DEV_JWT_SECRET: local-dev-only-secret-change-me-0123456789abcdef
+      CLAIMS_URL: http://claims-service:8080
+      INSIGHTS_URL: http://insights-service:8081
+      NOTIFICATION_URL: http://notification-service:8082
+      UI_URL: http://claims-ui:80
+    ports:
+      - "8000:8000"
+    depends_on:
+      - claims-service
+      - insights-service
+      - notification-service
+      - claims-ui
+
+volumes:
+  postgres-data:
+  redpanda-data:
+  documents:

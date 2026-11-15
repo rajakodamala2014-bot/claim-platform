@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "policyNumber": "MY-MTR-POL-4001",
+      "holderId": "cust-aisyah",
+      "holderName": "Nur Aisyah Binti Ahmad",
+      "marketCode": "MY",
+      "lineOfBusiness": "MOTOR",
+      "product": "Motor Comprehensive",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "MYR",
+      "sumInsuredMinor": 12000000,
+      "excessMinor": 50000,
+      "coveredPerils": [
+        "COLLISION",
+        "THEFT",
+        "FIRE",
+        "FLOOD"
+      ],
+      "vehicle": {
+        "registration": "WXY 1234",
+        "make": "Perodua",
+        "model": "Myvi"
+      }
+    },
+    {
+      "policyNumber": "MY-PRP-POL-4002",
+      "holderId": "cust-aisyah",
+      "holderName": "Nur Aisyah Binti Ahmad",
+      "marketCode": "MY",
+      "lineOfBusiness": "PROPERTY",
+      "product": "Home Contents",
+      "status": "ACTIVE",
+      "coverageStart": "2026-01-01",
+      "coverageEnd": "2026-12-31",
+      "currency": "MYR",
+      "sumInsuredMinor": 60000000,
+      "excessMinor": 50000,
+      "coveredPerils": [
+        "FIRE",
+        "FLOOD",
+        "THEFT",
+        "WATER_DAMAGE",
+        "STORM"
+      ],
+      "property": {
+        "address": "12 Jalan Ampang, 50450 Kuala Lumpur"
+      }
+    }
+  ]
+}

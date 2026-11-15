@@ -4,6 +4,7 @@ target/
 .classpath
 .project
 .settings/
-data/
+.vscode/
 *.log
-.mvn/
+# local document storage used by the filesystem DocumentStorage adapter
+data/

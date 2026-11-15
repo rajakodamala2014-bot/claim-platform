@@ -1,0 +1,58 @@
+server:
+  port: ${PORT:8000}
+
+spring:
+  application:
+    name: gateway-service
+  threads:
+    virtual:
+      enabled: true
+  jackson:
+    default-property-inclusion: non_null
+
+gateway:
+  upstreams:
+    claims: ${CLAIMS_URL:http://localhost:8080}
+    insights: ${INSIGHTS_URL:http://localhost:8081}
+    notification: ${NOTIFICATION_URL:http://localhost:8082}
+    ui: ${UI_URL:http://localhost:3000}
+  # POST /dev/token -> claims-service; only the dev profile turns this on
+  dev-token-route: false
+  max-body-size: 20MB
+  rate-limit:
+    enabled: true
+    authenticated: ${RATE_LIMIT_AUTHENTICATED:300}   # requests/minute per token subject
+    anonymous: ${RATE_LIMIT_ANONYMOUS:60}            # requests/minute per client IP
+  circuit-breaker:
+    failure-rate-threshold: 50
+    window-size: 20
+    minimum-calls: 10
+    open-duration: 10s
+    half-open-calls: 3
+  http-client:
+    connect-timeout: 2s
+    read-timeout: 30s
+
+platform:
+  security:
+    # Real environments: the identity provider. Unset -> the dev HS256 key (dev profile) must be configured.
+    issuer-uri: ${OIDC_ISSUER_URI:}
+
+management:
+  server:
+    # Actuator is served on its own port, so /actuator/** on the public port is never reachable.
+    port: ${MANAGEMENT_PORT:8001}
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+
+logging:
+  structured:
+    format:
+      console: com.claims.platform.web.logging.MaskingJsonLogFormatter
