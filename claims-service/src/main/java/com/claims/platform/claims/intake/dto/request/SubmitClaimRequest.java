@@ -1,6 +1,7 @@
 package com.claims.platform.claims.intake.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.claims.platform.claims.core.dto.request.MoneyRequest;
 import com.claims.platform.claims.core.entity.LineOfBusiness;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

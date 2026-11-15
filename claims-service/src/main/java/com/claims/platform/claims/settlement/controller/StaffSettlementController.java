@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import com.claims.platform.claims.core.dto.response.CommandResponse;
-import com.claims.platform.claims.core.dto.response.MoneyResponse;
 import com.claims.platform.claims.settlement.dto.response.SettlementInstructionResponse;
 import com.claims.platform.claims.settlement.dto.request.RetrySettlementRequest;
 import com.claims.platform.claims.settlement.dto.request.InstructSettlementRequest;
@@ -13,10 +12,8 @@ import com.claims.platform.claims.core.service.StaffClaimCommandService.Outcome;
 import com.claims.platform.claims.core.entity.ClaimId;
 import com.claims.platform.claims.core.entity.Payee;
 import com.claims.platform.claims.core.entity.Settlement;
-import com.claims.platform.claims.core.exception.ValidationException;
 import com.claims.platform.claims.platform.common.StaffRequestSupport;
 import com.claims.platform.claims.settlement.service.SettlementService;
-import com.claims.platform.common.money.Money;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -63,14 +60,8 @@ public class StaffSettlementController {
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
                                                                       @Valid @RequestBody InstructSettlementRequest body) {
         long version = StaffRequestSupport.parseExpectedVersion(ifMatch);
-        Money amount;
-        try {
-            amount = Money.of(body.amount().amount(), body.amount().currency());
-        } catch (IllegalArgumentException ex) {
-            throw ValidationException.of("amount", ex.getMessage());
-        }
         Outcome<Settlement> outcome = settlementService.instructSettlement(new ClaimId(claimId), StaffRequestSupport.toStaffContext(jwt), version,
-                body.payee().toPayee(), amount);
+                body.payee().toPayee(), body.amount().toMoney("amount"));
         return StaffRequestSupport.toResponseEntity(HttpStatus.CREATED, map(outcome));
     }
 

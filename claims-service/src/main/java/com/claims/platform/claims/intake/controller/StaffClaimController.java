@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import com.claims.platform.claims.intake.dto.request.IncidentRequest;
 import com.claims.platform.claims.intake.dto.request.ContactRequest;
-import com.claims.platform.claims.intake.dto.request.MoneyRequest;
 import com.claims.platform.claims.core.dto.response.AuditEntryResponse;
 import com.claims.platform.claims.intake.dto.request.RegisterClaimRequest;
 import com.claims.platform.claims.intake.dto.response.StaffClaimWorkspaceResponse;
