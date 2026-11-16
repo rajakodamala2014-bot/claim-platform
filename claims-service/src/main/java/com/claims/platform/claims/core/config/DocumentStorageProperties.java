@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 /**
- * @param storageDir    where the local adapter keeps the bytes (a volume in docker-compose)
+ * @param storageDir    where the local storage keeps the bytes (a volume in docker-compose)
  * @param publicBaseUrl base URL the app uses to reach this service (the gateway in docker-compose)
  * @param signingSecret HMAC key for pre-signed URLs
  * @param urlTtl        how long a pre-signed URL stays valid

@@ -104,7 +104,7 @@ class Routes {
 
     /**
      * HTTP/1.1 only: the JDK client's default h2c upgrade attempt breaks POSTs against the services (same
-     * reason as the Policy adapter). Redirects are passed to the caller, never followed.
+     * reason as the Policy client). Redirects are passed to the caller, never followed.
      */
     @Bean
     ClientHttpRequestFactory gatewayClientHttpRequestFactory() {

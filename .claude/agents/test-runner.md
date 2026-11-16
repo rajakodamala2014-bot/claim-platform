@@ -15,12 +15,13 @@ You run and diagnose tests for the claims platform (Maven multi-module, Java 21,
 - Failure details: `<module>/target/surefire-reports/TEST-*.xml` (unit) or `target/failsafe-reports/` (IT); grep `<failure` / `<error` and drop `at ...` stack lines. For a 500 in an IT, grep the log for `"message":"Unhandled error"`.
 
 ## Things that look like bugs but are test infrastructure
-- No Docker here: `TestPostgres` falls back to Zonky embedded PostgreSQL 16 and `TestKafka` to an in-JVM KRaft broker. ITs therefore **run**, they are never skipped. `-Dtest.postgres=testcontainers` / `-Dtest.kafka=testcontainers` force containers.
+- Without Docker: `TestPostgres` (claims-common test-jar) falls back to Zonky embedded PostgreSQL 16 and `TestKafka` to an in-JVM KRaft broker. ITs therefore **run**, they are never skipped. `-Dtest.postgres=testcontainers` / `-Dtest.kafka=testcontainers` force containers.
 - Spring caches test contexts; each gets a unique `spring.kafka.consumer.group-id` from `TestKafka.register`. Several live contexts may each consume (and dead-letter) the same message — tests must assert on content, not exact DLQ counts.
 - JUnit does not run methods in declaration order; a test that mutates shared seed data (templates, WireMock stubs) can break another.
 - Rows written in one transaction share `created_at`; ordering by it is random (use identity `seq`).
 - WireMock mapping files are read-only: use `removeStub(stub)`, never `resetMappings()`.
-- Timing assertions under full-build load (embedded PG + Kafka in parallel) need generous margins.
+- Timing assertions under full-build load (embedded PG + Kafka in parallel) need generous margins. An IT that fails with "Failed to load ApplicationContext" in a full build but passes alone is usually the embedded broker or database starting slowly on a busy machine (for example with the Docker stack running): rerun that IT alone before calling it a product bug, and say that you did.
+- There is no ArchUnit / architecture test module and no e2e module: the layered rules are reviewed by `architecture-reviewer`, and the running stack is checked with `deployment/smoke.sh`.
 
 ## Report format
 1. Command run and result (counts: run / failed / errored / skipped).

@@ -223,6 +223,49 @@ Claim path: `SUBMITTED` → `TRIAGED` → `ASSIGNED` → `UNDER_ASSESSMENT` → 
 
 Swagger on each service lists every endpoint. The gateway routes are the ones the browser and Bruno should call.
 
+## Project layout
+
+| Folder | What it is |
+|---|---|
+| `gateway-service` | Public entry point: routing, token and role checks, rate limits, circuit breakers |
+| `claims-service` | Claims, sign-in, document uploads. Modules `core`, `intake`, `handling`, `settlement`, `platform` |
+| `insights-service` | Work queue, search, approvals, dashboards, built from claim events |
+| `notification-service` | Inbox, preferences, templates, e-mail / SMS / push |
+| `payments-simulator` | Stand-in for the Payments system |
+| `claims-common` | The one shared library: event and payment contracts, web and security plumbing, Kafka consumer policy, test helpers |
+| `claims-ui` | Customer and staff portal (React, Vite, TypeScript) |
+| `deployment` | Compose files, production overlay, `.env.example`, image recipe, smoke test, deployment guide |
+| `bruno`, `http` | API collections that walk the business flow |
+| `.claude` | Instructions and review agents for Claude Code |
+
+Every backend service uses the same layered packages, with interfaces separated from implementations:
+
+| Package | Holds |
+|---|---|
+| `controller` | REST endpoints. They map HTTP to a service call and nothing else |
+| `service`, `service.impl` | One interface per service and its `...ServiceImpl` |
+| `repository`, `repository.impl` | One interface per repository and its JDBC or JPA implementation |
+| `entity` | Business objects and their rules, such as the `Claim` state machine |
+| `dto.request`, `dto.response` | One record per request or response body |
+| `mapper` | Conversion between entities and DTOs |
+| `producer`, `consumer` | Outgoing and incoming Kafka messages |
+| `client`, `cache`, `scheduler` | Calls to external systems, in-memory caches, timed jobs |
+| `config`, `exception`, `common` | Spring configuration, error handling, shared helpers |
+
+A request goes controller → service → repository. Controllers never call a repository, and code depends on a service or repository interface, never on its implementation class.
+
+## API documentation
+
+Each service publishes OpenAPI 3 documentation with Swagger UI. Every endpoint lists its parameters, request and response bodies, and each HTTP status it can return. Errors use one format on every service: `application/problem+json` with a stable `code` and a `correlationId`.
+
+| Service | Swagger UI | OpenAPI document |
+|---|---|---|
+| Claims | http://localhost:8080/swagger-ui.html | http://localhost:8080/v3/api-docs |
+| Insights | http://localhost:8081/swagger-ui.html | http://localhost:8081/v3/api-docs |
+| Notification | http://localhost:8082/swagger-ui.html | http://localhost:8082/v3/api-docs |
+
+In Swagger UI, sign in with `POST /auth/login`, copy `access_token`, and paste it under **Authorize**.
+
 ## Tests
 
 ```sh
@@ -233,3 +276,11 @@ Swagger on each service lists every endpoint. The gateway routes are the ones th
 On Windows, `scripts/ci.sh` needs Git Bash. The Maven command is `.\mvnw.cmd -B -ntp verify`.
 
 The UI is not part of the Maven build. After UI changes, run `npm test` and `npm run build` in `claims-ui`.
+
+| Kind | What it covers |
+|---|---|
+| Unit (`*Test`) | Claim state machine for every command in every status, reserve ledger, authority limits, money, service implementations with JUnit 5 and Mockito |
+| Controller (`*ApiTest`) | Every endpoint, every error response, and the security rules |
+| Gateway | Routing table, 401 and 403 rules, rate limits, circuit breakers, header rewriting |
+| Integration (`*IT`) | Real PostgreSQL and Kafka: repositories, outbox ordering, payment results, background jobs, read models, notification dispatch |
+| Whole stack (`deployment/smoke.sh`) | 25 steps through the gateway against the running Docker stack, from sign-in to a settled claim |

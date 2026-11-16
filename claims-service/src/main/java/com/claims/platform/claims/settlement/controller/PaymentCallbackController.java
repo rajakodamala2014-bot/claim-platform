@@ -29,7 +29,7 @@ import java.util.HexFormat;
  * Fallback channel for payment results when the Payments system can't use Kafka:
  * {@code POST /internal/v1/payments/callback} with {@code X-Signature: sha256=<hex HMAC of the raw body>}.
  * Not routed by the gateway (internal network only) and authenticated by the signature, not a user token.
- * Feeds the same use case as the {@code payments.payment-results} consumer.
+ * Feeds the same {@code PaymentResultService} as the {@code payments.payment-results} consumer.
  */
 @RestController
 @Tag(name = "Payment callbacks", description = "Fallback for the Payments system when it cannot use Kafka")

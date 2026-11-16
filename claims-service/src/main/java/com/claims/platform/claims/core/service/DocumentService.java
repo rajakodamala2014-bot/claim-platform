@@ -10,9 +10,9 @@ public interface DocumentService {
     /** Links completed uploads to a claim (FNOL, information responses). Must run inside the caller's transaction. */
     List<UUID> attachDocumentsToClaim(List<UUID> uploadIds, ClaimId claimId, String ownerId);
 
-    /** Storage confirms the bytes arrived (local storage adapter calls this; an S3 adapter would use an event). */
+    /** Storage confirms the bytes arrived (the local storage controller calls this; an S3 adapter would use an event). */
     Document getPendingUpload(UUID uploadId);
 
-    /** Storage confirms the bytes arrived (local storage adapter calls this; an S3 adapter would use an event). */
+    /** Storage confirms the bytes arrived (the local storage controller calls this; an S3 adapter would use an event). */
     Document completeUpload(UUID uploadId, long receivedBytes);
 }

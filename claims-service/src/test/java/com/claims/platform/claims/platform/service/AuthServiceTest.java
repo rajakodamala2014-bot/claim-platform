@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,8 @@ import static org.mockito.Mockito.when;
 
 class AuthServiceTest {
     private static final String SECRET = "test-secret-test-secret-test-secret-123";
-    private static final Instant NOW = Instant.parse("2026-11-15T12:00:00Z");
+    /** The decoder validates expiry against the real clock, so the token must be issued "now", not on a fixed date. */
+    private static final Instant NOW = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     private static final String PASSWORD = "ChangeMe123!";
 
     private final AppUserRepository users = mock(AppUserRepository.class);

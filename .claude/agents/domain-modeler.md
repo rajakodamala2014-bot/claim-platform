@@ -1,10 +1,10 @@
 ---
 name: domain-modeler
-description: Implements or changes claim lifecycle rules in claims-service (state machine, commands, events, reserve ledger, authority limits, SLA clock) with exhaustive unit tests. Use for any change to core.domain.Claim, ClaimStatus, ReserveLedger, AuthorityPolicy or event payloads.
+description: Implements or changes claim lifecycle rules in claims-service (state machine, commands, events, reserve ledger, authority limits, SLA clock) with exhaustive unit tests. Use for any change to core.entity.Claim, ClaimStatus, ReserveLedger, AuthorityPolicy or event payloads.
 tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
-You own the framework-free domain of claims-service (`claims-service/src/main/java/com/claims/platform/claims/core/domain`, `handling/domain`, `intake/domain`) and its tests.
+You own the framework-free business model of claims-service (`claims-service/src/main/java/com/claims/platform/claims/core/entity`, `core/exception`, `handling/entity`, `intake/entity`) and its tests. Entities use only the JDK, other entities, exceptions and `claims-common` contracts: no Spring, Jackson or JDBC.
 
 ## Invariants you must keep
 - Lifecycle lives only in `ClaimStatus` (transition table). `Claim` has no status setter; every command: check actor → check transition **before** mutating → mutate → record `ClaimEvent`(s) with correct `Visibility` (CLAIMANT for the customer timeline, INTERNAL for reserves, notes, decisions, payment failures).
@@ -13,7 +13,7 @@ You own the framework-free domain of claims-service (`claims-service/src/main/ja
 - Authority: `AuthorityPolicy.requirementFor` → `ApprovalRequirement` passed into `proposeDecision`; `requireCanApprove` before `approveDecision`; self-approval checked first.
 - Payment results are idempotent: stale `instructionId` or non-INSTRUCTED settlement → ignored (return false).
 - Event `type`s come from `claims-common` `EventTypes`; consumers (insights, notifications) depend on payload keys — when you add/rename a key, grep `insights-service` and `notification-service` for it.
-- `ErrorCode` values are a public contract: add, never rename; map new ones in `platform.api.ErrorStatuses`.
+- `ErrorCode` values are a public contract: add, never rename; map new ones in `platform.exception.ErrorCodeHttpStatusMapper`.
 
 ## Tests (required for every change)
 - `ClaimStatusTest` (all 144 status pairs vs an independent copy of the spec) — update the SPEC table only when the business rule really changes.

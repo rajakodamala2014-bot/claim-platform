@@ -24,7 +24,7 @@ import java.time.Clock;
 import java.util.UUID;
 
 /**
- * Part of the local storage adapter, standing in for S3: accepts the PUT of a pre-signed upload URL.
+ * Part of the local document storage, standing in for S3: accepts the PUT of a pre-signed upload URL.
  * Authorised by the URL signature (not a bearer token), exactly like an S3 pre-signed URL; the path is
  * permitted in the security config for that reason.
  */

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Appends a message to platform.outbox in the current transaction. The relay (Phase 5) publishes it to Kafka.
+ * Appends a message to platform.outbox in the current transaction. The relay ({@code KafkaOutboxPublisher}) publishes it to Kafka.
  * The correlation id of the current request travels as a header and inside the envelope.
  */
 @Component
