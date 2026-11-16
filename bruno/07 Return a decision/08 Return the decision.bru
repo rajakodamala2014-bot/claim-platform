@@ -1,0 +1,33 @@
+meta {
+  name: Return the decision
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{returnClaimId}}/decisions/{{returnDecisionId}}/approval
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{returnEtag}}
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+body:json {
+  {"action": "RETURN", "comment": "Please attach the repair quote"}
+}
+
+
+
+tests {
+  test("the claim goes back to assessment", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("UNDER_ASSESSMENT");
+  });
+}

@@ -1,0 +1,53 @@
+meta {
+  name: Submit a claim while cover is slow
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {
+    "policyNumber": "SG-MTR-POL-1500",
+    "lineOfBusiness": "MOTOR",
+    "incidentAt": "2026-11-10T09:00:00Z",
+    "incident": {
+    "peril": "COLLISION",
+    "description": "Rear-ended at the traffic lights",
+    "location": "Orchard Road",
+    "vehicleRegistration": "SBA1234X",
+    "driverName": "Priya Nair",
+    "damageDescription": "Rear bumper and boot",
+    "thirdParties": [{"name": "John Lim", "vehicleRegistration": "SGX9876Z", "insurer": "NTUC Income"}]
+  },
+    "claimedAmount": {"amount": "1000.00", "currency": "SGD"}
+  }
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  req.setHeader("Idempotency-Key", crypto.randomUUID());
+
+}
+
+
+tests {
+  test("slow cover stays pending", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().status).to.equal("SUBMITTED");
+    expect(res.getBody().coverStatus).to.equal("PENDING");
+  });
+}

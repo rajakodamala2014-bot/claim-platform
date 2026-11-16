@@ -1,0 +1,23 @@
+meta {
+  name: Customer cannot use staff APIs
+  type: http
+  seq: 33
+}
+
+get {
+  url: {{gateway}}/staff/v1/work-queue
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+
+tests {
+  test("a claimant is forbidden", function () {
+    expect(res.getStatus()).to.equal(403);
+  });
+}

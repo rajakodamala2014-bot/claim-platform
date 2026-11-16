@@ -1,0 +1,37 @@
+meta {
+  name: Request an upload
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway}}/claimant/v1/uploads
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {"fileName": "dashcam.jpg", "contentType": "image/jpeg", "sizeBytes": 11}
+}
+
+
+script:post-response {
+
+  bru.setVar("uploadId", res.getBody().uploadId);
+  bru.setVar("uploadUrl", res.getBody().uploadUrl);
+
+}
+
+tests {
+  test("upload link is issued", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

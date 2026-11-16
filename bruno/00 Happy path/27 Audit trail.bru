@@ -1,0 +1,24 @@
+meta {
+  name: Audit trail
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/audit
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+tests {
+  test("staff can read the audit trail", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(JSON.stringify(res.getBody())).to.include("ClaimSubmitted");
+  });
+}

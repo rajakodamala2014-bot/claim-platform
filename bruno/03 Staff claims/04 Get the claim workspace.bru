@@ -1,0 +1,27 @@
+meta {
+  name: Get the claim workspace
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("workspace includes the claim", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().claim.status).to.equal("TRIAGED");
+  });
+}

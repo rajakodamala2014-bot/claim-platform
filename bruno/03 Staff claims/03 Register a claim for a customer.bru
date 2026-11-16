@@ -1,0 +1,61 @@
+meta {
+  name: Register a claim for a customer
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {
+    "claimantId": "cust-priya",
+    "claimantName": "Priya Nair",
+    "policyNumber": "SG-MTR-POL-1001",
+    "lineOfBusiness": "MOTOR",
+    "incidentAt": "2026-11-10T09:00:00Z",
+    "incident": {
+    "peril": "COLLISION",
+    "description": "Rear-ended at the traffic lights",
+    "location": "Orchard Road",
+    "vehicleRegistration": "SBA1234X",
+    "driverName": "Priya Nair",
+    "damageDescription": "Rear bumper and boot",
+    "thirdParties": [{"name": "John Lim", "vehicleRegistration": "SGX9876Z", "insurer": "NTUC Income"}]
+  },
+    "claimedAmount": {"amount": "4000.00", "currency": "SGD"},
+    "contact": {"phone": "+6591234567"}
+  }
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  req.setHeader("Idempotency-Key", crypto.randomUUID());
+
+}
+
+script:post-response {
+
+  bru.setVar("staffClaimId", res.getBody().claimId);
+  bru.setVar("staffClaimNumber", res.getBody().claimNumber);
+
+}
+
+tests {
+  test("staff registration is triaged", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().status).to.equal("TRIAGED");
+  });
+}

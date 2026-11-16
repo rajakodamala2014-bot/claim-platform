@@ -1,0 +1,32 @@
+meta {
+  name: Withdraw my claim
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims/{{propertyClaimId}}/withdraw
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {"reason": "Reported by mistake"}
+}
+
+
+
+tests {
+  test("the property claim is withdrawn", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("WITHDRAWN");
+  });
+}

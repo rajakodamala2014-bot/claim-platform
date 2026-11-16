@@ -1,0 +1,32 @@
+meta {
+  name: Appeal the rejection
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims/{{appealClaimId}}/appeal
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {"reason": "The dashcam shows the other driver was at fault"}
+}
+
+
+
+tests {
+  test("the appeal reopens assessment", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("UNDER_ASSESSMENT");
+  });
+}

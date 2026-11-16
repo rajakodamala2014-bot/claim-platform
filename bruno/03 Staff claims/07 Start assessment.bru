@@ -1,0 +1,31 @@
+meta {
+  name: Start assessment
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/start-assessment
+  body: none
+  auth: bearer
+}
+
+headers {
+  If-Match: {{staffEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("assessment starts", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("UNDER_ASSESSMENT");
+  });
+}

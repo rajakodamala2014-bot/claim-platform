@@ -1,0 +1,43 @@
+meta {
+  name: Record a payment result
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{claims}}/internal/v1/payments/callback
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  const raw = JSON.stringify({
+    instructionId: "00000000-0000-0000-0000-000000000001",
+    settlementId: "00000000-0000-0000-0000-000000000002",
+    claimId: "00000000-0000-0000-0000-000000000003",
+    status: "PAID",
+    paymentRef: "bruno-demo",
+    failureReason: null,
+    amountMinor: 100,
+    currency: "SGD",
+    processedAt: "2026-11-15T00:00:00Z"
+  });
+  const hex = crypto.createHmac("sha256", bru.getEnvVar("paymentsWebhookSecret")).update(raw).digest("hex");
+  req.setHeader("X-Signature", "sha256=" + hex);
+  req.setBody(raw);
+
+}
+
+
+tests {
+  test("an unknown claim is acknowledged", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().outcome).to.equal("UNKNOWN_CLAIM");
+  });
+}

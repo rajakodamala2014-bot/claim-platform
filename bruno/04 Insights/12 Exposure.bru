@@ -1,0 +1,24 @@
+meta {
+  name: Exposure
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/exposure?market=SG&lob=MOTOR
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{leeToken}}
+}
+
+
+
+tests {
+  test("Exposure returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

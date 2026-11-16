@@ -100,6 +100,10 @@ class StaffApiTest {
         mvc.perform(post("/staff/v1/claims/{id}/assignment", CLAIM).with(arun()).header("If-Match", "W/\"3\""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("If-Match"));
+        // a version too large for a long is a bad request, not a 500
+        mvc.perform(post("/staff/v1/claims/{id}/assignment", CLAIM).with(arun()).header("If-Match", "\"99999999999999999999\""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("If-Match"));
         verifyNoInteractions(claimHandlingService);
     }
 

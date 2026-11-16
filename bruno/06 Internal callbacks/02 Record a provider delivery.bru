@@ -1,0 +1,36 @@
+meta {
+  name: Record a provider delivery
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{notification}}/internal/v1/providers/fake-email/delivery-status
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  const raw = JSON.stringify({
+    providerMessageId: "bruno-unknown-message",
+    status: "DELIVERED"
+  });
+  const hex = crypto.createHmac("sha256", bru.getEnvVar("providerCallbackSecret")).update(raw).digest("hex");
+  req.setHeader("X-Signature", "sha256=" + hex);
+  req.setBody(raw);
+
+}
+
+
+tests {
+  test("a signed unknown message is not found", function () {
+    expect(res.getStatus()).to.equal(404);
+    expect(res.getBody().code).to.equal("NOT_FOUND");
+  });
+}

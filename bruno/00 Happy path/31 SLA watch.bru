@@ -1,0 +1,24 @@
+meta {
+  name: SLA watch
+  type: http
+  seq: 31
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/sla?market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+tests {
+  test("a team lead can read the SLA watch", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

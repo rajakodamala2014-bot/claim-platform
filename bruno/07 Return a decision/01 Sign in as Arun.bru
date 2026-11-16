@@ -1,0 +1,39 @@
+meta {
+  name: Sign in as Arun
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "arun",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.access_token) {
+    bru.setVar("arunToken", body.access_token);
+  }
+}
+
+tests {
+  test("arun can sign in", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.token_type).to.equal("Bearer");
+    expect(body.sub).to.equal("h-arun");
+    expect(body.role).to.equal("HANDLER");
+  });
+}

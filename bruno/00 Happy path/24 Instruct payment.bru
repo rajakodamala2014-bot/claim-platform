@@ -1,0 +1,46 @@
+meta {
+  name: Instruct payment
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/settlements
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {
+    "payee": {"name": "Priya Nair", "bankCode": "DBSSSGSG", "accountNumber": "123456789"},
+    "amount": {"amount": "12000.00", "currency": "SGD"}
+  }
+}
+
+
+script:post-response {
+
+  const body = res.getBody();
+  bru.setVar("settlementId", body.result.settlementId);
+  bru.setVar("instructionId", body.result.instructionId);
+  const etag = res.getHeader("etag");
+  if (etag) bru.setVar("etag", etag);
+
+}
+
+tests {
+  test("payment is instructed", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().status).to.equal("SETTLEMENT_IN_PROGRESS");
+    expect(res.getBody().result.instructionId).to.be.a("string");
+  });
+}

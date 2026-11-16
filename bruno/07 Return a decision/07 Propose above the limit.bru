@@ -1,0 +1,38 @@
+meta {
+  name: Propose above the limit
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{returnClaimId}}/decisions
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{returnEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"outcome": "APPROVE", "amount": {"amount": "12000.00", "currency": "SGD"}}
+}
+
+
+script:post-response {
+
+  bru.setVar("returnDecisionId", res.getBody().result.decisionId);
+  if (res.getHeader("etag")) bru.setVar("returnEtag", res.getHeader("etag"));
+
+}
+
+tests {
+  test("waiting for approval", function () {
+    expect(res.getStatus()).to.equal(202);
+  });
+}

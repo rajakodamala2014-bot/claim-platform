@@ -1,0 +1,12 @@
+meta {
+  name: Claims platform
+}
+
+docs {
+  Local API collection for the claims platform.
+  Select the Local environment, then run the folder "00 Happy path" from top to bottom.
+  From the command line: npx @usebruno/cli run "00 Happy path" --env Local --sandbox developer
+  That folder signs in, reports a claim, and walks it through to SETTLED, then checks notifications and insights.
+  The other folders cover each surface on its own: sign-in, claimant, staff, insights, templates, and the signed internal callbacks.
+  Password and webhook secrets are the local seed values from deployment, not production secrets.
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Set the reserve
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/reserves
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{staffEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"amount": {"amount": "9000.00", "currency": "SGD"}, "reason": "Within handler authority"}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("reserve is set", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().result.amount).to.equal("9000.00");
+  });
+}

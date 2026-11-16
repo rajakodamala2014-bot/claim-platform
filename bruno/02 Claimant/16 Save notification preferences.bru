@@ -1,0 +1,38 @@
+meta {
+  name: Save notification preferences
+  type: http
+  seq: 16
+}
+
+put {
+  url: {{gateway}}/claimant/v1/notification-preferences
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {
+    "language": "en",
+    "email": {"enabled": true, "address": "priya@example.com"},
+    "sms": {"enabled": true, "address": "+6591234567"},
+    "push": {"enabled": true, "address": ""}
+  }
+}
+
+
+
+tests {
+  test("preferences are saved", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().email.enabled).to.equal(true);
+    expect(res.getBody().email.address).to.equal("priya@example.com");
+  });
+}

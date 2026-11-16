@@ -1,0 +1,24 @@
+meta {
+  name: Open the claim
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{appealClaimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("appealEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("workspace opens", function () { expect(res.getStatus()).to.equal(200); });
+}

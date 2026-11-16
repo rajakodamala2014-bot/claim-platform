@@ -1,0 +1,35 @@
+meta {
+  name: Record an assessment
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/assessments
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{staffEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"liability": "FULL", "assessedAmount": {"amount": "9000.00", "currency": "SGD"}, "notes": "Within authority"}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("assessment is recorded", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

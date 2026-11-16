@@ -1,0 +1,27 @@
+meta {
+  name: Upload the file
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{uploadUrl}}
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: image/jpeg
+}
+
+body:text {
+hello photo
+}
+
+
+
+tests {
+  test("file is stored", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

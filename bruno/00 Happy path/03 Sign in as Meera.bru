@@ -1,0 +1,39 @@
+meta {
+  name: Sign in as Meera
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "meera",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.access_token) {
+    bru.setVar("meeraToken", body.access_token);
+  }
+}
+
+tests {
+  test("meera can sign in", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.token_type).to.equal("Bearer");
+    expect(body.sub).to.equal("tl-meera");
+    expect(body.role).to.equal("TEAM_LEAD");
+  });
+}

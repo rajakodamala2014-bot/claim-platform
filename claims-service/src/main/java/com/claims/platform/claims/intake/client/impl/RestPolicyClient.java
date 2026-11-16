@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 /**
  * REST client of the Policy admin system. Contract (see deployment/docker/policy-system for the local stub):
@@ -67,8 +68,9 @@ public class RestPolicyClient implements PolicyClient {
                     : body.items().stream().map(PolicyDto::toSnapshot).toList();
             cache.putPoliciesOfHolder(holderId, policies);
             return policies;
-        } catch (RestClientException ex) {
-            log.warn("Policy system unavailable listing policies: {}", ex.getMessage());
+        } catch (RestClientException | CancellationException ex) {
+            // the JDK request factory's read timeout cancels the call; that can surface unwrapped as a CancellationException
+            log.warn("Policy system unavailable listing policies: {}", ex.toString());
             throw new DomainException(ErrorCode.POLICY_SYSTEM_UNAVAILABLE,
                     "The policy system is temporarily unavailable. Please try again shortly.");
         }
@@ -96,8 +98,8 @@ public class RestPolicyClient implements PolicyClient {
             }
             log.warn("Cover check failed for {}: HTTP {}", policyNumber, ex.getStatusCode().value());
             return new CoverCheck.Unavailable("HTTP " + ex.getStatusCode().value());
-        } catch (RestClientException ex) {
-            log.warn("Cover check unavailable for {}: {}", policyNumber, ex.getMessage());
+        } catch (RestClientException | CancellationException ex) {
+            log.warn("Cover check unavailable for {}: {}", policyNumber, ex.toString());
             return new CoverCheck.Unavailable(ex.getClass().getSimpleName());
         }
     }

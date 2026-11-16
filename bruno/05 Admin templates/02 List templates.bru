@@ -1,0 +1,35 @@
+meta {
+  name: List templates
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{gateway}}/admin/v1/templates
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{leeToken}}
+}
+
+
+script:post-response {
+
+  const items = res.getBody().items || [];
+  const current = items.find((item) => item.id === "ClaimSubmitted.CUSTOMER.en") || items[0];
+  if (current) {
+    bru.setVar("templateId", current.id);
+    bru.setVar("templateSubject", current.subject);
+    bru.setVar("templateBody", current.body);
+  }
+
+}
+
+tests {
+  test("templates are listed", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items.length).to.be.above(0);
+  });
+}

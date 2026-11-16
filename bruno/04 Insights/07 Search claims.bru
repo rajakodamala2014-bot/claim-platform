@@ -1,0 +1,24 @@
+meta {
+  name: Search claims
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{gateway}}/staff/v1/search?status=TRIAGED&market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+tests {
+  test("Search claims returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

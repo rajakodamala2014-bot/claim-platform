@@ -1,0 +1,24 @@
+meta {
+  name: Work queue mine
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{gateway}}/staff/v1/work-queue?view=mine&market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+tests {
+  test("Work queue mine returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

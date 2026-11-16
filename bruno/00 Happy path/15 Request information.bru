@@ -1,0 +1,41 @@
+meta {
+  name: Request information
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/info-requests
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"items": ["Police report", "Repair quote"]}
+}
+
+
+script:post-response {
+
+  bru.setVar("requestId", res.getBody().result);
+  const etag = res.getHeader("etag");
+  if (etag) bru.setVar("etag", etag);
+
+}
+
+tests {
+  test("the claim waits for the customer", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().status).to.equal("AWAITING_INFO");
+    expect(res.getBody().result).to.be.a("string");
+  });
+}

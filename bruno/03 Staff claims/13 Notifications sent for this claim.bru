@@ -1,0 +1,24 @@
+meta {
+  name: Notifications sent for this claim
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+
+tests {
+  test("notification history is readable", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

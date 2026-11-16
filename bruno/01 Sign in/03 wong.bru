@@ -1,0 +1,39 @@
+meta {
+  name: wong
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "wong",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.access_token) {
+    bru.setVar("wongToken", body.access_token);
+  }
+}
+
+tests {
+  test("wong can sign in", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.token_type).to.equal("Bearer");
+    expect(body.sub).to.equal("cust-wong");
+    expect(body.role).to.equal("CLAIMANT");
+  });
+}

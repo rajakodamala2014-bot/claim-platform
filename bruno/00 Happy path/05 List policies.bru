@@ -1,0 +1,24 @@
+meta {
+  name: List policies
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{gateway}}/claimant/v1/policies
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+
+tests {
+  test("Priya's policies include the demo motor policy", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(JSON.stringify(res.getBody())).to.include("SG-MTR-POL-1001");
+  });
+}

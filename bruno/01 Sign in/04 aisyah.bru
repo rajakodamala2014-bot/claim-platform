@@ -1,0 +1,39 @@
+meta {
+  name: aisyah
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "aisyah",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.access_token) {
+    bru.setVar("aisyahToken", body.access_token);
+  }
+}
+
+tests {
+  test("aisyah can sign in", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.token_type).to.equal("Bearer");
+    expect(body.sub).to.equal("cust-aisyah");
+    expect(body.role).to.equal("CLAIMANT");
+  });
+}

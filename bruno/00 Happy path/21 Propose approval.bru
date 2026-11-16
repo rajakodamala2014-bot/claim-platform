@@ -1,0 +1,41 @@
+meta {
+  name: Propose approval
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/decisions
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{etag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"outcome": "APPROVE", "amount": {"amount": "12000.00", "currency": "SGD"}}
+}
+
+
+script:post-response {
+
+  bru.setVar("decisionId", res.getBody().result.decisionId);
+  const etag = res.getHeader("etag");
+  if (etag) bru.setVar("etag", etag);
+
+}
+
+tests {
+  test("SGD 12000 waits for a team lead", function () {
+    expect(res.getStatus()).to.equal(202);
+    expect(res.getBody().status).to.equal("DECISION_PENDING");
+    expect(res.getBody().result.approvalRequired).to.equal(true);
+  });
+}

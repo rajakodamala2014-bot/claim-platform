@@ -1,0 +1,47 @@
+meta {
+  name: Messages sent
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+script:pre-request {
+
+
+  const { execFileSync } = require("child_process");
+  function sleep(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  function curlJson(url, token) {
+    const args = ["-sS", url, "-H", "Authorization: Bearer " + token];
+    const out = execFileSync("curl", args, { encoding: "utf8" });
+    return JSON.parse(out);
+  }
+
+  const deadline = Date.now() + 20000;
+  let found = false;
+  while (Date.now() < deadline) {
+    const body = curlJson(bru.getEnvVar("gateway") + "/claimant/v1/notifications", bru.getVar("priyaToken"));
+    found = JSON.stringify(body).includes(bru.getVar("claimId"));
+    if (found) break;
+    sleep(1000);
+  }
+  bru.setVar("inboxHasClaim", found ? "yes" : "no");
+
+}
+
+
+tests {
+  test("staff can see what was sent", function () {
+    expect(bru.getVar("inboxHasClaim")).to.equal("yes");
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

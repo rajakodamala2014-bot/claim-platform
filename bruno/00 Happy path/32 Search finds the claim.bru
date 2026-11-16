@@ -1,0 +1,48 @@
+meta {
+  name: Search finds the claim
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{gateway}}/staff/v1/search?q={{claimNumber}}&market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+script:pre-request {
+
+
+  const { execFileSync } = require("child_process");
+  function sleep(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  function curlJson(url, token) {
+    const args = ["-sS", url, "-H", "Authorization: Bearer " + token];
+    const out = execFileSync("curl", args, { encoding: "utf8" });
+    return JSON.parse(out);
+  }
+
+  const deadline = Date.now() + 20000;
+  let found = false;
+  const claimId = bru.getVar("claimId");
+  while (Date.now() < deadline) {
+    const body = curlJson(bru.getEnvVar("gateway") + "/staff/v1/search?q=" + bru.getVar("claimNumber") + "&market=SG", bru.getVar("arunToken"));
+    found = JSON.stringify(body).includes(claimId);
+    if (found) break;
+    sleep(1000);
+  }
+  bru.setVar("searchFound", found ? "yes" : "no");
+
+}
+
+
+tests {
+  test("insights has the settled claim", function () {
+    expect(bru.getVar("searchFound")).to.equal("yes");
+    expect(res.getStatus()).to.equal(200);
+    expect(JSON.stringify(res.getBody())).to.include(bru.getVar("claimId"));
+  });
+}

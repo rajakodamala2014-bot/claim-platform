@@ -1,0 +1,64 @@
+meta {
+  name: Submit the claim
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {
+    "policyNumber": "SG-MTR-POL-1001",
+    "lineOfBusiness": "MOTOR",
+    "incidentAt": "2026-11-10T09:00:00Z",
+    "incident": {
+    "peril": "COLLISION",
+    "description": "Rear-ended at the traffic lights",
+    "location": "Orchard Road",
+    "vehicleRegistration": "SBA1234X",
+    "driverName": "Priya Nair",
+    "damageDescription": "Rear bumper and boot",
+    "thirdParties": [{"name": "John Lim", "vehicleRegistration": "SGX9876Z", "insurer": "NTUC Income"}]
+  },
+    "claimedAmount": {"amount": "6000.00", "currency": "SGD"},
+    "uploadIds": ["{{uploadId}}"],
+    "contact": {"phone": "+6591234567"}
+  }
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  req.setHeader("Idempotency-Key", crypto.randomUUID());
+
+}
+
+script:post-response {
+
+  const body = res.getBody();
+  bru.setVar("claimId", body.claimId);
+  bru.setVar("claimNumber", body.claimNumber);
+
+}
+
+tests {
+  test("the claim is created and cover is confirmed", function () {
+    expect(res.getStatus()).to.equal(201);
+    const body = res.getBody();
+    expect(body.claimNumber).to.match(/^SG-MTR-/);
+    expect(body.status).to.equal("TRIAGED");
+    expect(body.coverStatus).to.equal("CONFIRMED");
+  });
+}

@@ -1,0 +1,63 @@
+meta {
+  name: Retry is refused after success
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/settlements/{{staffSettlementId}}/retry
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{staffEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"payee": {"name": "Priya Nair", "bankCode": "DBSSSGSG", "accountNumber": "1234560000"}}
+}
+
+script:pre-request {
+
+
+  const { execFileSync } = require("child_process");
+  function sleep(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  function curlWorkspace(url, token) {
+    const out = execFileSync("curl", ["-sS", "-D", "-", url, "-H", "Authorization: Bearer " + token], { encoding: "utf8" });
+    const parts = out.split(/\r?\n\r?\n/);
+    const etag = ((parts[0].match(/etag:\s*(.*)/i) || [])[1] || "").trim();
+    return { body: JSON.parse(parts.slice(1).join("\n")), etag: etag };
+  }
+
+  const deadline = Date.now() + 30000;
+  let status = "";
+  let etag = "";
+  while (Date.now() < deadline) {
+    const workspace = curlWorkspace(bru.getEnvVar("gateway") + "/staff/v1/claims/" + bru.getVar("staffClaimId"), bru.getVar("arunToken"));
+    status = workspace.body.claim.status;
+    etag = workspace.etag;
+    if (status === "SETTLED") break;
+    sleep(1000);
+  }
+  bru.setVar("staffSettled", status);
+  if (etag) {
+    bru.setVar("staffEtag", etag);
+    req.setHeader("If-Match", etag);
+  }
+
+}
+
+
+tests {
+  test("a settled payment cannot be retried", function () {
+    expect(bru.getVar("staffSettled")).to.equal("SETTLED");
+    expect(res.getStatus()).to.equal(409);
+    expect(res.getBody().code).to.equal("CLAIM_INVALID_TRANSITION");
+  });
+}

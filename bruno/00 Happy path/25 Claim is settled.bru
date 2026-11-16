@@ -1,0 +1,46 @@
+meta {
+  name: Claim is settled
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{gateway}}/claimant/v1/claims/{{claimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+script:pre-request {
+
+
+  const { execFileSync } = require("child_process");
+  function sleep(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  function curlJson(url, token) {
+    const args = ["-sS", url, "-H", "Authorization: Bearer " + token];
+    const out = execFileSync("curl", args, { encoding: "utf8" });
+    return JSON.parse(out);
+  }
+
+  const deadline = Date.now() + 30000;
+  let status = "";
+  while (Date.now() < deadline) {
+    status = curlJson(bru.getEnvVar("gateway") + "/claimant/v1/claims/" + bru.getVar("claimId"), bru.getVar("priyaToken")).status;
+    if (status === "SETTLED") break;
+    sleep(1000);
+  }
+  bru.setVar("settledStatus", status);
+
+}
+
+
+tests {
+  test("the payments simulator settled the claim", function () {
+    expect(bru.getVar("settledStatus")).to.equal("SETTLED");
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("SETTLED");
+  });
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Reject the claim
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{appealClaimId}}/decisions
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{appealEtag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+body:json {
+  {"outcome": "REJECT", "amount": {"amount": "500.00", "currency": "SGD"}, "reasonCode": "NOT_COVERED"}
+}
+
+
+
+tests {
+  test("the claim is rejected", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("REJECTED");
+  });
+}

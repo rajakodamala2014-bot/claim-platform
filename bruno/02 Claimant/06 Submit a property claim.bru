@@ -1,0 +1,55 @@
+meta {
+  name: Submit a property claim
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway}}/claimant/v1/claims
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+body:json {
+  {
+    "policyNumber": "SG-PRP-POL-2001",
+    "lineOfBusiness": "PROPERTY",
+    "incidentAt": "2026-11-10T09:00:00Z",
+    "incident": {
+      "peril": "FIRE",
+      "description": "Kitchen fire",
+      "location": "Tampines",
+      "propertyAddress": "10 Tampines Street 1",
+      "damagedItems": [{"description": "Cabinets", "estimatedValue": {"amount": "800.00", "currency": "SGD"}}]
+    },
+    "claimedAmount": {"amount": "800.00", "currency": "SGD"},
+    "contact": {"email": "priya@example.com"}
+  }
+}
+
+script:pre-request {
+
+  const crypto = require("crypto");
+  req.setHeader("Idempotency-Key", crypto.randomUUID());
+
+}
+
+script:post-response {
+  bru.setVar("propertyClaimId", res.getBody().claimId);
+}
+
+tests {
+  test("property claim is triaged", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().claimNumber).to.match(/^SG-PRP-/);
+    expect(res.getBody().status).to.equal("TRIAGED");
+  });
+}

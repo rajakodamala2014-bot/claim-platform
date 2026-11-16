@@ -1,0 +1,24 @@
+meta {
+  name: Get my timeline
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{gateway}}/claimant/v1/claims/{{claimantClaimId}}/timeline
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+
+tests {
+  test("timeline is present", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().length).to.be.above(0);
+  });
+}

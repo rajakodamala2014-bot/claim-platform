@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 /** Staff-surface helpers: caller context from the token, and ETag / If-Match handling. */
 public final class StaffRequestSupport {
-    private static final Pattern STRONG_ETAG = Pattern.compile("^\"(\\d+)\"$");
+    private static final Pattern STRONG_ETAG = Pattern.compile("^\"(\\d{1,18})\"$"); // 18 digits always fit a long
 
     private StaffRequestSupport() {
     }

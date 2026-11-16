@@ -1,0 +1,24 @@
+meta {
+  name: Workload
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/workload
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+tests {
+  test("Workload returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Work queue team
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{gateway}}/staff/v1/work-queue?view=team&market=SG
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+tests {
+  test("Work queue team returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

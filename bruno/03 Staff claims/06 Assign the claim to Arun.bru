@@ -1,0 +1,37 @@
+meta {
+  name: Assign the claim to Arun
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/assignment
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  If-Match: {{staffEtag}}
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+body:json {
+  {"assigneeId": "h-arun", "teamId": "team-sg-motor"}
+}
+
+
+script:post-response {
+  if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
+}
+
+tests {
+  test("Meera assigns the claim", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("ASSIGNED");
+    expect(res.getBody().result).to.equal("h-arun");
+  });
+}

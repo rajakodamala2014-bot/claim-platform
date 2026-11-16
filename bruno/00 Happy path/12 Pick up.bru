@@ -1,0 +1,35 @@
+meta {
+  name: Pick up
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}/assignment
+  body: none
+  auth: bearer
+}
+
+headers {
+  If-Match: {{etag}}
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+script:post-response {
+
+  const etag = res.getHeader("etag");
+  if (etag) bru.setVar("etag", etag);
+
+}
+
+tests {
+  test("Arun picks the claim up", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("ASSIGNED");
+    expect(res.getBody().result).to.equal("h-arun");
+  });
+}

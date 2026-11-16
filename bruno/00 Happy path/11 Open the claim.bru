@@ -1,0 +1,31 @@
+meta {
+  name: Open the claim
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{claimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+
+script:post-response {
+
+  const etag = res.getHeader("etag");
+  if (etag) bru.setVar("etag", etag);
+
+}
+
+tests {
+  test("the workspace opens and returns an ETag", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("etag")).to.be.a("string");
+    expect(res.getBody().claim.claimNumber).to.equal(bru.getVar("claimNumber"));
+  });
+}

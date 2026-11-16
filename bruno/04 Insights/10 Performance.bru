@@ -1,0 +1,24 @@
+meta {
+  name: Performance
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{gateway}}/staff/v1/insights/performance
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{meeraToken}}
+}
+
+
+
+tests {
+  test("Performance returns a list", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().items).to.be.an("array");
+  });
+}

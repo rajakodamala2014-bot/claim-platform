@@ -1,0 +1,29 @@
+meta {
+  name: List my notifications
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{gateway}}/claimant/v1/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{priyaToken}}
+}
+
+
+script:post-response {
+
+  const items = res.getBody().items || [];
+  if (items.length) bru.setVar("notificationId", items[0].id);
+
+}
+
+tests {
+  test("inbox is readable", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
