@@ -72,7 +72,7 @@ public final class ClaimantClaimMapper {
 
     public static String toStatusLabel(ClaimStatus status) {
         return switch (status) {
-            case SUBMITTED -> "Waiting for a claim manager";
+            case SUBMITTED -> "Wait for review";
             case ASSIGNED -> "A claim manager has your claim";
             case UNDER_ASSESSMENT -> "Being assessed";
             case AWAITING_INFO -> "Action needed";

@@ -223,7 +223,7 @@ class ClaimantApiTest {
     @Test
     void detailCarriesEtagAndOthersClaimsAre404() throws Exception {
         ClaimantClaimResponse view = new ClaimantClaimResponse(CLAIM, "SG-MTR-2026-000001", "SUBMITTED",
-                "Waiting for a claim manager", "A claim manager will review your claim shortly.", "MOTOR",
+                "Wait for review", "A claim manager will review your claim shortly.", "MOTOR",
                 "SG-MTR-POL-1001", Instant.parse("2026-11-13T09:00:00Z"), Instant.parse("2026-11-14T02:00:00Z"),
                 Instant.parse("2026-11-14T02:00:00Z"), null, null, null, List.of(), true, false);
         when(claimQueryService.getClaimantClaim(new ClaimId(CLAIM), "cust-priya")).thenReturn(new ClaimantClaimDetailResponse(view, 3));
@@ -234,7 +234,7 @@ class ClaimantApiTest {
         mvc.perform(get("/claimant/v1/claims/{id}", CLAIM).with(claimant()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("ETag", "\"3\""))
-                .andExpect(jsonPath("$.statusLabel").value("Waiting for a claim manager"))
+                .andExpect(jsonPath("$.statusLabel").value("Wait for review"))
                 .andExpect(jsonPath("$.canWithdraw").value(true))
                 .andExpect(jsonPath("$.decision").doesNotExist());
         mvc.perform(get("/claimant/v1/claims/{id}", other).with(claimant()))
