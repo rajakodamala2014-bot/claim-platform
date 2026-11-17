@@ -17,7 +17,7 @@ public record SubmitClaimRequest(
         @NotNull LineOfBusiness lineOfBusiness,
         @NotNull Instant incidentAt,
         @NotNull @Valid IncidentRequest incident,
-        @Valid MoneyRequest claimedAmount,
+        @NotNull @Valid MoneyRequest claimedAmount,
         @Size(max = 20) List<UUID> uploadIds,
         @Valid ContactRequest contact
 ) {

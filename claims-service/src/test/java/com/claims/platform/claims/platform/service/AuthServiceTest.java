@@ -50,26 +50,26 @@ class AuthServiceTest {
 
     @Test
     void loginIssuesATokenForTheStoredAccount() {
-        when(users.findByUsername("arun")).thenReturn(Optional.of(user("h-arun", "arun", "HANDLER", List.of("SG"), "team-sg-motor", true)));
+        when(users.findByUsername("arun")).thenReturn(Optional.of(user("h-arun", "arun", "CLAIMS_ADJUSTER", List.of("SG"), "team-sg-motor", true)));
 
         TokenResponse token = auth.login("  Arun ", PASSWORD);
 
         assertThat(token.token_type()).isEqualTo("Bearer");
         assertThat(token.expires_in()).isEqualTo(8 * 60 * 60);
         assertThat(token.sub()).isEqualTo("h-arun");
-        assertThat(token.role()).isEqualTo("HANDLER");
+        assertThat(token.role()).isEqualTo("CLAIMS_ADJUSTER");
         Jwt jwt = decoder().decode(token.access_token());
         assertThat(jwt.getSubject()).isEqualTo("h-arun");
-        assertThat(jwt.getClaimAsStringList("roles")).containsExactly("HANDLER");
+        assertThat(jwt.getClaimAsStringList("roles")).containsExactly("CLAIMS_ADJUSTER");
         assertThat(jwt.getClaimAsStringList("markets")).containsExactly("SG");
         assertThat(jwt.getClaimAsString("team")).isEqualTo("team-sg-motor");
-        assertThat(jwt.getClaimAsString("name")).isEqualTo("Arun Kumar");
+        assertThat(jwt.getClaimAsString("name")).isEqualTo("Arun");
         assertThat(jwt.getExpiresAt()).isEqualTo(NOW.plusSeconds(8 * 60 * 60));
     }
 
     @Test
     void managerTokenOmitsTheTeamClaim() {
-        when(users.findByUsername("lee")).thenReturn(Optional.of(user("m-lee", "lee", "MANAGER",
+        when(users.findByUsername("lee")).thenReturn(Optional.of(user("m-lee", "lee", "CLAIMS_ADJUSTER",
                 List.of("SG", "HK", "MY", "TH", "ID", "AU"), null, true)));
 
         Jwt jwt = decoder().decode(auth.login("lee", PASSWORD).access_token());
@@ -80,8 +80,8 @@ class AuthServiceTest {
 
     @Test
     void unknownUserWrongPasswordAndDisabledAccountLookTheSame() {
-        when(users.findByUsername("priya")).thenReturn(Optional.of(user("cust-priya", "priya", "CLAIMANT", List.of("SG"), null, true)));
-        when(users.findByUsername("ho")).thenReturn(Optional.of(user("tl-hk-ho", "ho", "TEAM_LEAD", List.of("HK"), "team-hk", false)));
+        when(users.findByUsername("priya")).thenReturn(Optional.of(user("cust-priya", "priya", "CUSTOMER", List.of("SG"), null, true)));
+        when(users.findByUsername("ho")).thenReturn(Optional.of(user("tl-hk-ho", "ho", "CLAIMS_ADJUSTER", List.of("HK"), "team-hk", false)));
         when(users.findByUsername("missing")).thenReturn(Optional.empty());
 
         assertRejected(() -> auth.login("priya", "nope"));

@@ -23,11 +23,15 @@ body:json {
   {"outcome": "REJECT", "amount": {"amount": "500.00", "currency": "SGD"}, "reasonCode": "NOT_COVERED"}
 }
 
-
+script:post-response {
+  bru.setVar("appealDecisionId", res.getBody().result.decisionId);
+  if (res.getHeader("etag")) bru.setVar("appealEtag", res.getHeader("etag"));
+}
 
 tests {
-  test("the claim is rejected", function () {
+  test("the claim is rejected at once", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().status).to.equal("REJECTED");
+    expect(res.getBody().result.approvalRequired).to.equal(false);
   });
 }

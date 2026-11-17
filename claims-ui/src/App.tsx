@@ -89,7 +89,7 @@ function Shell({ children, home, brand, messages = true }: { children: React.Rea
             )}
           </nav>
           <div className="who">
-            <span className="muted small">{user?.name} · {user?.roles[0]}</span>
+            <span className="muted small">{user?.name}</span>
             <button className="link" onClick={logout}>Sign out</button>
           </div>
         </div>

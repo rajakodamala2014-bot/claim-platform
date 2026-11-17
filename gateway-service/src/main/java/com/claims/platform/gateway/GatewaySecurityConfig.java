@@ -32,9 +32,9 @@ class GatewaySecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // pre-signed upload URL: authorised by its HMAC signature (checked by claims-service)
                         .requestMatchers(HttpMethod.PUT, "/claimant/v1/uploads/*/content").permitAll()
-                        .requestMatchers("/claimant/**").hasRole("CLAIMANT")
-                        .requestMatchers("/staff/**").hasAnyRole("HANDLER", "TEAM_LEAD", "MANAGER")
-                        .requestMatchers("/admin/**").hasRole("MANAGER")
+                        .requestMatchers("/claimant/**").hasRole("CUSTOMER")
+                        .requestMatchers("/staff/**").hasRole("CLAIMS_ADJUSTER")
+                        .requestMatchers("/admin/**").hasRole("CLAIMS_ADJUSTER")
                         // the rest carries no user token: the portal's static files, POST /auth/login,
                         // provider callbacks (HMAC, checked by notification-service) and paths the routing
                         // table answers with 404

@@ -56,15 +56,9 @@ public class CoverCheckRetryServiceImpl implements CoverCheckRetryService {
             }
             Claim claim = found.get();
             CoverVerdict checkCover = checkCover(claim);
-            if (checkCover.unavailable()) {
-                pending += candidates.size() - i; // Policy system still down: stop hammering it
-                break;
-            }
             boolean applied = unitOfWork.inTransaction(() -> applyCoverVerdict(claim.id(), checkCover));
-            if (applied && checkCover.cover() instanceof CoverCheck.Covered) {
+            if (applied) {
                 triaged++;
-            } else if (applied) {
-                declined++;
             }
         }
         return new CoverCheckRetryResult(triaged, declined, pending);
@@ -98,13 +92,7 @@ public class CoverCheckRetryServiceImpl implements CoverCheckRetryService {
         if (claim.status() != ClaimStatus.SUBMITTED) {
             return false; // withdrawn or handled meanwhile
         }
-        switch (checkCover.cover()) {
-            case CoverCheck.Covered covered -> claim.confirmCover(Actor.SYSTEM, clock.instant());
-            case CoverCheck.NotCovered notCovered -> claim.declineCover(notCovered.reason(), Actor.SYSTEM, clock.instant());
-            case CoverCheck.Unavailable unavailable -> {
-                return false;
-            }
-        }
+        claim.confirmCover(Actor.SYSTEM, clock.instant());
         claims.save(claim);
         if (checkCover.policy() != null && intake.findPolicySnapshot(claimId).isEmpty()) {
             intake.savePolicySnapshot(claimId, checkCover.policy(), clock.instant());

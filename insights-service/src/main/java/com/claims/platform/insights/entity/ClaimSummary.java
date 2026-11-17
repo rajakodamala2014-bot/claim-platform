@@ -88,15 +88,12 @@ public final class ClaimSummary {
         Map<String, Object> d = e.data();
         Instant at = e.occurredAt();
         switch (e.type()) {
-            case EventTypes.CLAIM_TRIAGED -> {
-                status = "TRIAGED";
-                coverStatus = Optional.ofNullable(str(d, "coverStatus")).orElse(coverStatus);
-            }
+            case EventTypes.CLAIM_TRIAGED -> coverStatus = Optional.ofNullable(str(d, "coverStatus")).orElse("CONFIRMED");
             case EventTypes.COVER_DECLINED -> coverStatus = "DECLINED";
             case EventTypes.CLAIM_ASSIGNED -> {
                 handlerId = str(d, "handlerId");
                 teamId = str(d, "teamId");
-                if ("SUBMITTED".equals(status) || "TRIAGED".equals(status)) {
+                if ("SUBMITTED".equals(status)) {
                     status = "ASSIGNED";
                 }
             }
@@ -170,7 +167,7 @@ public final class ClaimSummary {
     /** SLA runs until a decision is reached. */
     public boolean isSlaRunning() {
         return switch (status) {
-            case "SUBMITTED", "TRIAGED", "ASSIGNED", "UNDER_ASSESSMENT", "DECISION_PENDING" -> !slaPaused;
+            case "SUBMITTED", "ASSIGNED", "UNDER_ASSESSMENT", "DECISION_PENDING" -> !slaPaused;
             default -> false;
         };
     }

@@ -11,7 +11,6 @@ import com.claims.platform.claims.handling.dto.request.ReviewDecisionRequest;
 import com.claims.platform.claims.handling.dto.request.ProposeDecisionRequest;
 import com.claims.platform.claims.handling.dto.request.RecordAssessmentRequest;
 import com.claims.platform.claims.handling.dto.request.CreateInformationRequest;
-import com.claims.platform.claims.handling.dto.request.SetReserveRequest;
 import com.claims.platform.claims.handling.dto.request.AssignClaimRequest;
 import com.claims.platform.claims.handling.entity.ReviewAction;
 import com.claims.platform.claims.core.service.StaffClaimCommandService.Outcome;
@@ -22,7 +21,6 @@ import com.claims.platform.claims.core.entity.Decision;
 import com.claims.platform.claims.core.exception.ValidationException;
 import com.claims.platform.claims.handling.service.ClaimHandlingService;
 import com.claims.platform.claims.platform.common.StaffRequestSupport;
-import com.claims.platform.common.money.Money;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -95,28 +93,6 @@ public class StaffClaimHandlingController {
         return StaffRequestSupport.toResponseEntity(claimHandlingService.startAssessment(new ClaimId(claimId), StaffRequestSupport.toStaffContext(jwt), version));
     }
 
-    /** S6. Sets the new total; returns the outstanding reserve. */
-    @PostMapping("/reserves")
-    @Operation(summary = "Set the reserve of a claim", description = "S6. Sets the new total; the ledger records the movement. Returns the outstanding reserve.")
-    @ApiResponse(responseCode = "200", description = "Reserve changed; result is the outstanding reserve")
-    @ApiResponse(responseCode = "400", description = "Invalid request body (VALIDATION_FAILED, with field errors)")
-    @ApiResponse(responseCode = "401", description = "Missing or invalid token")
-    @ApiResponse(responseCode = "403", description = "Not staff, or not assigned to the market of the claim (FORBIDDEN_MARKET, FORBIDDEN_ROLE)")
-    @ApiResponse(responseCode = "404", description = "Unknown claim (CLAIM_NOT_FOUND)")
-    @ApiResponse(responseCode = "409", description = "The claim is not in a status that allows this (CLAIM_INVALID_TRANSITION) or changed concurrently (CONCURRENT_UPDATE)")
-    @ApiResponse(responseCode = "412", description = "The claim changed since the version in If-Match (STALE_VERSION)")
-    @ApiResponse(responseCode = "428", description = "If-Match header is missing (IF_MATCH_REQUIRED)")
-    @ApiResponse(responseCode = "422", description = "Currency differs from the claim currency (CURRENCY_MISMATCH)")
-    public ResponseEntity<CommandResponse<MoneyResponse>> setReserve(@Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt, @Parameter(description = "Claim id") @PathVariable UUID claimId,
-                                                              @Parameter(description = "Claim version the caller last read, as a quoted ETag", example = "\"3\"", required = true)
-            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
-                                                              @Valid @RequestBody SetReserveRequest body) {
-        long version = StaffRequestSupport.parseExpectedVersion(ifMatch);
-        Outcome<Money> outcome = claimHandlingService.setReserve(new ClaimId(claimId), StaffRequestSupport.toStaffContext(jwt), version,
-                body.amount().toMoney("amount"), body.reason());
-        return StaffRequestSupport.toResponseEntity(map(outcome, MoneyResponse.of(outcome.value())));
-    }
-
     /** S7. */
     @PostMapping("/info-requests")
     @Operation(summary = "Ask the customer for information", description = "S7. The claim waits in AWAITING_INFO and the SLA clock pauses. The due date defaults to the market setting.")
@@ -174,11 +150,18 @@ public class StaffClaimHandlingController {
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
                                                                   @Valid @RequestBody ProposeDecisionRequest body) {
         long version = StaffRequestSupport.parseExpectedVersion(ifMatch);
-        if (body.outcome() == Decision.Outcome.APPROVE && body.amount() == null) {
-            throw ValidationException.of("amount", "is required to approve");
+        if (body.outcome() == Decision.Outcome.APPROVE
+                && body.coverage() != Assessment.Liability.FULL && body.coverage() != Assessment.Liability.PARTIAL) {
+            throw ValidationException.of("coverage", "must be FULL or PARTIAL");
+        }
+        if (body.outcome() == Decision.Outcome.APPROVE && body.coverage() == Assessment.Liability.PARTIAL && body.amount() == null) {
+            throw ValidationException.of("amount", "is required when the claim is partially covered");
+        }
+        if (body.outcome() == Decision.Outcome.REJECT && (body.reasonCode() == null || body.reasonCode().isBlank())) {
+            throw ValidationException.of("reasonCode", "is required to reject");
         }
         Outcome<Decision> outcome = claimHandlingService.proposeDecision(new ClaimId(claimId), StaffRequestSupport.toStaffContext(jwt), version,
-                body.outcome(), body.amount() == null ? null : body.amount().toMoney("amount"), body.reasonCode());
+                body.outcome(), body.coverage(), body.amount() == null ? null : body.amount().toMoney("amount"), body.reasonCode());
         Decision d = outcome.value();
         boolean waiting = d.approval() == ApprovalRequirement.SUPERVISOR_APPROVAL && d.status() == Decision.Status.AWAITING_APPROVAL;
         DecisionResponse result = new DecisionResponse(d.id(), d.outcome().name(), MoneyResponse.of(d.amount()),

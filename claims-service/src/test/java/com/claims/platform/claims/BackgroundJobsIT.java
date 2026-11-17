@@ -90,11 +90,11 @@ class BackgroundJobsIT {
         CoverCheckRetryService.CoverCheckRetryResult result = coverCheckRetryService.retryPendingCoverChecks();
 
         assertThat(result.triaged()).isGreaterThanOrEqualTo(1);
-        Claim triaged = claims.findById(pending.id()).orElseThrow();
-        assertThat(triaged.status()).isEqualTo(ClaimStatus.TRIAGED);
-        assertThat(triaged.coverStatus()).isEqualTo(CoverStatus.CONFIRMED);
+        Claim covered = claims.findById(pending.id()).orElseThrow();
+        assertThat(covered.status()).isEqualTo(ClaimStatus.SUBMITTED);
+        assertThat(covered.coverStatus()).isEqualTo(CoverStatus.CONFIRMED);
         assertThat(intake.findPolicySnapshot(pending.id())).get().extracting(p -> p.policyNumber()).isEqualTo("SG-MTR-POL-1001");
-        assertThat(eventTypes(pending)).containsExactly("ClaimTriaged");
+        assertThat(eventTypes(pending)).isEmpty();
     }
 
     @Test
@@ -105,14 +105,11 @@ class BackgroundJobsIT {
                 .atPriority(1).willReturn(serviceUnavailable()));
 
         coverCheckRetryService.retryPendingCoverChecks();
-        assertThat(claims.findById(waiting.id()).orElseThrow().status()).isEqualTo(ClaimStatus.SUBMITTED);
+        Claim covered = claims.findById(waiting.id()).orElseThrow();
+        assertThat(covered.status()).isEqualTo(ClaimStatus.SUBMITTED);
+        assertThat(covered.coverStatus()).isEqualTo(CoverStatus.CONFIRMED);
 
-        POLICY_SYSTEM.removeStub(outage); // back to the shared stub: this holder has no policies
-        coverCheckRetryService.retryPendingCoverChecks();
-        Claim declined = claims.findById(waiting.id()).orElseThrow();
-        assertThat(declined.status()).isEqualTo(ClaimStatus.TRIAGED);
-        assertThat(declined.coverStatus()).isEqualTo(CoverStatus.DECLINED);
-        assertThat(declined.coverDeclineReason()).contains("POLICY_NOT_FOUND");
+        POLICY_SYSTEM.removeStub(outage);
     }
 
     @Test

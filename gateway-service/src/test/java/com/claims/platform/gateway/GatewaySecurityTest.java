@@ -30,7 +30,7 @@ class GatewaySecurityTest extends GatewayTestBase {
     void invalidOrForeignTokensAre401() throws Exception {
         assertThat(get("/claimant/v1/claims", "not-a-jwt").statusCode()).isEqualTo(401);
 
-        String tampered = token("cust-priya", "CLAIMANT");
+        String tampered = token("cust-priya", "CUSTOMER");
         tampered = tampered.substring(0, tampered.length() - 4) + "AAAA";
         assertThat(get("/claimant/v1/claims", tampered).statusCode()).isEqualTo(401);
         assertNothingReachedAService();
@@ -38,12 +38,10 @@ class GatewaySecurityTest extends GatewayTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "/staff/v1/claims/c-1,     CLAIMANT",   // customers can't use the staff surface
-            "/staff/v1/work-queue,     CLAIMANT",
-            "/claimant/v1/claims,      HANDLER",    // staff can't use the claimant surface
-            "/claimant/v1/claims,      MANAGER",
-            "/admin/v1/templates,      HANDLER",    // templates are managers only
-            "/admin/v1/templates,      TEAM_LEAD",
+            "/staff/v1/claims/c-1,     CUSTOMER",
+            "/staff/v1/work-queue,     CUSTOMER",
+            "/claimant/v1/claims,      CLAIMS_ADJUSTER",
+            "/admin/v1/templates,      CUSTOMER",
     })
     void wrongRoleForTheSurfaceIs403(String path, String role) throws Exception {
         HttpResponse<String> response = get(path, token("someone", role));
@@ -55,11 +53,11 @@ class GatewaySecurityTest extends GatewayTestBase {
 
     @ParameterizedTest
     @CsvSource({
-            "/claimant/v1/claims,                  CLAIMANT",
-            "/staff/v1/claims/c-1,                 HANDLER",
-            "/staff/v1/approvals,                  TEAM_LEAD",
-            "/staff/v1/insights/exposure,          MANAGER",
-            "/admin/v1/templates,                  MANAGER",
+            "/claimant/v1/claims,                  CUSTOMER",
+            "/staff/v1/claims/c-1,                 CLAIMS_ADJUSTER",
+            "/staff/v1/approvals,                  CLAIMS_ADJUSTER",
+            "/staff/v1/insights/exposure,          CLAIMS_ADJUSTER",
+            "/admin/v1/templates,                  CLAIMS_ADJUSTER",
     })
     void rightRoleIsLetThrough(String path, String role) throws Exception {
         assertThat(get(path, token("someone", role)).statusCode()).isEqualTo(200);

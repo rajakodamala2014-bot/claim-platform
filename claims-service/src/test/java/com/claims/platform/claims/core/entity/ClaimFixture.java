@@ -80,13 +80,9 @@ public final class ClaimFixture {
     private static Claim build(ClaimStatus status, long seq) {
         return switch (status) {
             case SUBMITTED -> submitted(seq);
-            case TRIAGED -> {
-                Claim c = submitted(seq);
-                c.confirmCover(Actor.SYSTEM, at(1));
-                yield c;
-            }
             case ASSIGNED -> {
-                Claim c = build(ClaimStatus.TRIAGED, seq);
+                Claim c = build(ClaimStatus.SUBMITTED, seq);
+                c.confirmCover(Actor.SYSTEM, at(1));
                 c.assign(ARUN.id(), "team-sg-motor", ARUN, at(10));
                 yield c;
             }
@@ -130,7 +126,7 @@ public final class ClaimFixture {
                 yield c;
             }
             case WITHDRAWN -> {
-                Claim c = build(ClaimStatus.TRIAGED, seq);
+                Claim c = build(ClaimStatus.SUBMITTED, seq);
                 c.withdraw("Settled privately with the other driver", PRIYA, at(5));
                 yield c;
             }

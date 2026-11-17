@@ -11,19 +11,31 @@ public record Actor(String id, Role role) {
         Objects.requireNonNull(role, "role");
     }
 
+    public static Actor customer(String id) {
+        return new Actor(id, Role.CUSTOMER);
+    }
+
+    public static Actor adjuster(String id) {
+        return new Actor(id, Role.CLAIMS_ADJUSTER);
+    }
+
+    /** Same person as {@link #customer(String)}. */
     public static Actor claimant(String id) {
-        return new Actor(id, Role.CLAIMANT);
+        return customer(id);
     }
 
+    /** Same person as {@link #adjuster(String)}. */
     public static Actor handler(String id) {
-        return new Actor(id, Role.HANDLER);
+        return adjuster(id);
     }
 
+    /** Same person as {@link #adjuster(String)}. */
     public static Actor teamLead(String id) {
-        return new Actor(id, Role.TEAM_LEAD);
+        return adjuster(id);
     }
 
+    /** Same person as {@link #adjuster(String)}. */
     public static Actor manager(String id) {
-        return new Actor(id, Role.MANAGER);
+        return adjuster(id);
     }
 }

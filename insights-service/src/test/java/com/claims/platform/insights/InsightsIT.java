@@ -96,11 +96,18 @@ class InsightsIT {
         send(d, EventTypes.CLAIM_SETTLED, Map.of());
         send(d, EventTypes.CLAIM_CLOSED, Map.of());
         send(e, EventTypes.CLAIM_TRIAGED, Map.of("coverStatus", "CONFIRMED"));
-        await(() -> count("status = 'CLOSED'") == 1 && count("pending_decision_id IS NOT NULL") == 1 && count("1=1") == 5);
+        UUID paid = claim("SG-MTR-2026-000106", "SG", "MOTOR", now.minus(Duration.ofHours(6)), 48);
+        UUID rejected = claim("SG-MTR-2026-000107", "SG", "MOTOR", now.minus(Duration.ofHours(7)), 48);
+        send(paid, EventTypes.CLAIM_ASSIGNED, Map.of("handlerId", "h-arun", "teamId", "team-sg-motor"));
+        send(paid, EventTypes.CLAIM_APPROVED, Map.of());
+        send(paid, EventTypes.CLAIM_SETTLED, Map.of());
+        send(rejected, EventTypes.CLAIM_ASSIGNED, Map.of("handlerId", "h-arun", "teamId", "team-sg-motor"));
+        send(rejected, EventTypes.CLAIM_REJECTED, Map.of("reasonCode", "NOT_COVERED"));
+        await(() -> count("status = 'CLOSED'") == 1 && count("pending_decision_id IS NOT NULL") == 1 && count("1=1") == 7);
 
-        String arun = token("h-arun", "HANDLER", List.of("SG"), "team-sg-motor");
-        String meera = token("tl-meera", "TEAM_LEAD", List.of("SG"), "team-sg-motor");
-        String lee = token("m-lee", "MANAGER", List.of("SG", "MY"), null);
+        String arun = token("h-arun", "CLAIMS_ADJUSTER", List.of("SG"), "team-sg-motor");
+        String meera = token("tl-meera", "CLAIMS_ADJUSTER", List.of("SG"), "team-sg-motor");
+        String lee = token("m-lee", "CLAIMS_ADJUSTER", List.of("SG", "MY"), null);
 
         // I1 work queue: unassigned (SG only, oldest SLA first) and mine
         JsonNode unassigned = get("/staff/v1/work-queue?view=unassigned", arun, HttpStatus.OK);
@@ -114,17 +121,24 @@ class InsightsIT {
         assertThat(secondPage.at("/items/0/claimNumber").asText()).isEqualTo("SG-MTR-2026-000102");
         assertThat(get("/staff/v1/work-queue?view=unassigned&market=MY", arun, HttpStatus.FORBIDDEN).get("code").asText())
                 .isEqualTo("FORBIDDEN_MARKET");
+        String kumar = token("h-kumar", "CLAIMS_ADJUSTER", List.of("SG"), "team-sg-motor");
+        assertThat(get("/staff/v1/work-queue?view=paid", arun, HttpStatus.OK).at("/items"))
+                .extracting(i -> i.get("claimNumber").asText()).containsExactly("SG-MTR-2026-000106");
+        assertThat(get("/staff/v1/work-queue?view=rejected", arun, HttpStatus.OK).at("/items"))
+                .extracting(i -> i.get("claimNumber").asText()).containsExactly("SG-MTR-2026-000107");
+        assertThat(get("/staff/v1/work-queue?view=paid", kumar, HttpStatus.OK).at("/items")).isEmpty();
+        assertThat(get("/staff/v1/work-queue?view=rejected", kumar, HttpStatus.OK).at("/items")).isEmpty();
 
         // I2 search
         assertThat(get("/staff/v1/search?q=000102", arun, HttpStatus.OK).at("/items/0/claimId").asText()).isEqualTo(b.toString());
         assertThat(get("/staff/v1/search?q=MY-MTR", arun, HttpStatus.OK).at("/items")).isEmpty();
         assertThat(get("/staff/v1/search?q=MY-MTR", lee, HttpStatus.OK).at("/items")).hasSize(1);
 
-        // I3 approvals: team lead sees Arun's proposal; Arun (handler) may not open the inbox
+        // I3 approvals: any claims adjuster can open the inbox
         JsonNode inbox = get("/staff/v1/approvals", meera, HttpStatus.OK);
         assertThat(inbox.at("/items/0/decisionId").asText()).isEqualTo(decision.toString());
         assertThat(inbox.at("/items/0/amount/amount").asText()).isEqualTo("12000.00");
-        get("/staff/v1/approvals", arun, HttpStatus.FORBIDDEN);
+        get("/staff/v1/approvals", arun, HttpStatus.OK);
 
         // I4 workload, I5 performance
         JsonNode workload = get("/staff/v1/insights/workload", meera, HttpStatus.OK);
@@ -133,7 +147,7 @@ class InsightsIT {
         JsonNode performance = get("/staff/v1/insights/performance", meera, HttpStatus.OK);
         assertThat(performance.at("/items/0/handlerId").asText()).isEqualTo("h-kumar");
         assertThat(performance.at("/items/0/closedClaims").asInt()).isEqualTo(1);
-        get("/staff/v1/insights/workload?team=team-other", meera, HttpStatus.FORBIDDEN);
+        get("/staff/v1/insights/workload?team=team-other", meera, HttpStatus.OK);
 
         // I6 SLA: A breached
         JsonNode sla = get("/staff/v1/insights/sla", meera, HttpStatus.OK);
@@ -181,7 +195,7 @@ class InsightsIT {
     void customersAndAnonymousCallersAreRejected() {
         assertThat(http.getForEntity("/staff/v1/work-queue", String.class).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token("cust-priya", "CLAIMANT", List.of("SG"), null));
+        headers.setBearerAuth(token("cust-priya", "CUSTOMER", List.of("SG"), null));
         assertThat(http.exchange("/staff/v1/work-queue", HttpMethod.GET, new HttpEntity<>(headers), String.class)
                 .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }

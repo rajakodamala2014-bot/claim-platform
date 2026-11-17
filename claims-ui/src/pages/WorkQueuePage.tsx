@@ -3,12 +3,23 @@ import { Link } from 'react-router-dom';
 import { staffApi, type QueueItem } from '../api';
 import { isSupervisor, useAuth } from '../auth';
 import { ErrorBox, Loading, useLoad } from '../components/ui';
-import { formatDateTime, formatMoney } from '../format';
+import { formatDateTime, humanize } from '../format';
+
+const OPEN_VIEWS = [
+  { id: 'unassigned', label: 'Unassigned' },
+  { id: 'mine', label: 'Mine' },
+  { id: 'team', label: 'Team' },
+] as const;
+
+const PROCESSED = [
+  { id: 'paid', title: 'Paid' },
+  { id: 'rejected', title: 'Rejected' },
+] as const;
 
 export function WorkQueuePage() {
   const { user } = useAuth();
   const supervisor = isSupervisor(user);
-  const [view, setView] = useState(supervisor ? 'unassigned' : 'unassigned');
+  const [view, setView] = useState('unassigned');
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [found, setFound] = useState<QueueItem[] | null>(null);
@@ -32,26 +43,31 @@ export function WorkQueuePage() {
     }
   }
 
+  const paid = useLoad(() => staffApi.queue('paid'), []);
+  const rejected = useLoad(() => staffApi.queue('rejected'), []);
+  const processed = { paid, rejected };
   const items = found ?? queue.data?.items ?? [];
+  const showProcessed = view === 'mine' && !found;
+  const openViews = OPEN_VIEWS.filter((option) => option.id !== 'team' || supervisor);
   return (
     <>
       <div className="page-head">
         <div>
           <h1>Work queue</h1>
-          <p className="muted">Claims in your markets, oldest deadline first.</p>
+          <p className="muted">Open claims stay in this list. Your paid and rejected claims are under Mine.</p>
         </div>
       </div>
       <div className="row">
-        {['unassigned', 'mine', ...(supervisor ? ['team'] : [])].map((option) => (
+        {openViews.map((option) => (
           <button
-            key={option}
-            className={view === option && !found ? 'btn btn-primary' : 'btn btn-secondary'}
+            key={option.id}
+            className={view === option.id && !found ? 'btn btn-primary' : 'btn btn-secondary'}
             onClick={() => {
               setFound(null);
-              setView(option);
+              setView(option.id);
             }}
           >
-            {option}
+            {option.label}
           </button>
         ))}
       </div>
@@ -77,13 +93,41 @@ export function WorkQueuePage() {
                 <span className="claim-side">
                   <span className="badge tone-info">{item.status}</span>
                   <span className="chip">{item.slaState}</span>
-                  <span className="small muted">{formatMoney(item.reserve)} · due {formatDateTime(item.slaDueAt)}</span>
+                  <span className="small muted">Due {formatDateTime(item.slaDueAt)}</span>
                 </span>
               </Link>
             </li>
           ))}
         </ul>
       )}
+      {showProcessed && <div className="stack" style={{ marginTop: '1.5rem' }}>
+        {PROCESSED.map((section) => {
+          const loaded = processed[section.id];
+          const rows = loaded.data?.items ?? [];
+          return (
+            <section key={section.id}>
+              <h2>{section.title}</h2>
+              {loaded.loading ? <Loading /> : loaded.error ? <ErrorBox error={loaded.error} /> : rows.length === 0 ? (
+                <p className="muted">None yet.</p>
+              ) : (
+                <ul className="claim-list">
+                  {rows.map((item) => (
+                    <li key={item.claimId}>
+                      <Link className="claim-row" to={`/work/${item.claimId}`}>
+                        <span className="claim-main">
+                          <span className="claim-number">{item.claimNumber}</span>
+                          <span className="muted small">{item.market} · {item.lineOfBusiness} · {item.policyNumber}</span>
+                        </span>
+                        <span className="badge tone-info">{humanize(item.status)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </div>}
     </>
   );
 }

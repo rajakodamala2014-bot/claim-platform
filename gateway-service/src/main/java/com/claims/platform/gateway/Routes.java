@@ -66,7 +66,8 @@ class Routes {
                         .or(path("/staff/v1/insights/**"))));
 
         // ---- Claims Service ----
-        RequestPredicate claims = path("/claimant/v1/**").or(path("/staff/v1/claims/**")).or(POST("/auth/login"));
+        RequestPredicate claims = path("/claimant/v1/**").or(path("/staff/v1/claims/**"))
+                .or(path("/staff/v1/people")).or(POST("/auth/login"));
         table.add(api(CLAIMS, upstreams.claims(), claims));
 
         // Everything else under an API prefix is not exposed: service-to-service endpoints, actuators and

@@ -34,6 +34,6 @@ tests {
     const body = res.getBody();
     expect(body.token_type).to.equal("Bearer");
     expect(body.sub).to.equal("h-arun");
-    expect(body.role).to.equal("HANDLER");
+    expect(body.role).to.equal("CLAIMS_ADJUSTER");
   });
 }

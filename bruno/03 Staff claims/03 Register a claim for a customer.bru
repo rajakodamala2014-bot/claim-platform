@@ -56,6 +56,6 @@ script:post-response {
 tests {
   test("staff registration is triaged", function () {
     expect(res.getStatus()).to.equal(201);
-    expect(res.getBody().status).to.equal("TRIAGED");
+    expect(res.getBody().status).to.equal("SUBMITTED");
   });
 }

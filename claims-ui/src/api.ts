@@ -258,6 +258,12 @@ export const api = {
   savePreferences: (p: Preferences) => request<Preferences>('PUT', '/claimant/v1/notification-preferences', p),
 };
 
+export interface Person {
+  id: string;
+  name: string;
+  role: string;
+}
+
 export interface QueueItem {
   claimId: string;
   claimNumber: string;
@@ -316,14 +322,18 @@ export interface StaffClaim {
   lineOfBusiness: string;
   policyNumber: string;
   claimantId: string;
+  channel?: string;
   status: string;
   coverStatus: string;
+  coverDeclineReason?: string | null;
   handlerId: string | null;
   teamId: string | null;
   submittedAt: string;
+  incidentAt?: string;
   claimedAmount: Money | null;
   sla: { dueAt: string; paused: boolean };
-  reserve: { outstanding: Money };
+  reserve: { outstanding: Money; movements?: ReserveMovement[] };
+  informationRequests?: InformationRequest[];
   assessment: { liability: string; assessedAmount: Money; notes: string | null } | null;
   decision: {
     decisionId: string;
@@ -331,8 +341,11 @@ export interface StaffClaim {
     amount: Money;
     reasonCode: string | null;
     proposedBy: string;
+    proposedAt?: string;
     approvalRequired: boolean;
     status: string;
+    decidedBy?: string | null;
+    decidedAt?: string | null;
   } | null;
   approvedAmount: Money | null;
   settlement: {
@@ -343,7 +356,79 @@ export interface StaffClaim {
     failureReason: string | null;
     accountNumberMasked: string;
   } | null;
+  documents?: StaffDocument[];
   version: number;
+}
+
+export interface ReserveMovement {
+  type: string;
+  amount: Money;
+  balanceAfter: Money;
+  reason: string;
+  actorId: string;
+  at: string;
+}
+
+export interface StaffDocument {
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  status: string;
+  uploadedAt: string;
+}
+
+export interface InformationRequest {
+  requestId: string;
+  items: string[];
+  dueAt: string;
+  status: string;
+  answer: string | null;
+  requestedAt: string;
+}
+
+export interface StaffIncident {
+  peril: string;
+  description: string;
+  location: string;
+  vehicleRegistration?: string;
+  driverName?: string;
+  damageDescription?: string;
+  policeReportNumber?: string | null;
+  thirdParties?: { name: string; vehicleRegistration?: string | null; insurer?: string | null; phone?: string | null }[];
+  propertyAddress?: string;
+  damagedItems?: { description: string; estimatedValueMinor?: number | null }[];
+}
+
+export interface ClaimParty {
+  role: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  vehicleRegistration: string | null;
+  insurer: string | null;
+}
+
+export interface PolicySnapshot {
+  policyNumber: string;
+  holderId: string;
+  holderName: string;
+  market: string | { value: string };
+  lineOfBusiness: string;
+  product: string;
+  status: string;
+  coverageStart: string;
+  coverageEnd: string;
+  currency: string;
+  sumInsuredMinor: number | null;
+  excessMinor: number | null;
+  coveredPerils: string[];
+}
+
+export interface StaffWorkspace {
+  claim: StaffClaim;
+  incident: StaffIncident;
+  parties: ClaimParty[];
+  policy: PolicySnapshot;
 }
 
 export interface CommandResult<T = unknown> {
@@ -357,7 +442,7 @@ function match(version: number): Record<string, string> {
   return { 'If-Match': `"${version}"` };
 }
 
-/** Staff and supervisor calls. The gateway allows these only for HANDLER, TEAM_LEAD and MANAGER. */
+/** Staff calls. The gateway allows these only for CLAIMS_ADJUSTER. */
 export const staffApi = {
   queue: (view: string, cursor?: string | null) =>
     request<{ items: QueueItem[]; nextCursor: string | null }>(
@@ -370,15 +455,14 @@ export const staffApi = {
   performance: () => request<{ items: PerformanceItem[] }>('GET', '/staff/v1/insights/performance'),
   sla: () => request<{ items: QueueItem[] }>('GET', '/staff/v1/insights/sla'),
   exposure: () => request<{ items: ExposureItem[] }>('GET', '/staff/v1/insights/exposure'),
-  claim: (id: string) => request<{ claim: StaffClaim }>('GET', `/staff/v1/claims/${id}`),
+  people: () => request<{ items: Person[] }>('GET', '/staff/v1/people'),
+  claim: (id: string) => request<StaffWorkspace>('GET', `/staff/v1/claims/${id}`),
   pickup: (id: string, version: number) =>
     request<CommandResult<string>>('POST', `/staff/v1/claims/${id}/assignment`, {}, match(version)),
   assign: (id: string, version: number, assigneeId: string, teamId: string) =>
     request<CommandResult<string>>('POST', `/staff/v1/claims/${id}/assignment`, { assigneeId, teamId }, match(version)),
   startAssessment: (id: string, version: number) =>
     request<CommandResult>('POST', `/staff/v1/claims/${id}/start-assessment`, undefined, match(version)),
-  setReserve: (id: string, version: number, amount: string, currency: string, reason: string) =>
-    request<CommandResult>('POST', `/staff/v1/claims/${id}/reserves`, { amount: { amount, currency }, reason }, match(version)),
   requestInfo: (id: string, version: number, items: string[]) =>
     request<CommandResult>('POST', `/staff/v1/claims/${id}/info-requests`, { items }, match(version)),
   assess: (id: string, version: number, liability: string, amount: string, currency: string, notes: string) =>
@@ -388,9 +472,10 @@ export const staffApi = {
       { liability, assessedAmount: { amount, currency }, notes },
       match(version),
     ),
-  decide: (id: string, version: number, outcome: 'APPROVE' | 'REJECT', amount: string, currency: string, reasonCode: string) =>
+  decide: (id: string, version: number, outcome: 'APPROVE' | 'REJECT', coverage: 'FULL' | 'PARTIAL' | '', amount: string, currency: string, reasonCode: string) =>
     request<CommandResult>('POST', `/staff/v1/claims/${id}/decisions`, {
       outcome,
+      coverage: coverage || null,
       amount: amount ? { amount, currency } : null,
       reasonCode: reasonCode || null,
     }, match(version)),

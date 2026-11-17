@@ -21,7 +21,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class SecurityConfig {
-    static final String[] STAFF = {"HANDLER", "TEAM_LEAD", "MANAGER"};
+    static final String[] STAFF = {"CLAIMS_ADJUSTER"};
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtConverter,
@@ -38,7 +38,7 @@ public class SecurityConfig {
                         // Payments fallback webhook: authorised by its HMAC signature; not routed by the gateway
                         .requestMatchers(HttpMethod.POST, "/internal/v1/payments/callback").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers("/claimant/**").hasRole("CLAIMANT")
+                        .requestMatchers("/claimant/**").hasRole("CUSTOMER")
                         .requestMatchers("/staff/**").hasAnyRole(STAFF)
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))

@@ -104,7 +104,7 @@ export function NewClaimPage() {
       lineOfBusiness: policy.lineOfBusiness,
       incidentAt: localInputToIso(form.incidentAt) ?? '',
       incident,
-      claimedAmount: form.amount.trim() ? { amount: form.amount.trim(), currency } : undefined,
+      claimedAmount: { amount: form.amount.trim(), currency },
       uploadIds,
       contact,
     };
@@ -136,7 +136,7 @@ export function NewClaimPage() {
           <p className="muted">
             {result.coverStatus === 'PENDING'
               ? "We're still confirming your policy cover. This can take a little while and needs nothing from you."
-              : 'A claims handler will review it shortly. We will message you as it progresses.'}
+              : 'A claim manager will review it shortly. We will message you as it progresses.'}
           </p>
           <div className="row">
             <button className="btn btn-primary" onClick={() => navigate(`/claims/${result.claimId}`)}>View claim</button>
@@ -277,11 +277,12 @@ export function NewClaimPage() {
 
           <Card title="3. Amount and evidence">
             <label>
-              <span>Estimated amount you're claiming <em className="muted">optional</em></span>
+              <span>Amount you're claiming</span>
               <div className="input-affix">
                 <span>{currency}</span>
-                <input inputMode="decimal" pattern="^\d+(\.\d{1,2})?$" placeholder="0.00" value={form.amount} onChange={set('amount')} />
+                <input inputMode="decimal" pattern="^(?!0+(\.0+)?$)\d+(\.\d{1,2})?$" placeholder="0.00" value={form.amount} onChange={set('amount')} required />
               </div>
+              <p className="muted small">Enter an amount greater than zero, with up to two decimal places.</p>
             </label>
             <div className="field">
               <span>Photos, receipts, reports</span>
@@ -299,7 +300,7 @@ export function NewClaimPage() {
           <ErrorBox error={error} />
           <div className="row end">
             <Link to="/claims" className="btn btn-secondary">Cancel</Link>
-            <button className="btn btn-primary" type="submit" disabled={submitting || !form.description.trim() || collisionNeedsParty}>
+            <button className="btn btn-primary" type="submit" disabled={submitting || !form.description.trim() || !form.amount.trim() || collisionNeedsParty}>
               {submitting ? 'Submitting…' : 'Submit claim'}
             </button>
           </div>

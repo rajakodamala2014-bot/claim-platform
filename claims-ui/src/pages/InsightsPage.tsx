@@ -1,8 +1,10 @@
 import { staffApi } from '../api';
 import { Card, ErrorBox, Loading, useLoad } from '../components/ui';
 import { formatDateTime, formatMoney } from '../format';
+import { personName, usePeople } from '../people';
 
 export function InsightsPage() {
+  const people = usePeople();
   const workload = useLoad(() => staffApi.workload(), []);
   const sla = useLoad(() => staffApi.sla(), []);
   const exposure = useLoad(() => staffApi.exposure(), []);
@@ -12,14 +14,14 @@ export function InsightsPage() {
   return (
     <>
       <h1>Team insights</h1>
-      <p className="muted">Open work, deadlines, money still reserved, and closed-claim results. A few seconds behind the claim.</p>
+      <p className="muted">Open work, deadlines, covered amounts, and closed-claim results. A few seconds behind the claim.</p>
       <ErrorBox error={error} />
       {loading && <Loading />}
       <Card title="Workload">
         <ul className="claim-list">
           {(workload.data?.items ?? []).map((row) => (
             <li key={row.handlerId} className="claim-row">
-              <span>{row.handlerId}</span>
+              <span>{personName(people, row.handlerId)}</span>
               <span className="muted small">{row.openClaims} open · oldest {formatDateTime(row.oldestSubmittedAt)}</span>
             </li>
           ))}
@@ -49,7 +51,7 @@ export function InsightsPage() {
         <ul className="claim-list">
           {(performance.data?.items ?? []).map((row) => (
             <li key={row.handlerId} className="claim-row">
-              <span>{row.handlerId}</span>
+              <span>{personName(people, row.handlerId)}</span>
               <span className="muted small">{row.closedClaims} closed · {row.averageCycleHours} h · SLA met {row.slaMetPercent ?? '—'}</span>
             </li>
           ))}

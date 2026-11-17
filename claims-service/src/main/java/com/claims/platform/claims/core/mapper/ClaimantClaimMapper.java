@@ -72,14 +72,13 @@ public final class ClaimantClaimMapper {
 
     public static String toStatusLabel(ClaimStatus status) {
         return switch (status) {
-            case SUBMITTED -> "Claim received";
-            case TRIAGED -> "Waiting for a claims handler";
-            case ASSIGNED -> "A claims handler has your claim";
+            case SUBMITTED -> "Waiting for a claim manager";
+            case ASSIGNED -> "A claim manager has your claim";
             case UNDER_ASSESSMENT -> "Being assessed";
             case AWAITING_INFO -> "Action needed";
             case DECISION_PENDING -> "Decision being finalised";
             case APPROVED -> "Approved";
-            case REJECTED -> "Not approved";
+            case REJECTED -> "Rejected";
             case SETTLEMENT_IN_PROGRESS -> "Payment in progress";
             case SETTLED -> "Paid";
             case WITHDRAWN -> "Withdrawn";
@@ -89,8 +88,7 @@ public final class ClaimantClaimMapper {
 
     static String describeNextStep(Claim claim) {
         return switch (claim.status()) {
-            case SUBMITTED -> "We're confirming your policy cover. No action needed.";
-            case TRIAGED, ASSIGNED -> "A claims handler will review your claim shortly.";
+            case SUBMITTED, ASSIGNED -> "A claim manager will review your claim shortly.";
             case UNDER_ASSESSMENT, DECISION_PENDING -> "We're assessing your claim. We'll contact you if we need anything.";
             case AWAITING_INFO -> "Please send the information we asked for.";
             case APPROVED -> "We'll arrange payment shortly.";
@@ -105,7 +103,7 @@ public final class ClaimantClaimMapper {
         return switch (eventType) {
             case EventTypes.CLAIM_SUBMITTED -> "Claim received";
             case EventTypes.CLAIM_TRIAGED -> "Claim queued for review";
-            case EventTypes.CLAIM_ASSIGNED -> "Claims handler assigned";
+            case EventTypes.CLAIM_ASSIGNED -> "Claim manager assigned";
             case EventTypes.ASSESSMENT_STARTED -> "Assessment started";
             case EventTypes.INFORMATION_REQUESTED -> "More information requested";
             case EventTypes.INFORMATION_PROVIDED -> "Information sent";

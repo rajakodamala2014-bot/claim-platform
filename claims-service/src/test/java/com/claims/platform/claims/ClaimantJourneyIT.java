@@ -101,7 +101,7 @@ class ClaimantJourneyIT {
         JsonNode claim = json.readTree(created.getBody());
         UUID claimId = UUID.fromString(claim.get("claimId").asText());
         assertThat(claim.get("claimNumber").asText()).matches("SG-MTR-\\d{4}-\\d{6}");
-        assertThat(claim.get("status").asText()).isEqualTo("TRIAGED");
+        assertThat(claim.get("status").asText()).isEqualTo("SUBMITTED");
         assertThat(claim.get("coverStatus").asText()).isEqualTo("CONFIRMED");
         assertThat(created.getHeaders().getLocation()).hasToString("/claimant/v1/claims/" + claimId);
 
@@ -114,7 +114,7 @@ class ClaimantJourneyIT {
 
         // events written to the outbox with the caller's correlation id, keyed by claim id
         assertThat(sql.queryForList("SELECT event_type FROM platform.outbox WHERE message_key = ? ORDER BY seq",
-                String.class, claimId.toString())).containsExactly("ClaimSubmitted", "ClaimTriaged");
+                String.class, claimId.toString())).containsExactly("ClaimSubmitted");
         assertThat(sql.queryForList("SELECT DISTINCT headers->>'X-Correlation-Id' FROM platform.outbox WHERE message_key = ?",
                 String.class, claimId.toString())).containsExactly("journey-corr-1");
 
@@ -125,7 +125,7 @@ class ClaimantJourneyIT {
                 new HttpEntity<>(auth(priya)), String.class);
         assertThat(detail.getHeaders().getETag()).isEqualTo("\"1\"");
         JsonNode view = json.readTree(detail.getBody());
-        assertThat(view.get("status").asText()).isEqualTo("TRIAGED");
+        assertThat(view.get("status").asText()).isEqualTo("SUBMITTED");
         assertThat(view.at("/documents/0/fileName").asText()).isEqualTo("dashcam.jpg");
         assertThat(detail.getBody()).doesNotContainIgnoringCase("reserve").doesNotContain("handlerId");
 
@@ -156,7 +156,7 @@ class ClaimantJourneyIT {
 
         // C6 timeline: customer-visible only, no reserves
         JsonNode timeline = call(HttpMethod.GET, "/claimant/v1/claims/" + claimId + "/timeline", priya, null, HttpStatus.OK);
-        assertThat(timeline).extracting(e -> e.get("type").asText()).containsExactly("ClaimSubmitted", "ClaimTriaged",
+        assertThat(timeline).extracting(e -> e.get("type").asText()).containsExactly("ClaimSubmitted",
                 "ClaimAssigned", "AssessmentStarted", "InformationRequested", "InformationProvided");
         assertThat(timeline.toString()).doesNotContain("ReserveChanged").doesNotContain("newOutstanding");
 
@@ -184,7 +184,7 @@ class ClaimantJourneyIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         JsonNode body = json.readTree(response.getBody());
         assertThat(body.get("status").asText()).isEqualTo("SUBMITTED");
-        assertThat(body.get("coverStatus").asText()).isEqualTo("PENDING");
+        assertThat(body.get("coverStatus").asText()).isEqualTo("CONFIRMED");
         assertThat(Duration.ofNanos(System.nanoTime() - started)).isLessThan(Duration.ofSeconds(3));
     }
 

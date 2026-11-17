@@ -16,7 +16,7 @@ class RateLimitTest extends GatewayTestBase {
 
     @Test
     void aClientOverItsLimitGets429WithRetryAfter() throws Exception {
-        String token = token("cust-burst", "CLAIMANT");
+        String token = token("cust-burst", "CUSTOMER");
         for (int i = 0; i < 3; i++) {
             assertThat(get("/claimant/v1/claims", token).statusCode()).isEqualTo(200);
         }
@@ -33,8 +33,8 @@ class RateLimitTest extends GatewayTestBase {
 
     @Test
     void theLimitIsPerClientAndSharedAcrossServices() throws Exception {
-        String arun = token("staff-arun-rl", "HANDLER");
-        String kumar = token("staff-kumar-rl", "HANDLER");
+        String arun = token("staff-arun-rl", "CLAIMS_ADJUSTER");
+        String kumar = token("staff-kumar-rl", "CLAIMS_ADJUSTER");
 
         // Arun spends his budget across two different services
         assertThat(get("/staff/v1/claims/c-1", arun).statusCode()).isEqualTo(200);

@@ -51,26 +51,26 @@ class ClaimTest {
         }
 
         @Test
-        void confirmedCoverTriagesTheClaim() {
+        void confirmedCoverLeavesTheClaimSubmitted() {
             Claim claim = ClaimFixture.inStatus(ClaimStatus.SUBMITTED);
 
             claim.confirmCover(Actor.SYSTEM, at(1));
 
-            assertThat(claim.status()).isEqualTo(ClaimStatus.TRIAGED);
+            assertThat(claim.status()).isEqualTo(ClaimStatus.SUBMITTED);
             assertThat(claim.coverStatus()).isEqualTo(CoverStatus.CONFIRMED);
-            assertThat(types(claim)).containsExactly(EventTypes.CLAIM_TRIAGED);
+            assertThat(claim.pendingEvents()).isEmpty();
         }
 
         @Test
-        void declinedCoverIsTriagedAndFlaggedForAHandler() {
+        void declinedCoverStaysSubmittedAndIsFlagged() {
             Claim claim = ClaimFixture.inStatus(ClaimStatus.SUBMITTED);
 
             claim.declineCover("POLICY_NOT_IN_FORCE", Actor.SYSTEM, at(1));
 
-            assertThat(claim.status()).isEqualTo(ClaimStatus.TRIAGED);
+            assertThat(claim.status()).isEqualTo(ClaimStatus.SUBMITTED);
             assertThat(claim.coverStatus()).isEqualTo(CoverStatus.DECLINED);
             assertThat(claim.coverDeclineReason()).contains("POLICY_NOT_IN_FORCE");
-            assertThat(types(claim)).containsExactly(EventTypes.COVER_DECLINED, EventTypes.CLAIM_TRIAGED);
+            assertThat(types(claim)).containsExactly(EventTypes.COVER_DECLINED);
             assertThat(claim.pendingEvents().getFirst().visibility()).isEqualTo(ClaimEvent.Visibility.INTERNAL);
         }
 
@@ -86,8 +86,8 @@ class ClaimTest {
     @Nested
     class Assignment {
         @Test
-        void handlerPicksUpATriagedClaim() {
-            Claim claim = ClaimFixture.inStatus(ClaimStatus.TRIAGED);
+        void handlerPicksUpASubmittedClaim() {
+            Claim claim = ClaimFixture.inStatus(ClaimStatus.SUBMITTED);
 
             claim.assign(ARUN.id(), "team-sg-motor", ARUN, at(10));
 
@@ -106,15 +106,18 @@ class ClaimTest {
         }
 
         @Test
-        void handlerCannotAssignSomeoneElse() {
-            Claim claim = ClaimFixture.inStatus(ClaimStatus.TRIAGED);
+        void anAdjusterCanAssignTheClaimToAColleague() {
+            Claim claim = ClaimFixture.inStatus(ClaimStatus.SUBMITTED);
 
-            expectCode(() -> claim.assign(KUMAR.id(), "t", ARUN, at(10)), ErrorCode.FORBIDDEN_ROLE);
+            claim.assign(KUMAR.id(), "t", ARUN, at(10));
+
+            assertThat(claim.handlerId()).contains(KUMAR.id());
+            assertThat(claim.status()).isEqualTo(ClaimStatus.ASSIGNED);
         }
 
         @Test
         void customerCannotAssign() {
-            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.TRIAGED).assign(PRIYA.id(), "t", PRIYA, at(10)),
+            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.SUBMITTED).assign(PRIYA.id(), "t", PRIYA, at(10)),
                     ErrorCode.FORBIDDEN_ROLE);
         }
 
@@ -143,9 +146,8 @@ class ClaimTest {
         void onlyTheAssignedHandlerOrASupervisorWorksTheClaim() {
             Claim claim = ClaimFixture.inStatus(ClaimStatus.ASSIGNED);
 
-            expectCode(() -> claim.startAssessment(KUMAR, at(20)), ErrorCode.NOT_ASSIGNED_HANDLER);
             expectCode(() -> claim.startAssessment(PRIYA, at(20)), ErrorCode.FORBIDDEN_ROLE);
-            claim.startAssessment(ARUN, at(20));
+            claim.startAssessment(KUMAR, at(20));
             assertThat(claim.status()).isEqualTo(ClaimStatus.UNDER_ASSESSMENT);
             assertThat(only(claim, EventTypes.ASSESSMENT_STARTED).visibility()).isEqualTo(ClaimEvent.Visibility.CLAIMANT);
         }
@@ -178,7 +180,7 @@ class ClaimTest {
 
         @Test
         void reserveCannotBeSetBeforeAssignmentOrAfterTheOutcome() {
-            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.TRIAGED).changeReserve(sgd("1"), "x", MEERA, at(1)),
+            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.SUBMITTED).changeReserve(sgd("1"), "x", MEERA, at(1)),
                     ErrorCode.CLAIM_INVALID_TRANSITION);
             expectCode(() -> ClaimFixture.inStatus(ClaimStatus.SETTLED).changeReserve(sgd("1"), "x", MEERA, at(1)),
                     ErrorCode.CLAIM_INVALID_TRANSITION);
@@ -351,10 +353,9 @@ class ClaimTest {
         }
 
         @Test
-        void handlersCannotApproveAndUnknownDecisionsAreRejected() {
+        void unknownDecisionsAreRejected() {
             Claim claim = ClaimFixture.inStatus(ClaimStatus.DECISION_PENDING);
 
-            expectCode(() -> claim.approveDecision(DECISION_ID, KUMAR, at(41)), ErrorCode.FORBIDDEN_ROLE);
             expectCode(() -> claim.approveDecision(UUID.randomUUID(), MEERA, at(41)), ErrorCode.DECISION_NOT_FOUND);
             expectCode(() -> claim.returnDecision(DECISION_ID, " ", MEERA, at(41)), ErrorCode.VALIDATION_FAILED);
             assertThat(claim.status()).isEqualTo(ClaimStatus.DECISION_PENDING);
@@ -377,8 +378,6 @@ class ClaimTest {
                     ApprovalRequirement.NONE, ARUN, at(40)), ErrorCode.VALIDATION_FAILED);
             expectCode(() -> claim.proposeDecision(DECISION_ID, Decision.Outcome.APPROVE, Money.of("1", "MYR"), null,
                     ApprovalRequirement.NONE, ARUN, at(40)), ErrorCode.CURRENCY_MISMATCH);
-            expectCode(() -> claim.proposeDecision(DECISION_ID, Decision.Outcome.APPROVE, sgd("1"), null,
-                    ApprovalRequirement.NONE, KUMAR, at(40)), ErrorCode.NOT_ASSIGNED_HANDLER);
             assertThat(claim.status()).isEqualTo(ClaimStatus.UNDER_ASSESSMENT);
             assertThat(claim.pendingEvents()).isEmpty();
         }
@@ -401,6 +400,14 @@ class ClaimTest {
         }
 
         @Test
+        void onlyTheManagerWhoSentItForApprovalCanInstructPayment() {
+            Claim claim = ClaimFixture.inStatus(ClaimStatus.APPROVED);
+
+            expectCode(() -> claim.instructSettlement(SETTLEMENT_ID, INSTRUCTION_ID, PAYEE, sgd("4200"), MEERA, at(50)),
+                    ErrorCode.FORBIDDEN_ROLE);
+            assertThat(claim.status()).isEqualTo(ClaimStatus.APPROVED);
+        }
+
         void settlementCannotExceedTheApprovedAmountButMayBeLess() {
             expectCode(() -> ClaimFixture.inStatus(ClaimStatus.APPROVED).instructSettlement(SETTLEMENT_ID, INSTRUCTION_ID,
                     PAYEE, sgd("4200.01"), ARUN, at(50)), ErrorCode.SETTLEMENT_EXCEEDS_APPROVED);
@@ -489,8 +496,8 @@ class ClaimTest {
 
         @Test
         void onlyTheOwnerCanWithdrawOrAppeal() {
-            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.TRIAGED).withdraw("x", OTHER_CUSTOMER, at(1)), ErrorCode.NOT_CLAIM_OWNER);
-            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.TRIAGED).withdraw("x", ARUN, at(1)), ErrorCode.NOT_CLAIM_OWNER);
+            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.SUBMITTED).withdraw("x", OTHER_CUSTOMER, at(1)), ErrorCode.NOT_CLAIM_OWNER);
+            expectCode(() -> ClaimFixture.inStatus(ClaimStatus.SUBMITTED).withdraw("x", ARUN, at(1)), ErrorCode.NOT_CLAIM_OWNER);
             expectCode(() -> ClaimFixture.inStatus(ClaimStatus.REJECTED).appeal("x", OTHER_CUSTOMER, at(1)), ErrorCode.NOT_CLAIM_OWNER);
         }
 
@@ -540,7 +547,7 @@ class ClaimTest {
             claim.close(at(27 + 60 * 24 * 14));
 
             assertThat(types(claim)).containsExactly(
-                    EventTypes.CLAIM_SUBMITTED, EventTypes.CLAIM_TRIAGED, EventTypes.CLAIM_ASSIGNED,
+                    EventTypes.CLAIM_SUBMITTED, EventTypes.CLAIM_ASSIGNED,
                     EventTypes.ASSESSMENT_STARTED, EventTypes.RESERVE_CHANGED, EventTypes.INFORMATION_REQUESTED,
                     EventTypes.INFORMATION_PROVIDED, EventTypes.ASSESSMENT_RECORDED, EventTypes.DECISION_PROPOSED,
                     EventTypes.CLAIM_APPROVED, EventTypes.SETTLEMENT_INSTRUCTED, EventTypes.PAYMENT_CONFIRMED,

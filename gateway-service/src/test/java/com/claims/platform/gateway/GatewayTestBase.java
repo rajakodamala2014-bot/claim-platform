@@ -112,13 +112,13 @@ abstract class GatewayTestBase {
     /** A token whose role is allowed on the surface the path belongs to (or none for token-less paths). */
     static String tokenFor(String path) {
         if (path.startsWith("/claimant/")) {
-            return token("cust-priya", "CLAIMANT");
+            return token("cust-priya", "CUSTOMER");
         }
         if (path.startsWith("/staff/")) {
-            return token("staff-arun", "HANDLER");
+            return token("staff-arun", "CLAIMS_ADJUSTER");
         }
         if (path.startsWith("/admin/")) {
-            return token("staff-lee", "MANAGER");
+            return token("staff-lee", "CLAIMS_ADJUSTER");
         }
         return null;
     }

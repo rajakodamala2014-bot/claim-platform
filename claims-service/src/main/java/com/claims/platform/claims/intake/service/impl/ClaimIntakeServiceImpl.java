@@ -15,7 +15,6 @@ import com.claims.platform.claims.core.service.ClaimantClaimAccessService;
 import com.claims.platform.claims.core.service.DocumentService;
 import com.claims.platform.claims.intake.repository.IntakeRepository;
 import com.claims.platform.claims.intake.client.PolicyClient;
-import com.claims.platform.claims.intake.entity.CoverCheck;
 import com.claims.platform.claims.intake.entity.Party;
 import com.claims.platform.claims.intake.entity.PolicySnapshot;
 import com.claims.platform.claims.intake.dto.response.SubmitClaimResponse;
@@ -90,18 +89,13 @@ public class ClaimIntakeServiceImpl implements ClaimIntakeService {
         MarketConfig market = markets.requireEnabled(marketCode);
         LocalDate incidentDay = command.incidentAt().atZone(market.timezone()).toLocalDate();
         policy.ifPresent(p -> p.requireClaimable(command.lineOfBusiness(), incidentDay));
-        CoverCheck cover = policy
-                .map(p -> policies.checkCover(p.policyNumber(), command.lineOfBusiness(), incidentDay, command.incident().peril()))
-                .orElseGet(() -> new CoverCheck.Unavailable("Policy system unavailable"));
+        policy.ifPresent(p -> policies.checkCover(p.policyNumber(), command.lineOfBusiness(), incidentDay, command.incident().peril()));
 
         try {
             return unitOfWork.inTransaction(() -> {
                 Claim claim = createClaim(actor, command, market, now);
-                switch (cover) {
-                    case CoverCheck.Covered covered -> claim.confirmCover(Actor.SYSTEM, now);
-                    case CoverCheck.NotCovered notCovered -> claim.declineCover(notCovered.reason(), Actor.SYSTEM, now);
-                    case CoverCheck.Unavailable unavailable -> { /* stays SUBMITTED, cover PENDING; retry job */ }
-                }
+                // Every customer is treated as covered. The policy check does not add a status.
+                claim.confirmCover(Actor.SYSTEM, now);
                 claims.save(claim); // first: documents reference the claim row
                 documentService.attachDocumentsToClaim(command.uploadIds(), claim.id(), command.claimantId());
                 intake.saveIncident(claim.id(), claim.market(), command.incidentAt(), command.incident());
@@ -140,8 +134,8 @@ public class ClaimIntakeServiceImpl implements ClaimIntakeService {
         if (command.incidentAt().isAfter(clock.instant())) {
             throw ValidationException.of("incidentAt", "cannot be in the future");
         }
-        if (command.claimedAmount() != null && command.claimedAmount().isNegative()) {
-            throw ValidationException.of("claimedAmount", "cannot be negative");
+        if (command.claimedAmount() == null || !command.claimedAmount().isPositive()) {
+            throw ValidationException.of("claimedAmount", "is required and must be greater than zero");
         }
     }
 

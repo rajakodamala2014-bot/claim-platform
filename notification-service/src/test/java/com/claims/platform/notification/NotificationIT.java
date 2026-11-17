@@ -82,11 +82,14 @@ class NotificationIT {
         send(claim, EventTypes.DECISION_PROPOSED, Map.of("decisionId", UUID.randomUUID().toString(), "outcome", "APPROVE",
                 "amountMinor", 1_200_000, "currency", "SGD", "approvalRequired", true, "actorId", "h-arun"));
         send(claim, EventTypes.CLAIM_APPROVED, Map.of("approvedAmountMinor", 1_200_000, "currency", "SGD"));
-        awaitRows(claim, 4 + 4 + 2 + 4); // priya x4 channels (twice) ... meera x2, priya approval x4
+        // Every adjuster on the team is told about the proposal, then the customer is told it is approved.
+        await(() -> sql.queryForObject(
+                "SELECT count(*) FROM notification.notification WHERE claim_id = ? AND event_type = ?",
+                Integer.class, claim, EventTypes.CLAIM_APPROVED) >= 4);
         runDispatch();
 
         // N1 customer inbox, newest first, rendered
-        String priya = token("cust-priya", "CLAIMANT", List.of("SG"));
+        String priya = token("cust-priya", "CUSTOMER", List.of("SG"));
         JsonNode inbox = get("/claimant/v1/notifications", priya, HttpStatus.OK);
         assertThat(inbox.at("/items")).extracting(i -> i.get("title").asText()).containsExactly(
                 "Your claim SG-MTR-2026-000301 is approved", "Arun Kumar is now handling your claim",
@@ -102,14 +105,14 @@ class NotificationIT {
         String first = inbox.at("/items/0/id").asText();
         exchange(HttpMethod.POST, "/claimant/v1/notifications/" + first + "/read", priya, null, HttpStatus.NO_CONTENT);
         assertThat(get("/claimant/v1/notifications?unreadOnly=true", priya, HttpStatus.OK).at("/items")).hasSize(2);
-        exchange(HttpMethod.POST, "/claimant/v1/notifications/" + first + "/read", token("cust-tan", "CLAIMANT", List.of("SG")),
+        exchange(HttpMethod.POST, "/claimant/v1/notifications/" + first + "/read", token("cust-tan", "CUSTOMER", List.of("SG")),
                 null, HttpStatus.NOT_FOUND);
 
         // N5 staff delivery log, market-scoped, addresses masked
-        JsonNode log = get("/staff/v1/claims/" + claim + "/notifications", token("h-arun", "HANDLER", List.of("SG")), HttpStatus.OK);
+        JsonNode log = get("/staff/v1/claims/" + claim + "/notifications", token("h-arun", "CLAIMS_ADJUSTER", List.of("SG")), HttpStatus.OK);
         assertThat(log.at("/items")).extracting(i -> i.get("channel").asText()).contains("EMAIL", "SMS", "PUSH", "IN_APP");
         assertThat(log.toString()).doesNotContain("priya@example.com").contains("p***@example.com");
-        get("/staff/v1/claims/" + claim + "/notifications", token("h-my", "HANDLER", List.of("MY")), HttpStatus.FORBIDDEN);
+        get("/staff/v1/claims/" + claim + "/notifications", token("h-my", "CLAIMS_ADJUSTER", List.of("MY")), HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -119,7 +122,7 @@ class NotificationIT {
         awaitRows(claim, 3); // in-app, email, sms
         runDispatch();
 
-        JsonNode inbox = get("/claimant/v1/notifications", token("cust-aisyah", "CLAIMANT", List.of("MY")), HttpStatus.OK);
+        JsonNode inbox = get("/claimant/v1/notifications", token("cust-aisyah", "CUSTOMER", List.of("MY")), HttpStatus.OK);
         assertThat(inbox.at("/items/0/title").asText()).isEqualTo("Kami telah menerima tuntutan anda MY-PRP-2026-000302");
     }
 
@@ -130,7 +133,7 @@ class NotificationIT {
         awaitRows(claim, 3); // in-app, email, sms
         runDispatch();
 
-        JsonNode inbox = get("/claimant/v1/notifications", token("cust-wong", "CLAIMANT", List.of("HK")), HttpStatus.OK);
+        JsonNode inbox = get("/claimant/v1/notifications", token("cust-wong", "CUSTOMER", List.of("HK")), HttpStatus.OK);
         assertThat(inbox.at("/items/0/title").asText()).isEqualTo("我們已收到您的索償申請 HK-MTR-2026-000401");
     }
 
@@ -180,17 +183,17 @@ class NotificationIT {
         kafka.send(Topics.INSIGHTS_ALERTS, claim.toString(), json.writeValueAsString(alert)).get(); // duplicate
 
         await(() -> sql.queryForObject("SELECT count(*) FROM notification.notification WHERE event_id = ?", Integer.class,
-                alert.eventId()) == 4); // kumar + meera, in-app + e-mail each
+                alert.eventId()) == 6); // every adjuster on the team (arun, kumar, meera), in-app + e-mail each
         Thread.sleep(500);
         assertThat(sql.queryForList("SELECT DISTINCT recipient_id FROM notification.notification WHERE event_id = ? ORDER BY 1",
-                String.class, alert.eventId())).containsExactly("h-kumar", "tl-meera");
+                String.class, alert.eventId())).containsExactly("h-arun", "h-kumar", "tl-meera");
         assertThat(sql.queryForObject("SELECT body FROM notification.notification WHERE event_id = ? AND recipient_id = 'h-kumar' "
                 + "AND channel = 'IN_APP'", String.class, alert.eventId())).contains("breaches its SLA in 3 hours");
     }
 
     @Test
     void preferencesAndTemplatesAreManaged() throws Exception {
-        String olivia = token("cust-olivia", "CLAIMANT", List.of("AU"));
+        String olivia = token("cust-olivia", "CUSTOMER", List.of("AU"));
         assertThat(get("/claimant/v1/notification-preferences", olivia, HttpStatus.OK).at("/sms/enabled").asBoolean()).isTrue();
         exchange(HttpMethod.PUT, "/claimant/v1/notification-preferences", olivia, Map.of("language", "en",
                 "email", Map.of("enabled", true, "address", "not-an-email"), "sms", Map.of("enabled", false),
@@ -199,9 +202,9 @@ class NotificationIT {
                 "email", Map.of("enabled", false), "sms", Map.of("enabled", false), "push", Map.of("enabled", true)), HttpStatus.OK).getBody());
         assertThat(updated.at("/push/enabled").asBoolean()).isTrue();
 
-        String manager = token("m-lee", "MANAGER", List.of("SG"));
+        String manager = token("m-lee", "CLAIMS_ADJUSTER", List.of("SG"));
         assertThat(get("/admin/v1/templates", manager, HttpStatus.OK).at("/items").size()).isGreaterThanOrEqualTo(43);
-        get("/admin/v1/templates", token("tl-meera", "TEAM_LEAD", List.of("SG")), HttpStatus.FORBIDDEN);
+        get("/admin/v1/templates", token("cust-priya", "CUSTOMER", List.of("SG")), HttpStatus.FORBIDDEN);
         JsonNode template = json.readTree(exchange(HttpMethod.PUT, "/admin/v1/templates/ClaimRejected.CUSTOMER.th", manager,
                 Map.of("subject", "Claim {{claimNumber}} received", "body", "Thanks, we are on it."), HttpStatus.OK).getBody());
         assertThat(template.get("subject").asText()).isEqualTo("Claim {{claimNumber}} received");

@@ -1,11 +1,11 @@
 meta {
-  name: Set the reserve
+  name: Another claim manager approves
   type: http
-  seq: 8
+  seq: 11
 }
 
 post {
-  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/reserves
+  url: {{gateway}}/staff/v1/claims/{{staffClaimId}}/decisions/{{staffDecisionId}}/approval
   body: json
   auth: bearer
 }
@@ -16,21 +16,20 @@ headers {
 }
 
 auth:bearer {
-  token: {{arunToken}}
+  token: {{meeraToken}}
 }
 
 body:json {
-  {"amount": {"amount": "9000.00", "currency": "SGD"}, "reason": "Within handler authority"}
+  {"action": "APPROVE"}
 }
-
 
 script:post-response {
   if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
 }
 
 tests {
-  test("reserve is set", function () {
+  test("the claim is approved by another claim manager", function () {
     expect(res.getStatus()).to.equal(200);
-    expect(res.getBody().result.amount).to.equal("9000.00");
+    expect(res.getBody().status).to.equal("APPROVED");
   });
 }

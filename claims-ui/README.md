@@ -1,8 +1,11 @@
-# claims-ui — claimant portal
+# claims-ui — customer and staff portal
 
-React 18 + Vite + TypeScript single-page app for customers. It uses only the claimant surface
-(`/claimant/v1/**`) through the gateway and holds no business rules: what a claimant may see or do
-(`statusLabel`, `nextStep`, `canWithdraw`, `canAppeal`, `actionNeeded`) comes from the API.
+React 18 + Vite + TypeScript single-page app. One app, two portals: after sign-in the role on the token picks
+the customer screens (`CUSTOMER`) or the claim manager screens (`CLAIMS_ADJUSTER`). It calls only the gateway, and
+holds no business rules: what a user may see or do (`statusLabel`, `nextStep`, `canWithdraw`, `canAppeal`,
+`actionNeeded`, the staff workspace's allowed actions) comes from the API.
+
+## Customer screens (`/claimant/v1/**`)
 
 | Screen | Route | APIs |
 |---|---|---|
@@ -12,6 +15,15 @@ React 18 + Vite + TypeScript single-page app for customers. It uses only the cla
 | Claim detail | `/claims/:id` | C5, C6 timeline, C7/C8 information requests, C9 withdraw, C10 appeal |
 | Messages | `/notifications` | N1 inbox, N2 mark read (unread count polled every 15 s) |
 | Settings | `/settings` | N3/N4 notification preferences |
+
+## Claim manager screens (`/staff/v1/**`)
+
+| Screen | Route | APIs |
+|---|---|---|
+| Work queue | `/work` | I1 work queue (views, cursor pagination), I2 search |
+| Claim workspace | `/work/:id` | S-endpoints on `/staff/v1/claims/{id}`: pick up, start assessment, information requests, propose decision (full or partial cover, or rejection), settlement and retry; `If-Match` on every change. Names come from `/staff/v1/people` |
+| Approvals | `/approvals` | `/staff/v1/approvals`, then approve or return a decision proposed by someone else |
+| Insights | `/insights` | `/staff/v1/insights/{workload,performance,sla,exposure}` |
 
 ## Run
 
@@ -24,14 +36,16 @@ npm test                         # vitest unit tests
 npm run build                    # type-check + production build into dist/
 ```
 
-Sign in as `priya` (password `ChangeMe123!`; SG motor + property policies), or `tan`, `wong`, `aisyah`. Staff: `arun`, `kumar`, `faiz`, `meera`, `ho`, `lee`.
-Policy `SG-MTR-POL-1500` exercises the Policy-system timeout (claim saved with cover pending).
+Password for every seeded account: `ChangeMe123!`. Customers: `priya` (SG motor + property policies), `tan`, `wong`,
+`aisyah`. Claim managers: `arun`, `kumar`, `faiz`, `meera`, `ho`, `lee`; a decision needs two of them in the same market
+(for example `arun` proposes, `meera` approves). Policy `SG-MTR-POL-1500` exercises the Policy-system timeout (claim
+saved with cover pending).
 
 ## Notes
 
 - Same origin everywhere (gateway, or Vite's proxy), so no CORS. Pre-signed upload URLs are absolute
   (`claims.documents.public-base-url`); `api.sameOriginUrl` keeps only path + query.
-- The token sits in `sessionStorage` and is decoded only for display; services validate it. A 401 signs out.
-- Client-side checks mirror the domain (upload types/size from `core.domain.Document`, required motor/property
+- The token sits in `sessionStorage` and is decoded only for display and to pick the portal; services validate it. A 401 signs out.
+- Client-side checks mirror the domain (upload types/size from `core.entity.Document`, required motor/property
   incident fields) only to fail fast; field errors from problem+json `errors` are shown as returned.
 - Not part of the Maven reactor; `./scripts/ci.sh` does not build it.

@@ -12,7 +12,7 @@ import java.util.Optional;
 /** JPA-backed staff directory. Rows are mapped to the {@link StaffMember} record here. */
 @Repository
 public class JpaStaffDirectoryRepository implements StaffDirectoryRepository {
-    private static final String TEAM_LEAD = "TEAM_LEAD";
+    private static final String ADJUSTER = "CLAIMS_ADJUSTER";
 
     private final StaffMemberEntityRepository staff;
 
@@ -29,7 +29,7 @@ public class JpaStaffDirectoryRepository implements StaffDirectoryRepository {
     @Override
     @Transactional(readOnly = true)
     public List<StaffMember> findTeamLeadsOfTeam(String teamId) {
-        return staff.findByTeamIdAndRoleOrderByUserId(teamId, TEAM_LEAD).stream()
+        return staff.findByTeamIdAndRoleOrderByUserId(teamId, ADJUSTER).stream()
                 .map(StaffMemberEntity::toStaffMember).toList();
     }
 }

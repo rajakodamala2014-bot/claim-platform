@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Request/response rewriting at the edge: correlation ids, forwarded headers, response hardening. */
 class EdgeHeadersTest extends GatewayTestBase {
-    private final String claimant = token("cust-priya", "CLAIMANT");
+    private final String claimant = token("cust-priya", "CUSTOMER");
 
     @Test
     void mintsACorrelationIdForwardsItAndEchoesItOnce() throws Exception {

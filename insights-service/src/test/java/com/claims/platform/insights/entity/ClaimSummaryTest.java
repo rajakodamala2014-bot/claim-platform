@@ -111,7 +111,7 @@ class ClaimSummaryTest {
         s.apply(event("SomethingNewInV2", 2, Map.of()));
 
         assertThat(s.coverStatus()).isEqualTo("DECLINED");
-        assertThat(s.status()).isEqualTo("TRIAGED");
+        assertThat(s.status()).isEqualTo("SUBMITTED");
     }
 
     @ParameterizedTest

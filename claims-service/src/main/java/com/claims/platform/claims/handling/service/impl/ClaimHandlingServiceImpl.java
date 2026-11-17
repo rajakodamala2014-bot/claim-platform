@@ -3,6 +3,7 @@ package com.claims.platform.claims.handling.service.impl;
 import com.claims.platform.claims.core.common.StaffContext;
 import com.claims.platform.claims.core.entity.ApprovalRequirement;
 import com.claims.platform.claims.core.entity.Assessment;
+import com.claims.platform.claims.core.entity.Claim;
 import com.claims.platform.claims.core.entity.ClaimId;
 import com.claims.platform.claims.core.entity.Decision;
 import com.claims.platform.claims.core.exception.DomainException;
@@ -55,14 +56,6 @@ public class ClaimHandlingServiceImpl implements ClaimHandlingService {
     }
 
     @Override
-    public Outcome<Money> setReserve(ClaimId claimId, StaffContext staff, long expectedVersion, Money newTotal, String reason) {
-        return staffCommands.applyChange(claimId, staff, expectedVersion, claim -> {
-            claim.changeReserve(newTotal, reason, staff.actor(), clock.instant());
-            return claim.outstandingReserve();
-        });
-    }
-
-    @Override
     public Outcome<UUID> requestInformation(ClaimId claimId, StaffContext staff, long expectedVersion, List<String> items, Instant dueAt) {
         UUID requestId = UUID.randomUUID();
         return staffCommands.applyChange(claimId, staff, expectedVersion, claim -> {
@@ -86,14 +79,45 @@ public class ClaimHandlingServiceImpl implements ClaimHandlingService {
 
     @Override
     public Outcome<Decision> proposeDecision(ClaimId claimId, StaffContext staff, long expectedVersion, Decision.Outcome outcome,
-                                     Money approvedAmount, String reasonCode) {
+                                     Assessment.Liability coverage, Money approvedAmount, String reasonCode) {
         UUID decisionId = UUID.randomUUID();
         return staffCommands.applyChange(claimId, staff, expectedVersion, claim -> {
-            Money atStake = outcome == Decision.Outcome.APPROVE ? approvedAmount : claim.outstandingReserve();
-            ApprovalRequirement approval = authority.loadAuthorityPolicy()
+            Money atStake = amountAtStake(claim, outcome, coverage, approvedAmount, staff);
+            // Currency and role are still checked. A rejection is final at once; a covered amount waits.
+            authority.loadAuthorityPolicy()
                     .requirementFor(staff.actor(), claim.market(), claim.lineOfBusiness(), atStake);
+            ApprovalRequirement approval = outcome == Decision.Outcome.REJECT
+                    ? ApprovalRequirement.NONE
+                    : ApprovalRequirement.SUPERVISOR_APPROVAL;
             return claim.proposeDecision(decisionId, outcome, atStake, reasonCode, approval, staff.actor(), clock.instant());
         });
+    }
+
+    private Money amountAtStake(Claim claim, Decision.Outcome outcome,
+                                Assessment.Liability coverage, Money approvedAmount, StaffContext staff) {
+        if (outcome != Decision.Outcome.APPROVE) {
+            return claim.claimedAmount().orElseGet(() -> Money.zero(claim.currency()));
+        }
+        if (coverage != Assessment.Liability.FULL && coverage != Assessment.Liability.PARTIAL) {
+            throw new DomainException(ErrorCode.VALIDATION_FAILED, "Choose fully covered or partially covered");
+        }
+        Money claimed = claim.claimedAmount().orElseThrow(() -> new DomainException(ErrorCode.VALIDATION_FAILED,
+                "The customer did not submit an amount"));
+        if (coverage == Assessment.Liability.FULL) {
+            if (approvedAmount != null && !approvedAmount.equals(claimed)) {
+                throw new DomainException(ErrorCode.VALIDATION_FAILED,
+                        "Fully covered must be the amount the customer submitted");
+            }
+            approvedAmount = claimed;
+        } else if (approvedAmount == null || !approvedAmount.isPositive() || approvedAmount.isGreaterThan(claimed)) {
+            throw new DomainException(ErrorCode.VALIDATION_FAILED,
+                    "A partial amount must be greater than zero and no more than the amount the customer submitted");
+        }
+        String label = coverage == Assessment.Liability.FULL ? "Fully covered" : "Partially covered";
+        Instant now = clock.instant();
+        claim.recordAssessment(UUID.randomUUID(), coverage, approvedAmount, label, staff.actor(), now);
+        claim.changeReserve(approvedAmount, label, staff.actor(), now);
+        return approvedAmount;
     }
 
     @Override

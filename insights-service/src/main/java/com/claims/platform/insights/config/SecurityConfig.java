@@ -26,7 +26,7 @@ class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**", "/actuator/info", "/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/staff/**").hasAnyRole("HANDLER", "TEAM_LEAD", "MANAGER")
+                        .requestMatchers("/staff/**").hasRole("CLAIMS_ADJUSTER")
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))
                         .authenticationEntryPoint(entryPoint).accessDeniedHandler(deniedHandler))

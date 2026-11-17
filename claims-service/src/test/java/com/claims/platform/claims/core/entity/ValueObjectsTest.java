@@ -47,7 +47,7 @@ class ValueObjectsTest {
         data.put("a", 1);
         data.put("b", null);
         ClaimEvent event = new ClaimEvent(java.util.UUID.randomUUID(), "ClaimSubmitted", ClaimEvent.Visibility.CLAIMANT,
-                "x", Role.CLAIMANT, java.time.Instant.now(), data);
+                "x", Role.CUSTOMER, java.time.Instant.now(), data);
 
         assertThat(event.data()).containsOnlyKeys("a").isUnmodifiable();
     }

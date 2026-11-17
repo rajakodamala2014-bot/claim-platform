@@ -9,14 +9,12 @@ import java.util.stream.Collectors;
 
 /**
  * The caller, as asserted by the identity provider. Token claims:
- * {@code sub}, {@code roles} (CLAIMANT | HANDLER | TEAM_LEAD | MANAGER), {@code markets} (e.g. ["SG","MY"]),
+ * {@code sub}, {@code roles} (CUSTOMER | CLAIMS_ADJUSTER), {@code markets} (e.g. ["SG","MY"]),
  * {@code name}, {@code locale}, {@code team}.
  */
 public record PlatformUser(String id, Set<String> roles, Set<String> markets, String name, String locale, String teamId) {
-    public static final String CLAIMANT = "CLAIMANT";
-    public static final String HANDLER = "HANDLER";
-    public static final String TEAM_LEAD = "TEAM_LEAD";
-    public static final String MANAGER = "MANAGER";
+    public static final String CUSTOMER = "CUSTOMER";
+    public static final String CLAIMS_ADJUSTER = "CLAIMS_ADJUSTER";
 
     public PlatformUser {
         roles = Set.copyOf(roles);
@@ -38,7 +36,7 @@ public record PlatformUser(String id, Set<String> roles, Set<String> markets, St
 
     /** Highest-privilege role, used when a single role is needed (e.g. authority limits). */
     public String primaryRole() {
-        for (String role : List.of(MANAGER, TEAM_LEAD, HANDLER, CLAIMANT)) {
+        for (String role : List.of(CLAIMS_ADJUSTER, CUSTOMER)) {
             if (roles.contains(role)) {
                 return role;
             }

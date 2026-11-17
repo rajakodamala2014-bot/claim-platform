@@ -170,6 +170,9 @@ legend { font-weight: 600; font-size: .92rem; padding: 0 .3rem; }
 .doc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .4rem; }
 .doc-list li { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; overflow-wrap: anywhere; }
 .needed { margin: .25rem 0; padding-left: 1.2rem; font-weight: 550; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; }
+.summary-grid div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem .9rem; box-shadow: var(--shadow); }
+.summary-grid span { display: block; color: var(--muted); font-size: .78rem; font-weight: 650; letter-spacing: .02em; text-transform: uppercase; }
 .facts { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1rem; margin: 0; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; }

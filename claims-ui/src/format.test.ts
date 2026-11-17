@@ -44,7 +44,7 @@ describe('auth', () => {
   const encode = (o: object) => btoa(JSON.stringify(o)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
 
   it('reads display claims from the JWT payload', () => {
-    const token = `x.${encode({ sub: 'cust-priya', name: 'Priya Nair', roles: ['CLAIMANT'], markets: ['SG'], exp: 4102444800 })}.y`;
+    const token = `x.${encode({ sub: 'cust-priya', name: 'Priya Nair', roles: ['CUSTOMER'], markets: ['SG'], exp: 4102444800 })}.y`;
     expect(decodeToken(token)).toMatchObject({ sub: 'cust-priya', name: 'Priya Nair', markets: ['SG'] });
   });
 

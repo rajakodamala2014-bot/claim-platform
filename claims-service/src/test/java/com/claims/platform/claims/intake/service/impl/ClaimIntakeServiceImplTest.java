@@ -70,7 +70,7 @@ class ClaimIntakeServiceImplTest {
     void coveredClaimIsTriagedNumberedAndStoredWithItsRecords() {
         SubmitClaimResponse result = claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), command("SG-MTR-POL-1001", List.of()));
 
-        assertThat(result.status()).isEqualTo("TRIAGED");
+        assertThat(result.status()).isEqualTo("SUBMITTED");
         assertThat(result.coverStatus()).isEqualTo("CONFIRMED");
         assertThat(result.claimNumber()).isEqualTo("SG-MTR-2026-000001");
         assertThat(result.replayed()).isFalse();
@@ -88,7 +88,7 @@ class ClaimIntakeServiceImplTest {
     void incidentDayIsJudgedInTheMarketsTimezone() {
         // 20:00 UTC on the 13th is 04:00 on the 14th in Singapore
         ClaimIntakeService.SubmitClaimCommand lateNight = new ClaimIntakeService.SubmitClaimCommand("cust-priya", "Priya", SG, Channel.APP, "SG-MTR-POL-1001",
-                LineOfBusiness.MOTOR, Instant.parse("2026-11-13T20:00:00Z"), motor(), null, List.of(), null, null);
+                LineOfBusiness.MOTOR, Instant.parse("2026-11-13T20:00:00Z"), motor(), Money.of("6000", "SGD"), List.of(), null, null);
 
         claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), lateNight);
 
@@ -101,8 +101,8 @@ class ClaimIntakeServiceImplTest {
 
         SubmitClaimResponse result = claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), command("SG-MTR-POL-1001", List.of()));
 
-        assertThat(result.status()).isEqualTo("TRIAGED");
-        assertThat(result.coverStatus()).isEqualTo("DECLINED");
+        assertThat(result.status()).isEqualTo("SUBMITTED");
+        assertThat(result.coverStatus()).isEqualTo("CONFIRMED");
     }
 
     @Test
@@ -112,7 +112,7 @@ class ClaimIntakeServiceImplTest {
         SubmitClaimResponse result = claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), command("SG-MTR-POL-1001", List.of()));
 
         assertThat(result.status()).isEqualTo("SUBMITTED");
-        assertThat(result.coverStatus()).isEqualTo("PENDING");
+        assertThat(result.coverStatus()).isEqualTo("CONFIRMED");
     }
 
     @Test
@@ -122,7 +122,7 @@ class ClaimIntakeServiceImplTest {
         SubmitClaimResponse result = claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), command("SG-MTR-POL-1001", List.of()));
 
         assertThat(result.status()).isEqualTo("SUBMITTED");
-        assertThat(result.coverStatus()).isEqualTo("PENDING");
+        assertThat(result.coverStatus()).isEqualTo("CONFIRMED");
         assertThat(claims.only().market()).isEqualTo(SG);
         assertThat(intake.policies).isEmpty();
         assertThat(policies.coverChecks).isZero();
@@ -158,7 +158,7 @@ class ClaimIntakeServiceImplTest {
         Actor other = Actor.claimant("cust-tan");
         policies.held.put("cust-tan", List.of(policy("SG-MTR-POL-7", "cust-tan", "ACTIVE")));
         ClaimIntakeService.SubmitClaimCommand theirs = new ClaimIntakeService.SubmitClaimCommand("cust-tan", "Tan", SG, Channel.APP, "SG-MTR-POL-7",
-                LineOfBusiness.MOTOR, Instant.parse("2026-11-13T09:00:00Z"), motor(), null, List.of(), null, null);
+                LineOfBusiness.MOTOR, Instant.parse("2026-11-13T09:00:00Z"), motor(), Money.of("6000", "SGD"), List.of(), null, null);
 
         assertThat(claimIntakeService.submitClaim(other, key, theirs).replayed()).isFalse();
         assertThat(claims.byId).hasSize(2);
@@ -184,7 +184,7 @@ class ClaimIntakeServiceImplTest {
     void invalidIncidentDetailsListEveryOffendingField() {
         ClaimIntakeService.SubmitClaimCommand bad = new ClaimIntakeService.SubmitClaimCommand("cust-priya", "Priya Nair", SG, Channel.APP, "SG-MTR-POL-1001",
                 LineOfBusiness.MOTOR, Instant.parse("2026-11-13T09:00:00Z"),
-                new MotorIncident("METEOR", "", "x", null, null, null, null, List.of()), null, List.of(), null, null);
+                new MotorIncident("METEOR", "", "x", null, null, null, null, List.of()), Money.of("6000", "SGD"), List.of(), null, null);
 
         assertThatThrownBy(() -> claimIntakeService.submitClaim(PRIYA, UUID.randomUUID(), bad))
                 .isInstanceOf(ValidationException.class)
@@ -197,7 +197,7 @@ class ClaimIntakeServiceImplTest {
     @Test
     void incidentInTheFutureOrForeignCurrencyIsRejected() {
         ClaimIntakeService.SubmitClaimCommand future = new ClaimIntakeService.SubmitClaimCommand("cust-priya", "Priya", SG, Channel.APP, "SG-MTR-POL-1001",
-                LineOfBusiness.MOTOR, NOW.plusSeconds(60), motor(), null, List.of(), null, null);
+                LineOfBusiness.MOTOR, NOW.plusSeconds(60), motor(), Money.of("6000", "SGD"), List.of(), null, null);
         ClaimIntakeService.SubmitClaimCommand hkd = new ClaimIntakeService.SubmitClaimCommand("cust-priya", "Priya", SG, Channel.APP, "SG-MTR-POL-1001",
                 LineOfBusiness.MOTOR, Instant.parse("2026-11-13T09:00:00Z"), motor(), Money.of("100", "HKD"), List.of(), null, null);
 

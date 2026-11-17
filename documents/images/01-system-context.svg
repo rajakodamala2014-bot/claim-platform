@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>System context</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-30%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="0.5" y="0.5" width="1099" height="649" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+  <path d="M330,78 L330,115 L480,115 L480,148" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M770,78 L770,115 L620,115 L620,148" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,210 L550,245 L130,245 L130,288" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,210 L550,245 L400,245 L400,288" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,210 L550,245 L700,245 L700,288" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,210 L550,245 L970,245 L970,288" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M340,354 L340,400 L130,400 L130,438" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M440,354 L440,410 L650,410 L650,438" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M700,356 L700,438" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M750,440 L750,410 L930,410 L930,356" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1010,356 L1010,438" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M700,498 L700,568" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <g filter="url(#shadow)"><rect x="230" y="30" width="200" height="48" rx="24.0" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="330.0" y="54.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Customer</text>
+  <g filter="url(#shadow)"><rect x="670" y="30" width="200" height="48" rx="24.0" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="770.0" y="54.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Claim Manager</text>
+  <g filter="url(#shadow)"><rect x="400" y="150" width="300" height="60" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.6"/></g>
+  <text x="550.0" y="172.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#312e81" text-anchor="middle" dominant-baseline="central">Gateway</text>
+  <text x="550.0" y="189.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">sign-in check · rate limit · routing</text>
+  <g filter="url(#shadow)"><rect x="30" y="290" width="200" height="64" rx="10" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.6"/></g>
+  <text x="130.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#134e4a" text-anchor="middle" dominant-baseline="central">Portal</text>
+  <text x="130.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">web app for both roles</text>
+  <g filter="url(#shadow)"><rect x="300" y="290" width="200" height="64" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="400.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Claims Service</text>
+  <text x="400.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">owns every claim</text>
+  <g filter="url(#shadow)"><rect x="600" y="290" width="200" height="64" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="700.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Insights Service</text>
+  <text x="700.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">work queue · dashboards</text>
+  <g filter="url(#shadow)"><rect x="870" y="290" width="200" height="64" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="970.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Notification Service</text>
+  <text x="970.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">inbox · e-mail · SMS · push</text>
+  <g filter="url(#shadow)"><rect x="30" y="440" width="200" height="56" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"/></g>
+  <text x="130.0" y="460.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#334155" text-anchor="middle" dominant-baseline="central">Policy System</text>
+  <text x="130.0" y="477.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">policies · cover check</text>
+  <g filter="url(#shadow)"><rect x="600" y="440" width="200" height="56" rx="28.0" fill="#faf5ff" stroke="#a855f7" stroke-width="1.6"/></g>
+  <text x="700.0" y="460.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#581c87" text-anchor="middle" dominant-baseline="central">Kafka</text>
+  <text x="700.0" y="477.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">event backbone</text>
+  <g filter="url(#shadow)"><rect x="890" y="440" width="180" height="56" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"/></g>
+  <text x="980.0" y="460.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#334155" text-anchor="middle" dominant-baseline="central">Message Providers</text>
+  <text x="980.0" y="477.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">e-mail · SMS · push</text>
+  <g filter="url(#shadow)"><rect x="600" y="570" width="200" height="56" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"/></g>
+  <text x="700.0" y="590.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#334155" text-anchor="middle" dominant-baseline="central">Payments System</text>
+  <text x="700.0" y="607.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">pays approved claims</text>
+  <rect x="30" y="602" width="16" height="16" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="52.0" y="610.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Customer</text>
+  <rect x="130.0" y="602" width="16" height="16" rx="4" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="152.0" y="610.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Claim manager</text>
+  <rect x="262.5" y="602" width="16" height="16" rx="4" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="284.5" y="610.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Our service</text>
+  <rect x="382.0" y="602" width="16" height="16" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="404.0" y="610.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">External system</text>
+  <rect x="527.5" y="602" width="16" height="16" rx="4" fill="#faf5ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="549.5" y="610.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Kafka</text>
+  <rect x="166.5" y="389.0" width="137.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="235.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">cover check (REST)</text>
+  <rect x="483.0" y="399.0" width="124.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="545.0" y="410.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">publishes events</text>
+  <rect x="618.5" y="372.0" width="163.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="700.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">events in · alerts out</text>
+  <rect x="781.2" y="399.0" width="117.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="840.0" y="410.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">events · alerts</text>
+  <rect x="987.0" y="386.0" width="46.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1010.0" y="397.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">send</text>
+  <rect x="595.8" y="522.0" width="208.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="700.0" y="533.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">settlement requests · results</text>
+</svg>

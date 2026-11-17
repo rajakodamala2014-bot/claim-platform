@@ -1,5 +1,5 @@
 meta {
-  name: Approve within the handler limit
+  name: Send the decision for approval
   type: http
   seq: 10
 }
@@ -20,18 +20,19 @@ auth:bearer {
 }
 
 body:json {
-  {"outcome": "APPROVE", "amount": {"amount": "9000.00", "currency": "SGD"}}
+  {"outcome": "APPROVE", "coverage": "FULL", "amount": {"amount": "9000.00", "currency": "SGD"}}
 }
 
 
 script:post-response {
+  bru.setVar("staffDecisionId", res.getBody().result.decisionId);
   if (res.getHeader("etag")) bru.setVar("staffEtag", res.getHeader("etag"));
 }
 
 tests {
-  test("SGD 9000 is final for a handler", function () {
-    expect(res.getStatus()).to.equal(200);
-    expect(res.getBody().status).to.equal("APPROVED");
-    expect(res.getBody().result.approvalRequired).to.equal(false);
+  test("the decision waits for another claim manager", function () {
+    expect(res.getStatus()).to.equal(202);
+    expect(res.getBody().status).to.equal("DECISION_PENDING");
+    expect(res.getBody().result.approvalRequired).to.equal(true);
   });
 }

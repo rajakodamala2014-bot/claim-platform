@@ -78,12 +78,12 @@ class OutboxAndPaymentsIT {
         String key = claim.id().toString();
 
         try (KafkaConsumer<String, String> events = TestKafka.consumer(Topics.CLAIM_EVENTS)) {
-            assertThat(publishAll()).isGreaterThanOrEqualTo(5);
+            assertThat(publishAll()).isGreaterThanOrEqualTo(4);
 
-            List<ConsumerRecord<String, String>> received = TestKafka.poll(events, r -> key.equals(r.key()), 5, Duration.ofSeconds(20));
+            List<ConsumerRecord<String, String>> received = TestKafka.poll(events, r -> key.equals(r.key()), 4, Duration.ofSeconds(20));
 
             assertThat(received).extracting(r -> header(r, "eventType")).containsExactly(EventTypes.CLAIM_SUBMITTED,
-                    EventTypes.CLAIM_TRIAGED, EventTypes.CLAIM_ASSIGNED, EventTypes.ASSESSMENT_STARTED, EventTypes.RESERVE_CHANGED);
+                    EventTypes.CLAIM_ASSIGNED, EventTypes.ASSESSMENT_STARTED, EventTypes.RESERVE_CHANGED);
             assertThat(received).extracting(ConsumerRecord::partition).containsOnly(received.getFirst().partition());
             EventEnvelope first = json.readValue(received.getFirst().value(), EventEnvelope.class);
             assertThat(first.claimId()).isEqualTo(claim.id().value());

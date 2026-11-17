@@ -7,12 +7,12 @@ const ACCOUNTS = [
   ['tan', 'Customer, Singapore'],
   ['wong', 'Customer, Hong Kong'],
   ['aisyah', 'Customer, Malaysia'],
-  ['arun', 'Handler, Singapore'],
-  ['kumar', 'Handler, Singapore'],
-  ['faiz', 'Handler, Malaysia'],
-  ['meera', 'Team lead, Singapore and Malaysia'],
-  ['ho', 'Team lead, Hong Kong'],
-  ['lee', 'Manager, all markets'],
+  ['arun', 'Claim manager, Singapore'],
+  ['kumar', 'Claim manager, Singapore'],
+  ['faiz', 'Claim manager, Malaysia'],
+  ['meera', 'Claim manager, Singapore and Malaysia'],
+  ['ho', 'Claim manager, Hong Kong'],
+  ['lee', 'Claim manager, all markets'],
 ] as const;
 
 /** Username and password against platform.app_user. The gateway forwards POST /auth/login to claims-service. */
@@ -41,7 +41,7 @@ export function LoginPage() {
       <div className="login-card">
         <img src="/favicon.svg" alt="" width={40} height={40} />
         <h1>Claims</h1>
-        <p className="muted">Sign in with your account. Customers, handlers, team leads and managers each see only their own work.</p>
+        <p className="muted">Customers report a claim and follow it here. Claim managers review, decide, and settle claims in their markets.</p>
         <ErrorBox error={error} />
         <form className="stack" onSubmit={(e) => void signIn(e)}>
           <label>Username<input value={username} autoComplete="username" onChange={(e) => setUsername(e.target.value)} required /></label>

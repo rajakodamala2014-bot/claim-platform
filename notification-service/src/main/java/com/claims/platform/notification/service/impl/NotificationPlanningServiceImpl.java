@@ -160,7 +160,7 @@ public class NotificationPlanningServiceImpl implements NotificationPlanningServ
         Map<String, String> v = new HashMap<>();
         v.put("claimNumber", Optional.ofNullable(str(d, "claimNumber")).orElse(c.claimNumber()));
         String handlerId = Optional.ofNullable(str(d, "handlerId")).orElse(c.handlerId());
-        v.put("handlerName", staffName(handlerId, "Your claims handler"));
+        v.put("handlerName", staffName(handlerId, "Your claim manager"));
         v.put("proposerName", staffName(str(d, "actorId"), "A handler"));
         v.put("approverName", staffName(str(d, "approverId"), "Your team lead"));
         Object items = d.get("items");

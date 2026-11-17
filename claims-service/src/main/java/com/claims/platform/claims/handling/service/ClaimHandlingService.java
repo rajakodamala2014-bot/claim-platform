@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/** Staff commands on a claim (S4-S10): assignment, assessment, reserves, information requests and decisions. */
+/** Staff commands on a claim (S4-S10): assignment, assessment, information requests and decisions. */
 public interface ClaimHandlingService {
     /**
      * S4: pick up (no assignee: the caller takes it) or assign/reassign (supervisors). If two handlers pick up at
@@ -22,9 +22,6 @@ public interface ClaimHandlingService {
     /** S5: ASSIGNED -> UNDER_ASSESSMENT. */
     Outcome<Void> startAssessment(ClaimId claimId, StaffContext staff, long expectedVersion);
 
-    /** S6: set the reserve to a new total; the ledger records the movement. Returns the new outstanding reserve. */
-    Outcome<Money> setReserve(ClaimId claimId, StaffContext staff, long expectedVersion, Money newTotal, String reason);
-
     /** S7: ask the customer for documents/answers. Due date defaults to the market setting (info_request_due_days). */
     Outcome<UUID> requestInformation(ClaimId claimId, StaffContext staff, long expectedVersion, List<String> items, Instant dueAt);
 
@@ -33,12 +30,11 @@ public interface ClaimHandlingService {
             Money assessedAmount, String notes);
 
     /**
-     * S9: propose approve (amount) or reject (reason). The authority check uses the approved amount, or for a
-     * rejection the outstanding reserve (the money at stake). Within the proposer's limit the decision is final
-     * at once; above it, it waits for a team lead.
+     * S9: propose a fully or partially covered amount for approval, or reject (reason). An approval records that
+     * cover and the amount. A rejection uses the outstanding amount at stake. Another claim manager must approve.
      */
     Outcome<Decision> proposeDecision(ClaimId claimId, StaffContext staff, long expectedVersion, Decision.Outcome outcome,
-            Money approvedAmount, String reasonCode);
+            Assessment.Liability coverage, Money approvedAmount, String reasonCode);
 
     /**
      * S10: a team lead (or manager) approves or returns a pending decision. The approver's own limit must cover

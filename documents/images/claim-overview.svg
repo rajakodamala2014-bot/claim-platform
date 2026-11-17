@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1250" viewBox="0 0 1320 1250" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Claim overview</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-30%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="0.5" y="0.5" width="1319" height="1249" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+  <path d="M660,34 L660,78" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,132 L660,198" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,252 L660,318" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,328 L332,328" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M330,364 L548,364" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,372 L660,498" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M770,516 L960,516 L960,360 L772,360" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1220,686 L1280,686 L1280,334 L772,334" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,552 L660,658" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M770,538 L1110,538 L1110,658" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,712 L660,788" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M790,804 C860,796 860,836 792,828" fill="none" stroke="#64748b" stroke-width="1.7" marker-end="url(#arrow)"/>
+  <path d="M660,842 L660,918" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M660,972 L660,1058" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1110,712 L1110,1086 L772,1086" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M230,972 L230,1086 L548,1086" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M550,106 L60,106" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M550,226 L60,226" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M130,346 L60,346" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M570,372 L570,410 L60,410" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M60,106 L60,946 L128,946" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <circle cx="60" cy="226" r="3.5" fill="#64748b"/>
+  <circle cx="60" cy="346" r="3.5" fill="#64748b"/>
+  <circle cx="60" cy="410" r="3.5" fill="#64748b"/>
+  <path d="M660,1112 L660,1146" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <circle cx="660" cy="24" r="10" fill="#0f172a"/>
+  <circle cx="660" cy="1162" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/><circle cx="660" cy="1162" r="7" fill="#0f172a"/>
+  <g filter="url(#shadow)"><rect x="550.0" y="80" width="220" height="52" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.6"/></g>
+  <text x="660.0" y="106.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0c4a6e" text-anchor="middle" dominant-baseline="central">SUBMITTED</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="200" width="220" height="52" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.6"/></g>
+  <text x="660.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#134e4a" text-anchor="middle" dominant-baseline="central">ASSIGNED</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="320" width="220" height="52" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.6"/></g>
+  <text x="660.0" y="346.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#134e4a" text-anchor="middle" dominant-baseline="central">UNDER_ASSESSMENT</text>
+  <g filter="url(#shadow)"><rect x="130.0" y="320" width="200" height="52" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.6"/></g>
+  <text x="230.0" y="346.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#134e4a" text-anchor="middle" dominant-baseline="central">AWAITING_INFO</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="500" width="220" height="52" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/></g>
+  <text x="660.0" y="526.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#78350f" text-anchor="middle" dominant-baseline="central">DECISION_PENDING</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="660" width="220" height="52" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/></g>
+  <text x="660.0" y="686.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">APPROVED</text>
+  <g filter="url(#shadow)"><rect x="1000.0" y="660" width="220" height="52" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/></g>
+  <text x="1110.0" y="686.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#7f1d1d" text-anchor="middle" dominant-baseline="central">REJECTED</text>
+  <g filter="url(#shadow)"><rect x="530.0" y="790" width="260" height="52" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/></g>
+  <text x="660.0" y="816.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">SETTLEMENT_IN_PROGRESS</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="920" width="220" height="52" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/></g>
+  <text x="660.0" y="946.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">SETTLED</text>
+  <g filter="url(#shadow)"><rect x="130.0" y="920" width="200" height="52" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.6"/></g>
+  <text x="230.0" y="946.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1e293b" text-anchor="middle" dominant-baseline="central">WITHDRAWN</text>
+  <g filter="url(#shadow)"><rect x="550.0" y="1060" width="220" height="52" rx="10" fill="#1e293b" stroke="#0f172a" stroke-width="1.6"/></g>
+  <text x="660.0" y="1086.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="central">CLOSED</text>
+  <text x="40.0" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">Stage</text>
+  <rect x="94.25" y="1207" width="16" height="16" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="116.2" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Intake</text>
+  <rect x="181.25" y="1207" width="16" height="16" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="203.2" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Assessment</text>
+  <rect x="294.25" y="1207" width="16" height="16" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="316.2" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Decision</text>
+  <rect x="394.25" y="1207" width="16" height="16" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="416.2" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Payment</text>
+  <rect x="487.75" y="1207" width="16" height="16" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="509.8" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Rejected</text>
+  <rect x="587.75" y="1207" width="16" height="16" rx="4" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="609.8" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Withdrawn</text>
+  <rect x="694.25" y="1207" width="16" height="16" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+  <text x="716.2" y="1215.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">Closed</text>
+  <rect x="507.0" y="41.0" width="306.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="52.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">customer reports (or a manager registers it)</text>
+  <rect x="578.5" y="155.0" width="163.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="166.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">claim manager picks up</text>
+  <rect x="581.8" y="275.0" width="156.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="286.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">starts the assessment</text>
+  <rect x="387.8" y="317.0" width="104.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="440.0" y="328.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">requests info</text>
+  <rect x="371.5" y="345.5" width="137.0" height="37" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="440.0" y="356.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">customer responds</text>
+  <text x="440.0" y="371.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">or request expires</text>
+  <rect x="533.0" y="435.0" width="254.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="446.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">proposes covered amount or rejection</text>
+  <rect x="904.5" y="421.5" width="111.0" height="37" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="960.0" y="432.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">second manager</text>
+  <text x="960.0" y="447.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">returns it</text>
+  <rect x="1027.0" y="323.0" width="186.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1120.0" y="334.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">customer appeals before close</text>
+  <rect x="575.2" y="595.0" width="169.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="606.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">second manager approves</text>
+  <rect x="1028.5" y="581.5" width="163.0" height="37" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1110.0" y="592.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">second manager</text>
+  <text x="1110.0" y="607.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">approves the rejection</text>
+  <rect x="568.8" y="740.0" width="182.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="751.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">manager instructs payment</text>
+  <rect x="871.2" y="797.5" width="117.5" height="37" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="930.0" y="808.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">payment fails:</text>
+  <text x="930.0" y="823.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">manager retries</text>
+  <rect x="572.0" y="870.0" width="176.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="881.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">Payments System confirms</text>
+  <rect x="559.0" y="1005.0" width="202.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="660.0" y="1016.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">auto-close after cooling-off</text>
+  <rect x="1009.0" y="889.0" width="202.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1110.0" y="900.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">auto-close after cooling-off</text>
+  <rect x="299.0" y="1075.0" width="202.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="400.0" y="1086.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">auto-close after cooling-off</text>
+  <rect x="20.8" y="681.5" width="78.5" height="37" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="60.0" y="692.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">customer</text>
+  <text x="60.0" y="707.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">withdraws</text>
+</svg>

@@ -1,0 +1,22 @@
+meta {
+  name: Confirm the rejection
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{gateway}}/staff/v1/claims/{{appealClaimId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{arunToken}}
+}
+
+tests {
+  test("the claim is already rejected", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().claim.status).to.equal("REJECTED");
+  });
+}

@@ -94,13 +94,13 @@ class ClaimantApiTest {
     InformationRequestService informationRequestService;
 
     private static JwtRequestPostProcessor claimant() {
-        return jwt().jwt(j -> j.subject("cust-priya").claim("roles", List.of("CLAIMANT")).claim("markets", List.of("SG"))
-                .claim("name", "Priya Nair")).authorities(new SimpleGrantedAuthority("ROLE_CLAIMANT"));
+        return jwt().jwt(j -> j.subject("cust-priya").claim("roles", List.of("CUSTOMER")).claim("markets", List.of("SG"))
+                .claim("name", "Priya Nair")).authorities(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
     }
 
     private static JwtRequestPostProcessor handler() {
-        return jwt().jwt(j -> j.subject("h-arun").claim("roles", List.of("HANDLER")).claim("markets", List.of("SG")))
-                .authorities(new SimpleGrantedAuthority("ROLE_HANDLER"));
+        return jwt().jwt(j -> j.subject("h-arun").claim("roles", List.of("CLAIMS_ADJUSTER")).claim("markets", List.of("SG")))
+                .authorities(new SimpleGrantedAuthority("ROLE_CLAIMS_ADJUSTER"));
     }
 
     // ------------------------------------------------------------------ C3 submit
@@ -109,7 +109,7 @@ class ClaimantApiTest {
     void submitReturns201WithLocationAndMapsTheRequest() throws Exception {
         UUID key = UUID.randomUUID();
         when(claimIntakeService.submitClaim(any(), eq(key), any()))
-                .thenReturn(new SubmitClaimResponse(CLAIM, "SG-MTR-2026-000001", "TRIAGED", "CONFIRMED", false));
+                .thenReturn(new SubmitClaimResponse(CLAIM, "SG-MTR-2026-000001", "SUBMITTED", "CONFIRMED", false));
 
         mvc.perform(post("/claimant/v1/claims").with(claimant()).header("Idempotency-Key", key)
                         .contentType(MediaType.APPLICATION_JSON).content(VALID_FNOL))
@@ -117,10 +117,10 @@ class ClaimantApiTest {
                 .andExpect(header().string("Location", "/claimant/v1/claims/" + CLAIM))
                 .andExpect(header().string("Idempotent-Replayed", "false"))
                 .andExpect(jsonPath("$.claimNumber").value("SG-MTR-2026-000001"))
-                .andExpect(jsonPath("$.status").value("TRIAGED"));
+                .andExpect(jsonPath("$.status").value("SUBMITTED"));
 
         ArgumentCaptor<ClaimIntakeService.SubmitClaimCommand> command = ArgumentCaptor.forClass(ClaimIntakeService.SubmitClaimCommand.class);
-        verify(claimIntakeService).submitClaim(eq(new Actor("cust-priya", com.claims.platform.claims.core.entity.Role.CLAIMANT)),
+        verify(claimIntakeService).submitClaim(eq(new Actor("cust-priya", com.claims.platform.claims.core.entity.Role.CUSTOMER)),
                 eq(key), command.capture());
         assertThat(command.getValue().claimantId()).isEqualTo("cust-priya");
         assertThat(command.getValue().claimantName()).isEqualTo("Priya Nair");
@@ -148,7 +148,7 @@ class ClaimantApiTest {
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.errors[*].field").value(org.hamcrest.Matchers.containsInAnyOrder(
-                        "policyNumber", "incidentAt", "incident")));
+                        "policyNumber", "incidentAt", "incident", "claimedAmount")));
     }
 
     @Test
@@ -222,8 +222,8 @@ class ClaimantApiTest {
 
     @Test
     void detailCarriesEtagAndOthersClaimsAre404() throws Exception {
-        ClaimantClaimResponse view = new ClaimantClaimResponse(CLAIM, "SG-MTR-2026-000001", "TRIAGED",
-                "Waiting for a claims handler", "A claims handler will review your claim shortly.", "MOTOR",
+        ClaimantClaimResponse view = new ClaimantClaimResponse(CLAIM, "SG-MTR-2026-000001", "SUBMITTED",
+                "Waiting for a claim manager", "A claim manager will review your claim shortly.", "MOTOR",
                 "SG-MTR-POL-1001", Instant.parse("2026-11-13T09:00:00Z"), Instant.parse("2026-11-14T02:00:00Z"),
                 Instant.parse("2026-11-14T02:00:00Z"), null, null, null, List.of(), true, false);
         when(claimQueryService.getClaimantClaim(new ClaimId(CLAIM), "cust-priya")).thenReturn(new ClaimantClaimDetailResponse(view, 3));
@@ -234,7 +234,7 @@ class ClaimantApiTest {
         mvc.perform(get("/claimant/v1/claims/{id}", CLAIM).with(claimant()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("ETag", "\"3\""))
-                .andExpect(jsonPath("$.statusLabel").value("Waiting for a claims handler"))
+                .andExpect(jsonPath("$.statusLabel").value("Waiting for a claim manager"))
                 .andExpect(jsonPath("$.canWithdraw").value(true))
                 .andExpect(jsonPath("$.decision").doesNotExist());
         mvc.perform(get("/claimant/v1/claims/{id}", other).with(claimant()))

@@ -58,7 +58,7 @@ tests {
     expect(res.getStatus()).to.equal(201);
     const body = res.getBody();
     expect(body.claimNumber).to.match(/^SG-MTR-/);
-    expect(body.status).to.equal("TRIAGED");
+    expect(body.status).to.equal("SUBMITTED");
     expect(body.coverStatus).to.equal("CONFIRMED");
   });
 }

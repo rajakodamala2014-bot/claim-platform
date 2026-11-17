@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1130" viewBox="0 0 1400 1130" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Claims database</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-30%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="0.5" y="0.5" width="1399" height="1129" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="30" y="800" width="1340" height="140" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="7 5"/>
+  <text x="46.0" y="820.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#475569" text-anchor="start" dominant-baseline="central">PLATFORM SCHEMA</text>
+  <text x="168.4" y="820.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b" text-anchor="start" dominant-baseline="central">no foreign keys to claims</text>
+  <rect x="30" y="970" width="660" height="130" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="7 5"/>
+  <text x="46.0" y="990.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#475569" text-anchor="start" dominant-baseline="central">INSIGHTS DB</text>
+  <rect x="710" y="970" width="660" height="130" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="7 5"/>
+  <text x="726.0" y="990.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#475569" text-anchor="start" dominant-baseline="central">NOTIFICATION DB</text>
+  <path d="M700,300 L700,136" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M510,88 L573,88" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M310,221.0 L440,221.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M310,325.0 L440,325.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M310,439.0 L440,439.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M310,563.0 L440,563.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M310,687.0 L440,687.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M440,221.0 L440,687.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <circle cx="440" cy="325.0" r="3.5" fill="#64748b"/>
+  <circle cx="440" cy="439.0" r="3.5" fill="#64748b"/>
+  <circle cx="440" cy="563.0" r="3.5" fill="#64748b"/>
+  <path d="M440,460 L573,460" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1090,231.0 L960,231.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M1090,355.0 L960,355.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M1090,479.0 L960,479.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M1090,603.0 L960,603.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M1090,727.0 L960,727.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M960,231.0 L960,727.0" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round"/>
+  <circle cx="960" cy="355.0" r="3.5" fill="#64748b"/>
+  <circle cx="960" cy="479.0" r="3.5" fill="#64748b"/>
+  <circle cx="960" cy="603.0" r="3.5" fill="#64748b"/>
+  <path d="M960,460 L827,460" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <circle cx="440" cy="460" r="3.5" fill="#64748b"/>
+  <circle cx="960" cy="460" r="3.5" fill="#64748b"/>
+  <g filter="url(#shadow)"><rect x="575" y="300" width="250" height="322" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/></g><path d="M575,308 A8,8 0 0 1 583,300 L817,300 A8,8 0 0 1 825,308 L825,332 L575,332 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="587.0" y="317.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="start" dominant-baseline="central">core.claim</text>
+  <text x="587.0" y="346.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="813.0" y="346.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#3b82f6" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="587.0" y="366.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_number</text>
+  <text x="587.0" y="386.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">market_code</text>
+  <text x="813.0" y="386.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#3b82f6" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="587.0" y="406.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">line_of_business</text>
+  <text x="587.0" y="426.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">policy_number</text>
+  <text x="587.0" y="446.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claimant_id</text>
+  <text x="587.0" y="466.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">channel</text>
+  <text x="587.0" y="486.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">status</text>
+  <text x="587.0" y="506.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">cover_status</text>
+  <text x="587.0" y="526.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">handler_id</text>
+  <text x="587.0" y="546.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claimed_amount_minor</text>
+  <text x="587.0" y="566.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">approved_amount_minor</text>
+  <text x="587.0" y="586.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">sla_due_at</text>
+  <text x="587.0" y="606.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">version</text>
+  <g filter="url(#shadow)"><rect x="575" y="40" width="250" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M575,48 A8,8 0 0 1 583,40 L817,40 A8,8 0 0 1 825,48 L825,72 L575,72 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="587.0" y="57.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">platform.market_config</text>
+  <text x="587.0" y="86.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">market_code</text>
+  <text x="813.0" y="86.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="587.0" y="106.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">currency · timezone</text>
+  <text x="587.0" y="126.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">sla_hours · cooling_off_days</text>
+  <g filter="url(#shadow)"><rect x="250" y="40" width="260" height="122" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M250,48 A8,8 0 0 1 258,40 L502,40 A8,8 0 0 1 510,48 L510,72 L250,72 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="262.0" y="57.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">handling.authority_limit</text>
+  <text x="262.0" y="86.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="498.0" y="86.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="262.0" y="106.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">market_code</text>
+  <text x="498.0" y="106.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="262.0" y="126.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">role · line_of_business</text>
+  <text x="262.0" y="146.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">max_amount_minor</text>
+  <g filter="url(#shadow)"><rect x="40" y="180" width="270" height="82" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M40,188 A8,8 0 0 1 48,180 L302,180 A8,8 0 0 1 310,188 L310,212 L40,212 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="52.0" y="197.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">intake.policy_snapshot</text>
+  <text x="52.0" y="226.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="298.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK·FK</text>
+  <text x="52.0" y="246.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">holder · product · cover dates</text>
+  <text x="320.0" y="211.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="start" dominant-baseline="central">1</text>
+  <g filter="url(#shadow)"><rect x="40" y="284" width="270" height="82" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M40,292 A8,8 0 0 1 48,284 L302,284 A8,8 0 0 1 310,292 L310,316 L40,316 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="52.0" y="301.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">intake.incident</text>
+  <text x="52.0" y="330.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="298.0" y="330.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK·FK</text>
+  <text x="52.0" y="350.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">peril · occurred_at · location</text>
+  <text x="320.0" y="315.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="start" dominant-baseline="central">1</text>
+  <g filter="url(#shadow)"><rect x="40" y="388" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M40,396 A8,8 0 0 1 48,388 L302,388 A8,8 0 0 1 310,396 L310,420 L40,420 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="52.0" y="405.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">intake.party</text>
+  <text x="52.0" y="434.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="298.0" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="52.0" y="454.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="298.0" y="454.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="52.0" y="474.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">role · name · vehicle</text>
+  <text x="320.0" y="429.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="start" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="40" y="512" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M40,520 A8,8 0 0 1 48,512 L302,512 A8,8 0 0 1 310,520 L310,544 L40,544 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="52.0" y="529.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">core.document</text>
+  <text x="52.0" y="558.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="298.0" y="558.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="52.0" y="578.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="298.0" y="578.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="52.0" y="598.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">file · status · storage_key</text>
+  <text x="320.0" y="553.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="start" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="40" y="636" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M40,644 A8,8 0 0 1 48,636 L302,636 A8,8 0 0 1 310,644 L310,668 L40,668 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="52.0" y="653.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">core.claim_event</text>
+  <text x="52.0" y="682.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="298.0" y="682.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="52.0" y="702.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="298.0" y="702.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="52.0" y="722.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">event_type · visibility · data</text>
+  <text x="320.0" y="677.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="start" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="1090" y="180" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M1090,188 A8,8 0 0 1 1098,180 L1352,180 A8,8 0 0 1 1360,188 L1360,212 L1090,212 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1102.0" y="197.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">handling.info_request</text>
+  <text x="1102.0" y="226.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1348.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1102.0" y="246.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="1348.0" y="246.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="1102.0" y="266.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">items · due_at · answer</text>
+  <text x="1080.0" y="221.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="end" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="1090" y="304" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M1090,312 A8,8 0 0 1 1098,304 L1352,304 A8,8 0 0 1 1360,312 L1360,336 L1090,336 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1102.0" y="321.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">handling.assessment</text>
+  <text x="1102.0" y="350.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1348.0" y="350.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1102.0" y="370.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="1348.0" y="370.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="1102.0" y="390.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">liability · assessed_amount</text>
+  <text x="1080.0" y="345.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="end" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="1090" y="428" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M1090,436 A8,8 0 0 1 1098,428 L1352,428 A8,8 0 0 1 1360,436 L1360,460 L1090,460 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1102.0" y="445.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">handling.decision</text>
+  <text x="1102.0" y="474.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1348.0" y="474.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1102.0" y="494.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="1348.0" y="494.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="1102.0" y="514.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">outcome · amount · status</text>
+  <text x="1080.0" y="469.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="end" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="1090" y="552" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M1090,560 A8,8 0 0 1 1098,552 L1352,552 A8,8 0 0 1 1360,560 L1360,584 L1090,584 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1102.0" y="569.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">handling.reserve_movement</text>
+  <text x="1102.0" y="598.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1348.0" y="598.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1102.0" y="618.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="1348.0" y="618.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK</text>
+  <text x="1102.0" y="638.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">amount · balance_after</text>
+  <text x="1080.0" y="593.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="end" dominant-baseline="central">0..n</text>
+  <g filter="url(#shadow)"><rect x="1090" y="676" width="270" height="102" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/></g><path d="M1090,684 A8,8 0 0 1 1098,676 L1352,676 A8,8 0 0 1 1360,684 L1360,708 L1090,708 Z" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1102.0" y="693.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#0f172a" text-anchor="start" dominant-baseline="central">settlement.settlement</text>
+  <text x="1102.0" y="722.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1348.0" y="722.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1102.0" y="742.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="1348.0" y="742.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#94a3b8" text-anchor="end" dominant-baseline="central">FK·UQ</text>
+  <text x="1102.0" y="762.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">payee · account (encrypted)</text>
+  <text x="1080.0" y="717.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" text-anchor="end" dominant-baseline="central">1</text>
+  <text x="700.0" y="660.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">every child row references core.claim(id)</text>
+  <g filter="url(#shadow)"><rect x="50" y="832" width="250" height="102" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/></g><path d="M50,840 A8,8 0 0 1 58,832 L292,832 A8,8 0 0 1 300,840 L300,864 L50,864 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="62.0" y="849.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="start" dominant-baseline="central">platform.outbox</text>
+  <text x="62.0" y="878.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="288.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="62.0" y="898.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">seq · topic · payload</text>
+  <text x="62.0" y="918.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">published_at</text>
+  <g filter="url(#shadow)"><rect x="314" y="832" width="250" height="102" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/></g><path d="M314,840 A8,8 0 0 1 322,832 L556,832 A8,8 0 0 1 564,840 L564,864 L314,864 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="326.0" y="849.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="start" dominant-baseline="central">platform.idempotency_key</text>
+  <text x="326.0" y="878.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">caller_id, key</text>
+  <text x="552.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="326.0" y="898.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">request_hash</text>
+  <text x="326.0" y="918.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">response</text>
+  <g filter="url(#shadow)"><rect x="578" y="832" width="250" height="82" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/></g><path d="M578,840 A8,8 0 0 1 586,832 L820,832 A8,8 0 0 1 828,840 L828,864 L578,864 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="590.0" y="849.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="start" dominant-baseline="central">platform.processed_event</text>
+  <text x="590.0" y="878.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">consumer, message_id</text>
+  <text x="816.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="590.0" y="898.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">processed_at</text>
+  <g filter="url(#shadow)"><rect x="842" y="832" width="250" height="82" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/></g><path d="M842,840 A8,8 0 0 1 850,832 L1084,832 A8,8 0 0 1 1092,840 L1092,864 L842,864 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="854.0" y="849.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="start" dominant-baseline="central">platform.job_lock</text>
+  <text x="854.0" y="878.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">name</text>
+  <text x="1080.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="854.0" y="898.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">locked_until · locked_by</text>
+  <g filter="url(#shadow)"><rect x="1106" y="832" width="250" height="102" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/></g><path d="M1106,840 A8,8 0 0 1 1114,832 L1348,832 A8,8 0 0 1 1356,840 L1356,864 L1106,864 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="1118.0" y="849.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="start" dominant-baseline="central">platform.app_user</text>
+  <text x="1118.0" y="878.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">user_id</text>
+  <text x="1344.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="1118.0" y="898.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">username · role</text>
+  <text x="1118.0" y="918.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">markets · team_id</text>
+  <g filter="url(#shadow)"><rect x="50" y="1002" width="300" height="82" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/></g><path d="M50,1010 A8,8 0 0 1 58,1002 L342,1002 A8,8 0 0 1 350,1010 L350,1034 L50,1034 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="62.0" y="1019.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="start" dominant-baseline="central">insights.claim_summary</text>
+  <text x="62.0" y="1048.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id</text>
+  <text x="338.0" y="1048.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#3b82f6" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="62.0" y="1068.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">status · handler · sla · reserve</text>
+  <g filter="url(#shadow)"><rect x="370" y="1002" width="300" height="82" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/></g><path d="M370,1010 A8,8 0 0 1 378,1002 L662,1002 A8,8 0 0 1 670,1010 L670,1034 L370,1034 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="382.0" y="1019.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="start" dominant-baseline="central">insights.sla_alert</text>
+  <text x="382.0" y="1048.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_id, kind, due</text>
+  <text x="658.0" y="1048.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#3b82f6" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="382.0" y="1068.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">sent_at</text>
+  <g filter="url(#shadow)"><rect x="730" y="1002" width="300" height="82" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/></g><path d="M730,1010 A8,8 0 0 1 738,1002 L1022,1002 A8,8 0 0 1 1030,1010 L1030,1034 L730,1034 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="742.0" y="1019.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="start" dominant-baseline="central">notification.notification</text>
+  <text x="742.0" y="1048.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">id</text>
+  <text x="1018.0" y="1048.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#3b82f6" text-anchor="end" dominant-baseline="central">PK</text>
+  <text x="742.0" y="1068.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">recipient · channel · status</text>
+  <g filter="url(#shadow)"><rect x="1050" y="1002" width="300" height="82" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/></g><path d="M1050,1010 A8,8 0 0 1 1058,1002 L1342,1002 A8,8 0 0 1 1350,1010 L1350,1034 L1050,1034 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="1062.0" y="1019.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="start" dominant-baseline="central">template · preference</text>
+  <text x="1062.0" y="1048.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">claim_contact · staff_directory</text>
+  <text x="1062.0" y="1068.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="12" font-weight="400" fill="#1e293b" text-anchor="start" dominant-baseline="central">processed_event</text>
+</svg>

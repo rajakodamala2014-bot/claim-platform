@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { staffApi, type StaffClaim } from '../api';
+import { staffApi, type PolicySnapshot, type StaffClaim, type StaffIncident } from '../api';
 import { isSupervisor, useAuth } from '../auth';
 import { Card, ErrorBox, Loading, useLoad } from '../components/ui';
-import { formatMoney } from '../format';
+import { formatDate, formatDateTime, formatMinor, formatMoney, humanize } from '../format';
+import { personName, usePeople } from '../people';
 
 export function StaffClaimPage() {
   const { claimId = '' } = useParams();
   const { user } = useAuth();
   const supervisor = isSupervisor(user);
+  const people = usePeople();
   const loaded = useLoad(() => staffApi.claim(claimId), [claimId]);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
-  const claim = loaded.data?.claim;
+  const workspace = loaded.data;
+  const claim = workspace?.claim;
 
   async function run(action: (claim: StaffClaim) => Promise<unknown>) {
     if (!claim) return;
@@ -29,115 +32,274 @@ export function StaffClaimPage() {
   }
 
   if (loaded.loading && !claim) return <Loading />;
-  if (!claim) return <ErrorBox error={loaded.error} />;
+  if (!claim || !workspace) return <ErrorBox error={loaded.error} />;
 
-  const currency = claim.reserve.outstanding.currency || claim.claimedAmount?.currency || 'SGD';
+  const currency = claim.claimedAmount?.currency || claim.approvedAmount?.currency || 'SGD';
+  const waitingForApproval = claim.decision?.status === 'AWAITING_APPROVAL';
   return (
     <>
       <Link className="back" to="/work">← Work queue</Link>
       <div className="status-panel">
         <div className="row">
           <h1 className="claim-number">{claim.claimNumber}</h1>
-          <span className="badge tone-info">{claim.status}</span>
-          <span className="chip">{claim.market} · {claim.lineOfBusiness}</span>
+          <span className="badge tone-info">{humanize(claim.status)}</span>
+          <span className="chip">{claim.market} · {humanize(claim.lineOfBusiness)}</span>
         </div>
         <p className="muted">
-          Policy {claim.policyNumber} · claimant {claim.claimantId} · cover {claim.coverStatus}
-          {claim.handlerId ? ` · handler ${claim.handlerId}` : ' · unassigned'}
+          Policy {claim.policyNumber} · {personName(people, claim.claimantId)} · cover {humanize(claim.coverStatus)}
+          {claim.handlerId ? ` · assigned to ${personName(people, claim.handlerId)}` : ' · unassigned'}
         </p>
-        <p>Reserve {formatMoney(claim.reserve.outstanding)} · claimed {formatMoney(claim.claimedAmount)}</p>
-        <p className="small muted">SLA {claim.sla.paused ? 'paused' : 'running'} · version {claim.version}</p>
+        {claim.status === 'REJECTED' && (
+          <p className="next-step">This claim is rejected.</p>
+        )}
+        {waitingForApproval && claim.status !== 'REJECTED' && (
+          <p className="next-step">Waiting for another claim manager to approve this decision.</p>
+        )}
       </div>
+
+      <div className="summary-grid">
+        <Summary label="Claimed" value={formatMoney(claim.claimedAmount)} />
+        <Summary label="Covered" value={formatMoney(claim.assessment?.assessedAmount)} />
+        <Summary label="Approved" value={formatMoney(claim.approvedAmount)} />
+        <Summary label="SLA" value={claim.sla.paused ? 'Paused' : `Due ${formatDateTime(claim.sla.dueAt)}`} />
+      </div>
+
       <ErrorBox error={error ?? loaded.error} />
 
-      {claim.handlerId == null && (claim.status === 'TRIAGED' || claim.status === 'SUBMITTED') && (
-        <Card title="Take this claim">
-          <button className="btn btn-primary" disabled={busy} onClick={() => void run((c) => staffApi.pickup(c.claimId, c.version))}>
-            Pick up
-          </button>
-        </Card>
-      )}
+      <div className="grid-main">
+        <div className="stack">
+          <IncidentCard incident={workspace.incident} currency={currency} />
+          <Card title="People">
+            {workspace.parties.length === 0 ? <p className="muted">No people recorded.</p> : (
+              <ul className="doc-list">
+                {workspace.parties.map((party) => (
+                  <li key={party.role + party.name}>
+                    <span><strong>{humanize(party.role)}</strong> · {party.name}</span>
+                    <span className="muted small">{[party.phone, party.email, party.vehicleRegistration, party.insurer].filter(Boolean).join(' · ') || '—'}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+          <PolicyCard policy={workspace.policy} />
+          <Card title="Documents">
+            {(claim.documents ?? []).length === 0 ? <p className="muted">No documents.</p> : (
+              <ul className="doc-list">
+                {claim.documents!.map((doc) => (
+                  <li key={doc.fileName + doc.uploadedAt}>
+                    <span>{doc.fileName}</span>
+                    <span className="muted small">{humanize(doc.status)} · {formatDateTime(doc.uploadedAt)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+          <Card title="Information requests">
+            {(claim.informationRequests ?? []).length === 0 ? <p className="muted">None sent.</p> : (
+              <ul className="doc-list">
+                {claim.informationRequests!.map((request) => (
+                  <li key={request.requestId}>
+                    <span>{request.items.join(', ')}</span>
+                    <span className="muted small">{humanize(request.status)} · due {formatDate(request.dueAt)}{request.answer ? ` · ${request.answer}` : ''}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
 
-      {supervisor && claim.handlerId != null && (
-        <AssignForm busy={busy} team={user?.team ?? claim.teamId ?? ''} onSubmit={(assigneeId, teamId) => void run((c) => staffApi.assign(c.claimId, c.version, assigneeId, teamId))} />
-      )}
+        <div className="stack">
+          {claim.handlerId == null && claim.status === 'SUBMITTED' && (
+            <Card title="Take this claim">
+              <button className="btn btn-primary" disabled={busy} onClick={() => void run((c) => staffApi.pickup(c.claimId, c.version))}>
+                Pick up
+              </button>
+            </Card>
+          )}
 
-      {claim.status === 'ASSIGNED' && (
-        <Card title="Assessment">
-          <button className="btn btn-primary" disabled={busy} onClick={() => void run((c) => staffApi.startAssessment(c.claimId, c.version))}>
-            Start assessment
-          </button>
-        </Card>
-      )}
+          {supervisor && claim.handlerId != null && !['REJECTED', 'SETTLED', 'WITHDRAWN', 'CLOSED'].includes(claim.status) && (
+            <AssignForm busy={busy} team={user?.team ?? claim.teamId ?? ''} people={people.filter((person) => person.role === 'CLAIMS_ADJUSTER')} onSubmit={(assigneeId, teamId) => void run((c) => staffApi.assign(c.claimId, c.version, assigneeId, teamId))} />
+          )}
 
-      {claim.status === 'UNDER_ASSESSMENT' && (
-        <>
-          <ReserveForm currency={currency} busy={busy} onSubmit={(amount, reason) => void run((c) => staffApi.setReserve(c.claimId, c.version, amount, currency, reason))} />
-          <InfoForm busy={busy} onSubmit={(item) => void run((c) => staffApi.requestInfo(c.claimId, c.version, [item]))} />
-          <AssessForm currency={currency} busy={busy} onSubmit={(liability, amount, notes) => void run((c) => staffApi.assess(c.claimId, c.version, liability, amount, currency, notes))} />
-          <DecisionForm currency={currency} busy={busy} onSubmit={(outcome, amount, reason) => void run((c) => staffApi.decide(c.claimId, c.version, outcome, amount, currency, reason))} />
-        </>
-      )}
+          {claim.status === 'ASSIGNED' && (
+            <Card title="Assessment">
+              <button className="btn btn-primary" disabled={busy} onClick={() => void run((c) => staffApi.startAssessment(c.claimId, c.version))}>
+                Start assessment
+              </button>
+            </Card>
+          )}
 
-      {claim.status === 'DECISION_PENDING' && claim.decision && supervisor && claim.decision.proposedBy !== user?.sub && (
-        <ReviewForm busy={busy} decisionId={claim.decision.decisionId} onSubmit={(action, comment) => void run((c) => staffApi.review(c.claimId, c.decision!.decisionId, c.version, action, comment))} />
-      )}
+          {claim.status === 'UNDER_ASSESSMENT' && (
+            <>
+              <InfoForm busy={busy} onSubmit={(item) => void run((c) => staffApi.requestInfo(c.claimId, c.version, [item]))} />
+              <CoverForm
+                currency={currency}
+                claimed={claim.claimedAmount?.amount ?? ''}
+                busy={busy}
+                onSubmit={(outcome, coverage, amount, reason) => void run((c) => staffApi.decide(c.claimId, c.version, outcome, coverage, amount, currency, reason))}
+              />
+            </>
+          )}
 
-      {claim.status === 'APPROVED' && (
-        <SettleForm
-          currency={claim.approvedAmount?.currency ?? currency}
-          suggested={claim.approvedAmount?.amount ?? ''}
-          busy={busy}
-          onSubmit={(name, bank, account, amount) => void run((c) => staffApi.settle(c.claimId, c.version, name, bank, account, amount, c.approvedAmount?.currency ?? currency))}
-        />
-      )}
+          {claim.status === 'DECISION_PENDING' && claim.decision && supervisor && claim.decision.proposedBy !== user?.sub && (
+            <ReviewForm busy={busy} decisionId={claim.decision.decisionId} onSubmit={(action, comment) => void run((c) => staffApi.review(c.claimId, c.decision!.decisionId, c.version, action, comment))} />
+          )}
 
-      {claim.settlement?.status === 'FAILED' && (
-        <Card title="Payment failed">
-          <p>{claim.settlement.failureReason}</p>
-          <button
-            className="btn btn-primary"
-            disabled={busy}
-            onClick={() => void run((c) => staffApi.retrySettlement(c.claimId, c.settlement!.settlementId, c.version, '', '', ''))}
-          >
-            Retry the same payee
-          </button>
-        </Card>
-      )}
+          {claim.status === 'APPROVED' && claim.decision?.proposedBy === user?.sub && (
+            <SettleForm
+              currency={claim.approvedAmount?.currency ?? currency}
+              suggested={claim.approvedAmount?.amount ?? ''}
+              busy={busy}
+              onSubmit={(name, bank, account, amount) => void run((c) => staffApi.settle(c.claimId, c.version, name, bank, account, amount, c.approvedAmount?.currency ?? currency))}
+            />
+          )}
 
-      {claim.decision && (
-        <Card title="Decision">
-          <p>{claim.decision.outcome} {formatMoney(claim.decision.amount)} · {claim.decision.status}</p>
-          <p className="small muted">Proposed by {claim.decision.proposedBy}{claim.decision.reasonCode ? ` · ${claim.decision.reasonCode}` : ''}</p>
-        </Card>
-      )}
+          {claim.status === 'APPROVED' && claim.decision && claim.decision.proposedBy !== user?.sub && (
+            <Card title="Payment">
+              <p>Waiting for {personName(people, claim.decision.proposedBy)} to instruct payment.</p>
+            </Card>
+          )}
+
+          {claim.settlement?.status === 'FAILED' && claim.decision?.proposedBy === user?.sub && (
+            <Card title="Payment failed">
+              <p>{claim.settlement.failureReason}</p>
+              <button
+                className="btn btn-primary"
+                disabled={busy}
+                onClick={() => void run((c) => staffApi.retrySettlement(c.claimId, c.settlement!.settlementId, c.version, '', '', ''))}
+              >
+                Retry the same payee
+              </button>
+            </Card>
+          )}
+
+          {claim.assessment && (
+            <Card title="Cover">
+              <Facts rows={[
+                ['Cover', claim.assessment.liability === 'PARTIAL' ? 'Partially covered' : 'Fully covered'],
+                ['Amount', formatMoney(claim.assessment.assessedAmount)],
+              ]} />
+            </Card>
+          )}
+
+          {claim.decision && (
+            <Card title="Decision">
+              <Facts rows={[
+                ['Outcome', humanize(claim.decision.outcome)],
+                ['Amount', formatMoney(claim.decision.amount)],
+                ['Status', waitingForApproval ? 'Waiting for approval' : humanize(claim.decision.status)],
+                ['Reason', claim.decision.reasonCode ? humanize(claim.decision.reasonCode) : '—'],
+                ['Proposed by', personName(people, claim.decision.proposedBy)],
+                ['Decided by', claim.decision.decidedBy ? personName(people, claim.decision.decidedBy) : '—'],
+              ]} />
+            </Card>
+          )}
+
+          {claim.settlement && (
+            <Card title="Payment">
+              <Facts rows={[
+                ['Status', humanize(claim.settlement.status)],
+                ['Amount', formatMoney(claim.settlement.amount)],
+                ['Payee', claim.settlement.payeeName],
+                ['Account', claim.settlement.accountNumberMasked],
+                ['Failure', claim.settlement.failureReason || '—'],
+              ]} />
+            </Card>
+          )}
+        </div>
+      </div>
     </>
   );
 }
 
-function AssignForm({ busy, team, onSubmit }: { busy: boolean; team: string; onSubmit: (assigneeId: string, teamId: string) => void }) {
-  const [assigneeId, setAssigneeId] = useState('');
-  const [teamId, setTeamId] = useState(team);
+function Summary({ label, value }: { label: string; value: string }) {
+  return <div><span>{label}</span><strong className="amount">{value}</strong></div>;
+}
+
+function Facts({ rows }: { rows: [string, ReactNode][] }) {
   return (
-    <Card title="Reassign">
-      <form className="grid-2" onSubmit={(e) => { e.preventDefault(); onSubmit(assigneeId, teamId); }}>
-        <label>Handler id<input value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} required /></label>
-        <label>Team id<input value={teamId} onChange={(e) => setTeamId(e.target.value)} required /></label>
-        <button className="btn btn-secondary" disabled={busy}>Assign</button>
-      </form>
+    <dl className="facts">
+      {rows.map(([label, value]) => (
+        <Fragment key={label}>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </Fragment>
+      ))}
+    </dl>
+  );
+}
+
+function codeOf(value: string | { value: string }): string {
+  return typeof value === 'string' ? value : value.value;
+}
+
+function IncidentCard({ incident, currency }: { incident: StaffIncident; currency: string }) {
+  return (
+    <Card title="What happened">
+      <Facts rows={[
+        ['Peril', humanize(incident.peril)],
+        ['Where', incident.location || incident.propertyAddress || '—'],
+        ['What the customer said', incident.description],
+        ['Vehicle', incident.vehicleRegistration],
+        ['Driver', incident.driverName],
+        ['Damage', incident.damageDescription],
+        ['Police report', incident.policeReportNumber],
+        ['Property', incident.propertyAddress],
+      ].filter((row): row is [string, string] => Boolean(row[1]))} />
+      {(incident.thirdParties ?? []).length > 0 && (
+        <ul className="doc-list">
+          {incident.thirdParties!.map((party) => (
+            <li key={party.name}><span>Other party · {party.name}</span><span className="muted small">{[party.vehicleRegistration, party.insurer, party.phone].filter(Boolean).join(' · ')}</span></li>
+          ))}
+        </ul>
+      )}
+      {(incident.damagedItems ?? []).length > 0 && (
+        <ul className="doc-list">
+          {incident.damagedItems!.map((item) => (
+            <li key={item.description}>
+              <span>{item.description}</span>
+              <span className="muted small">{item.estimatedValueMinor == null ? '—' : formatMinor(item.estimatedValueMinor, currency)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 }
 
-function ReserveForm({ currency, busy, onSubmit }: { currency: string; busy: boolean; onSubmit: (amount: string, reason: string) => void }) {
-  const [amount, setAmount] = useState('');
-  const [reason, setReason] = useState('Initial reserve');
+function PolicyCard({ policy }: { policy: PolicySnapshot }) {
   return (
-    <Card title={`Set reserve (${currency})`}>
-      <form className="grid-2" onSubmit={(e) => { e.preventDefault(); onSubmit(amount, reason); }}>
-        <label>Total amount<input value={amount} onChange={(e) => setAmount(e.target.value)} required /></label>
-        <label>Reason<input value={reason} onChange={(e) => setReason(e.target.value)} required /></label>
-        <button className="btn btn-secondary" disabled={busy}>Save reserve</button>
+    <Card title="Policy at the time of the claim">
+      <Facts rows={[
+        ['Policy', policy.policyNumber],
+        ['Holder', policy.holderName],
+        ['Product', policy.product],
+        ['Status', humanize(policy.status)],
+        ['Market', `${codeOf(policy.market)} · ${humanize(policy.lineOfBusiness)}`],
+        ['Cover', `${formatDate(policy.coverageStart)} – ${formatDate(policy.coverageEnd)}`],
+        ['Sum insured', policy.sumInsuredMinor == null ? '—' : formatMinor(policy.sumInsuredMinor, policy.currency)],
+        ['Excess', policy.excessMinor == null ? '—' : formatMinor(policy.excessMinor, policy.currency)],
+        ['Perils', policy.coveredPerils.map(humanize).join(', ') || '—'],
+      ]} />
+    </Card>
+  );
+}
+
+function AssignForm({ busy, team, people, onSubmit }: { busy: boolean; team: string; people: { id: string; name: string }[]; onSubmit: (assigneeId: string, teamId: string) => void }) {
+  const [assigneeId, setAssigneeId] = useState('');
+  const [teamId, setTeamId] = useState(team);
+  return (
+    <Card title="Reassign">
+      <p className="muted small">You can reassign while the claim is being assessed, waiting for information, waiting for approval, or being paid. Reassignment stops once it is rejected, settled, withdrawn, or closed.</p>
+      <form className="grid-2" onSubmit={(e) => { e.preventDefault(); onSubmit(assigneeId, teamId); }}>
+        <label>Claim manager
+          <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} required>
+            <option value="">Select</option>
+            {people.map((person) => <option key={person.id} value={person.id}>{person.name}</option>)}
+          </select>
+        </label>
+        <label>Team id<input value={teamId} onChange={(e) => setTeamId(e.target.value)} required /></label>
+        <button className="btn btn-secondary" disabled={busy}>Assign</button>
       </form>
     </Card>
   );
@@ -155,44 +317,46 @@ function InfoForm({ busy, onSubmit }: { busy: boolean; onSubmit: (item: string) 
   );
 }
 
-function AssessForm({ currency, busy, onSubmit }: { currency: string; busy: boolean; onSubmit: (liability: string, amount: string, notes: string) => void }) {
-  const [liability, setLiability] = useState('FULL');
-  const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
-  return (
-    <Card title="Record assessment">
-      <form className="grid-2" onSubmit={(e) => { e.preventDefault(); onSubmit(liability, amount, notes); }}>
-        <label>Liability
-          <select value={liability} onChange={(e) => setLiability(e.target.value)}>
-            <option value="FULL">FULL</option>
-            <option value="PARTIAL">PARTIAL</option>
-            <option value="NONE">NONE</option>
-          </select>
-        </label>
-        <label>Assessed amount ({currency})<input value={amount} onChange={(e) => setAmount(e.target.value)} required /></label>
-        <label>Notes<input value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
-        <button className="btn btn-secondary" disabled={busy}>Save assessment</button>
-      </form>
-    </Card>
-  );
-}
-
-function DecisionForm({ currency, busy, onSubmit }: { currency: string; busy: boolean; onSubmit: (outcome: 'APPROVE' | 'REJECT', amount: string, reason: string) => void }) {
-  const [outcome, setOutcome] = useState<'APPROVE' | 'REJECT'>('APPROVE');
+function CoverForm({ currency, claimed, busy, onSubmit }: {
+  currency: string;
+  claimed: string;
+  busy: boolean;
+  onSubmit: (outcome: 'APPROVE' | 'REJECT', coverage: 'FULL' | 'PARTIAL' | '', amount: string, reason: string) => void;
+}) {
+  const [choice, setChoice] = useState<'FULL' | 'PARTIAL' | 'REJECT'>('FULL');
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
+  const partialTooHigh = choice === 'PARTIAL' && claimed !== '' && Number(amount) > Number(claimed);
+  const rejecting = choice === 'REJECT';
   return (
-    <Card title="Propose a decision">
-      <form className="grid-2" onSubmit={(e) => { e.preventDefault(); onSubmit(outcome, amount, reason); }}>
-        <label>Outcome
-          <select value={outcome} onChange={(e) => setOutcome(e.target.value as 'APPROVE' | 'REJECT')}>
-            <option value="APPROVE">APPROVE</option>
-            <option value="REJECT">REJECT</option>
+    <Card title={rejecting ? 'Reject this claim' : 'Send for approval'}>
+      <p className="muted small">
+        {rejecting
+          ? 'Rejecting finishes the claim now. It is shown as rejected and does not go to another claim manager.'
+          : `Another claim manager has to confirm a covered amount. Fully covered uses the amount the customer submitted (${claimed || '—'} ${currency}). A partial amount cannot be higher than that.`}
+      </p>
+      <form className="grid-2" onSubmit={(e) => {
+        e.preventDefault();
+        if (choice === 'REJECT') onSubmit('REJECT', '', '', reason);
+        else if (choice === 'FULL') onSubmit('APPROVE', 'FULL', claimed, '');
+        else onSubmit('APPROVE', 'PARTIAL', amount, '');
+      }}>
+        <label>Decision
+          <select value={choice} onChange={(e) => setChoice(e.target.value as 'FULL' | 'PARTIAL' | 'REJECT')}>
+            <option value="FULL">Fully covered</option>
+            <option value="PARTIAL">Partially covered</option>
+            <option value="REJECT">Reject</option>
           </select>
         </label>
-        <label>Amount ({currency})<input value={amount} onChange={(e) => setAmount(e.target.value)} required={outcome === 'APPROVE'} /></label>
-        <label>Reason code<input value={reason} onChange={(e) => setReason(e.target.value)} required={outcome === 'REJECT'} /></label>
-        <button className="btn btn-primary" disabled={busy}>Propose</button>
+        {choice === 'FULL' && <label>Amount ({currency})<input value={claimed} readOnly /></label>}
+        {choice === 'PARTIAL' && (
+          <label>Amount ({currency})
+            <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" required />
+          </label>
+        )}
+        {choice === 'REJECT' && <label>Reason<input value={reason} onChange={(e) => setReason(e.target.value)} required /></label>}
+        {partialTooHigh && <p className="alert alert-bad">Enter an amount up to {claimed} {currency}.</p>}
+        <button className="btn btn-primary" disabled={busy || !claimed || partialTooHigh}>{rejecting ? 'Reject claim' : 'Send for approval'}</button>
       </form>
     </Card>
   );

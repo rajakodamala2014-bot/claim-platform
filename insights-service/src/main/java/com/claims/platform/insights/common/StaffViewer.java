@@ -5,18 +5,19 @@ import java.util.Set;
 
 /** The staff member asking: scopes every query to their markets (and team where relevant). */
 public record StaffViewer(String id, String role, Set<String> markets, String teamId) {
-    public static final Set<String> STAFF = Set.of("HANDLER", "TEAM_LEAD", "MANAGER");
+    public static final Set<String> STAFF = Set.of("CLAIMS_ADJUSTER");
 
     public StaffViewer {
         markets = Set.copyOf(markets);
     }
 
     public boolean isSupervisor() {
-        return "TEAM_LEAD".equals(role) || "MANAGER".equals(role);
+        return "CLAIMS_ADJUSTER".equals(role);
     }
 
+    /** A claims adjuster may look at any team in the markets they cover. */
     public boolean isManager() {
-        return "MANAGER".equals(role);
+        return "CLAIMS_ADJUSTER".equals(role);
     }
 
     /** The requested market (must be one of mine), or all my markets when none was asked for. */

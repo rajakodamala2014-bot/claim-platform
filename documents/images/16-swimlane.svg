@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1290" viewBox="0 0 1240 1290" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Swimlane diagram</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-30%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="0.5" y="0.5" width="1239" height="1289" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="20" y="20" width="380" height="1220" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <rect x="20" y="20" width="380" height="44" rx="12" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="210.0" y="42.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">CUSTOMER</text>
+  <rect x="420" y="20" width="400" height="1220" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <rect x="420" y="20" width="400" height="44" rx="12" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="620.0" y="42.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">CLAIM MANAGER</text>
+  <rect x="840" y="20" width="380" height="1220" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <rect x="840" y="20" width="380" height="44" rx="12" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="1030.0" y="42.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">PLATFORM AND EXTERNAL SYSTEMS</text>
+  <path d="M210,146 L210,166 L1030,166 L1030,184" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,242 L1030,262 L620,262 L620,280" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M620,338 L620,376" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M620,434 L620,472" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M560,530 L560,550 L210,550 L210,568" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M680,530 L680,550 L1030,550 L1030,568" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+  <path d="M210,626 L210,646 L560,646 L560,664" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,626 L1030,646 L680,646 L680,664" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M620,722 L620,760" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M780,790 L906,790" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M620,818 L620,856" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M520,818 L520,838 L210,838 L210,856" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M210,914 L210,940" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M50,886 L32,886 L32,1174 L868,1174" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M620,914 L620,934 L1030,934 L1030,952" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1190,968 C1216,968 1216,996 1192,996" fill="none" stroke="#64748b" stroke-width="1.7" marker-end="url(#arrow)"/>
+  <path d="M950,1010 L950,1030 L210,1030 L210,1048" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M210,1106 L210,1126 L1030,1126 L1030,1144" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <g filter="url(#shadow)"><rect x="50" y="90" width="320" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="210.0" y="110.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Report the claim</text>
+  <text x="210.0" y="126.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">choose policy · upload documents</text>
+  <g filter="url(#shadow)"><rect x="870" y="186" width="320" height="56" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="1030.0" y="206.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">Save the claim</text>
+  <text x="1030.0" y="222.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">SUBMITTED · cover confirmed</text>
+  <g filter="url(#shadow)"><rect x="460" y="282" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="302.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Pick up from the work queue</text>
+  <text x="620.0" y="318.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">ASSIGNED</text>
+  <g filter="url(#shadow)"><rect x="460" y="378" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="398.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Start the assessment</text>
+  <text x="620.0" y="414.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">UNDER_ASSESSMENT</text>
+  <g filter="url(#shadow)"><rect x="460" y="474" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="494.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Request information (if needed)</text>
+  <text x="620.0" y="510.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">AWAITING_INFO</text>
+  <g filter="url(#shadow)"><rect x="50" y="570" width="320" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="210.0" y="590.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Answer the request</text>
+  <text x="210.0" y="606.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">adds documents</text>
+  <g filter="url(#shadow)"><rect x="870" y="570" width="320" height="56" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="1030.0" y="590.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">Expire an overdue request</text>
+  <text x="1030.0" y="606.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">daily job</text>
+  <g filter="url(#shadow)"><rect x="460" y="666" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="686.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Propose covered amount or rejection</text>
+  <text x="620.0" y="702.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">DECISION_PENDING</text>
+  <g filter="url(#shadow)"><rect x="460" y="762" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="782.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Second manager approves or returns</text>
+  <text x="620.0" y="798.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">never the proposer</text>
+  <g filter="url(#shadow)"><rect x="50" y="858" width="320" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="210.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Appeal, or accept the rejection</text>
+  <text x="210.0" y="894.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">REJECTED</text>
+  <g filter="url(#shadow)"><rect x="460" y="858" width="320" height="56" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.6"/></g>
+  <text x="620.0" y="878.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#7c2d12" text-anchor="middle" dominant-baseline="central">Instruct payment</text>
+  <text x="620.0" y="894.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">SETTLEMENT_IN_PROGRESS</text>
+  <g filter="url(#shadow)"><rect x="870" y="954" width="320" height="56" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="1030.0" y="974.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">Pay and report the result</text>
+  <text x="1030.0" y="990.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">Payments System via Kafka</text>
+  <g filter="url(#shadow)"><rect x="50" y="1050" width="320" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="210.0" y="1070.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Receive the payment</text>
+  <text x="210.0" y="1086.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">SETTLED</text>
+  <g filter="url(#shadow)"><rect x="870" y="1146" width="320" height="56" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="1030.0" y="1166.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">Close after cooling-off</text>
+  <text x="1030.0" y="1182.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569" text-anchor="middle" dominant-baseline="central">CLOSED</text>
+  <text x="30.0" y="1265.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#475569" text-anchor="start" dominant-baseline="central">A customer can withdraw at any time before a decision: the claim becomes WITHDRAWN and closes after the cooling-off period.</text>
+  <rect x="788.8" y="539.0" width="182.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="880.0" y="550.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">no answer by the due date</text>
+  <rect x="906.2" y="779.0" width="247.5" height="22" rx="11" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="1030.0" y="790.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#0f172a" text-anchor="middle" dominant-baseline="central">returned → back to UNDER_ASSESSMENT</text>
+  <rect x="584.0" y="826.0" width="72.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="620.0" y="837.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">approved</text>
+  <rect x="296.5" y="827.0" width="137.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="365.0" y="838.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">rejection approved</text>
+  <rect x="55.0" y="943.0" width="310.0" height="22" rx="11" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="210.0" y="954.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#0f172a" text-anchor="middle" dominant-baseline="central">appeal before close → back to UNDER_ASSESSMENT</text>
+  <rect x="349.0" y="1163.0" width="202.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="450.0" y="1174.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">accepted · after cooling-off</text>
+  <rect x="1035.0" y="1017.5" width="150.0" height="37" rx="11" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="1110.0" y="1028.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#0f172a" text-anchor="middle" dominant-baseline="central">failed: manager</text>
+  <text x="1110.0" y="1043.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#0f172a" text-anchor="middle" dominant-baseline="central">corrects and retries</text>
+  <rect x="557.0" y="1019.0" width="46.0" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="580.0" y="1030.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">paid</text>
+  <rect x="554.8" y="1115.0" width="130.5" height="22" rx="11" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="620.0" y="1126.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1e293b" text-anchor="middle" dominant-baseline="central">after cooling-off</text>
+</svg>

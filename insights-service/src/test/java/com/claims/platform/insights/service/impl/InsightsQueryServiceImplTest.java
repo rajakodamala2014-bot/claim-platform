@@ -32,9 +32,9 @@ import static org.mockito.Mockito.when;
 class InsightsQueryServiceImplTest {
     private static final Instant NOW = Instant.parse("2026-03-01T10:00:00Z");
     private static final Duration AT_RISK_WINDOW = Duration.ofHours(4);
-    private static final StaffViewer HANDLER = new StaffViewer("h-arun", "HANDLER", Set.of("SG"), "team-sg-motor");
-    private static final StaffViewer TEAM_LEAD = new StaffViewer("tl-meera", "TEAM_LEAD", Set.of("SG"), "team-sg-motor");
-    private static final StaffViewer MANAGER = new StaffViewer("m-lee", "MANAGER", Set.of("SG", "HK"), null);
+    private static final StaffViewer HANDLER = new StaffViewer("h-arun", "CLAIMS_ADJUSTER", Set.of("SG"), "team-sg-motor");
+    private static final StaffViewer TEAM_LEAD = new StaffViewer("tl-meera", "CLAIMS_ADJUSTER", Set.of("SG"), "team-sg-motor");
+    private static final StaffViewer MANAGER = new StaffViewer("m-lee", "CLAIMS_ADJUSTER", Set.of("SG", "HK"), null);
 
     @Mock
     InsightsQueryRepository queries;
@@ -108,27 +108,18 @@ class InsightsQueryServiceImplTest {
     // ------------------------------------------------------------------ I3-I7 supervisors only
 
     @Test
-    void handlersCannotSeeApprovalsWorkloadPerformanceSlaOrExposure() {
-        assertForbiddenRole(() -> service.listPendingApprovals(HANDLER, null));
-        assertForbiddenRole(() -> service.getWorkload(HANDLER, null));
-        assertForbiddenRole(() -> service.getPerformance(HANDLER, null, null, null));
-        assertForbiddenRole(() -> service.listSlaWatch(HANDLER, null));
-        assertForbiddenRole(() -> service.getExposure(HANDLER, null, null));
-        verifyNoInteractions(queries);
-    }
-
-    @Test
-    void teamLeadsSeeTheirOwnTeamsApprovalsAndManagersEveryTeam() {
+    void adjustersSeeApprovalsAcrossTheirMarkets() {
         service.listPendingApprovals(TEAM_LEAD, null);
-        verify(queries).findPendingApprovals(Set.of("SG"), "team-sg-motor", "tl-meera");
+        verify(queries).findPendingApprovals(Set.of("SG"), null, "tl-meera");
 
         service.listPendingApprovals(MANAGER, "HK");
         verify(queries).findPendingApprovals(Set.of("HK"), null, "m-lee");
     }
 
     @Test
-    void aTeamLeadCannotLookAtAnotherTeamsWorkload() {
-        assertForbiddenRole(() -> service.getWorkload(TEAM_LEAD, "team-hk-motor"));
+    void anAdjusterCanLookAtAnotherTeamsWorkload() {
+        service.getWorkload(TEAM_LEAD, "team-hk-motor");
+        verify(queries).findWorkload(Set.of("SG"), "team-hk-motor");
     }
 
     @Test

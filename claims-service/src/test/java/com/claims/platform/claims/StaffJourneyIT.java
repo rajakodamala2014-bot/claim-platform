@@ -80,7 +80,7 @@ class StaffJourneyIT {
         assertThat(workspace.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(workspace.getHeaders().getETag()).isEqualTo("\"1\"");
         JsonNode ws = json.readTree(workspace.getBody());
-        assertThat(ws.at("/claim/status").asText()).isEqualTo("TRIAGED");
+        assertThat(ws.at("/claim/status").asText()).isEqualTo("SUBMITTED");
         assertThat(ws.at("/policy/policyNumber").asText()).isEqualTo("SG-MTR-POL-1001");
         assertThat(ws.at("/incident/vehicleRegistration").asText()).isEqualTo("SBA1234X");
         assertThat(ws.at("/parties/0/role").asText()).isEqualTo("CLAIMANT");
@@ -94,9 +94,7 @@ class StaffJourneyIT {
         expect(HttpMethod.POST, base + "/start-assessment", arun, "1", null, HttpStatus.PRECONDITION_FAILED);
         v = command(HttpMethod.POST, base + "/start-assessment", arun, v, null, HttpStatus.OK);
 
-        // S6 reserve, S7 info request, customer answers (C8)
-        v = command(HttpMethod.POST, base + "/reserves", arun, v,
-                Map.of("amount", money("5000.00"), "reason", "Initial estimate"), HttpStatus.OK);
+        // S7 info request, customer answers (C8)
         JsonNode info = expect(HttpMethod.POST, base + "/info-requests", arun, v,
                 Map.of("items", List.of("Police report", "Repair quote")), HttpStatus.CREATED);
         String requestId = info.get("result").asText();
@@ -104,15 +102,13 @@ class StaffJourneyIT {
                 priya, Map.of("answer", "Both attached")).get("status").asText()).isEqualTo("UNDER_ASSESSMENT");
         v = etag(exchange(HttpMethod.GET, base, arun, null, null));
 
-        // S8 assessment, reserve adjusted
+        // S8 assessment, then the covered amount is sent for approval
         v = command(HttpMethod.POST, base + "/assessments", arun, v,
                 Map.of("liability", "FULL", "assessedAmount", money("12000.00"), "notes", "Third party at fault"), HttpStatus.CREATED);
-        v = command(HttpMethod.POST, base + "/reserves", arun, v,
-                Map.of("amount", money("12000.00"), "reason", "Assessed"), HttpStatus.OK);
 
-        // S9 above the handler's SGD 10,000 limit -> 202, waits for a team lead
+        // S9 the covered amount waits for another claim manager
         JsonNode proposed = expect(HttpMethod.POST, base + "/decisions", arun, v,
-                Map.of("outcome", "APPROVE", "amount", money("12000.00")), HttpStatus.ACCEPTED);
+                Map.of("outcome", "APPROVE", "coverage", "FULL", "amount", money("12000.00")), HttpStatus.ACCEPTED);
         assertThat(proposed.get("status").asText()).isEqualTo("DECISION_PENDING");
         assertThat(proposed.at("/result/approvalRequired").asBoolean()).isTrue();
         String decisionId = proposed.at("/result/decisionId").asText();
@@ -131,7 +127,12 @@ class StaffJourneyIT {
         assertThat(expect(HttpMethod.GET, base, myHandler, null, null, HttpStatus.FORBIDDEN).get("code").asText())
                 .isEqualTo("FORBIDDEN_MARKET");
 
-        // S11 settlement: more than approved -> 422; to a closed account (simulated failure)
+        // S11 the manager who approved cannot pay; it returns to the manager who sent it
+        assertThat(expect(HttpMethod.POST, base + "/settlements", meera, v,
+                Map.of("payee", payee("12345678"), "amount", money("12000.00")), HttpStatus.FORBIDDEN).get("code").asText())
+                .isEqualTo("FORBIDDEN_ROLE");
+
+        // more than approved -> 422; to a closed account (simulated failure)
         expect(HttpMethod.POST, base + "/settlements", arun, v,
                 Map.of("payee", payee("12340000"), "amount", money("12000.01")), HttpStatus.UNPROCESSABLE_ENTITY);
         JsonNode instructed = expect(HttpMethod.POST, base + "/settlements", arun, v,
@@ -184,6 +185,7 @@ class StaffJourneyIT {
         headers.set(Headers.IDEMPOTENCY_KEY, UUID.randomUUID().toString());
         Map<String, Object> body = Map.of("claimantId", "cust-priya", "claimantName", "Priya Nair",
                 "policyNumber", "SG-PRP-POL-2001", "lineOfBusiness", "PROPERTY", "incidentAt", "2026-11-12T22:00:00Z",
+                "claimedAmount", Map.of("amount", "4000.00", "currency", "SGD"),
                 "incident", Map.of("peril", "WATER_DAMAGE", "description", "Pipe burst in kitchen",
                         "propertyAddress", "10 Marina Boulevard", "damagedItems", List.of(Map.of("description", "Cabinets"))));
 
@@ -209,6 +211,7 @@ class StaffJourneyIT {
         headers.set(Headers.IDEMPOTENCY_KEY, UUID.randomUUID().toString());
         Map<String, Object> body = Map.of("policyNumber", "SG-MTR-POL-1001", "lineOfBusiness", "MOTOR",
                 "incidentAt", "2026-11-10T09:00:00Z",
+                "claimedAmount", Map.of("amount", "12000.00", "currency", "SGD"),
                 "incident", Map.of("peril", "COLLISION", "description", "Rear-ended at lights", "location", "Orchard Rd",
                         "vehicleRegistration", "SBA1234X", "driverName", "Priya Nair", "damageDescription", "Rear bumper",
                         "thirdParties", List.of(Map.of("name", "John Lim", "vehicleRegistration", "SGX9876Z"))));

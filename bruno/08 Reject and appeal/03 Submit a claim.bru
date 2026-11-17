@@ -49,5 +49,5 @@ script:post-response {
 }
 
 tests {
-  test("claim is triaged", function () { expect(res.getStatus()).to.equal(201); expect(res.getBody().status).to.equal("TRIAGED"); });
+  test("claim is triaged", function () { expect(res.getStatus()).to.equal(201); expect(res.getBody().status).to.equal("SUBMITTED"); });
 }

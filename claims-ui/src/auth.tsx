@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, getToken, setUnauthorizedHandler, storeToken } from './api';
+import { ApiError, api, getToken, setUnauthorizedHandler, storeToken } from './api';
 
 export interface User {
   sub: string;
@@ -10,19 +10,20 @@ export interface User {
   team: string | null;
 }
 
-const STAFF_ROLES = ['HANDLER', 'TEAM_LEAD', 'MANAGER'];
+const CUSTOMER = 'CUSTOMER';
+const ADJUSTER = 'CLAIMS_ADJUSTER';
 
 export function isClaimant(user: User | null): boolean {
-  return !!user?.roles.includes('CLAIMANT');
+  return !!user?.roles.includes(CUSTOMER);
 }
 
 export function isStaff(user: User | null): boolean {
-  return !!user?.roles.some((role) => STAFF_ROLES.includes(role));
+  return !!user?.roles.includes(ADJUSTER);
 }
 
-/** Team leads and managers may approve decisions and open the team dashboards. */
+/** Every claims adjuster may approve decisions and open the team screens. */
 export function isSupervisor(user: User | null): boolean {
-  return !!user && (user.roles.includes('TEAM_LEAD') || user.roles.includes('MANAGER'));
+  return isStaff(user);
 }
 
 interface AuthState {
@@ -72,12 +73,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => setUnauthorizedHandler(logout), [logout]);
 
   const login = useCallback(async (username: string, password: string) => {
-    const res = await api.login(username, password);
-    if (res.role !== 'CLAIMANT' && !STAFF_ROLES.includes(res.role)) {
-      throw new Error('This sign-in is not a customer or a member of staff.');
+    let last: unknown;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        const res = await api.login(username, password);
+        if (res.role !== CUSTOMER && res.role !== ADJUSTER) {
+          throw new Error('This sign-in is not a customer or a claim manager.');
+        }
+        storeToken(res.access_token);
+        const next = decodeToken(res.access_token);
+        if (!next) throw new Error('Sign-in did not return a usable session.');
+        setUser(next);
+        return;
+      } catch (error) {
+        last = error;
+        const starting = error instanceof ApiError && (error.status === 502 || error.status === 503);
+        if (!starting || attempt === 5) break;
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
     }
-    storeToken(res.access_token);
-    setUser(decodeToken(res.access_token));
+    throw last;
   }, []);
 
   const value = useMemo(() => ({ user, login, logout }), [user, login, logout]);

@@ -53,7 +53,7 @@ public class AuthService {
                 .expiresAt(now.plus(TTL))
                 .claim("roles", List.of(user.role()))
                 .claim("markets", user.markets())
-                .claim("name", user.displayName())
+                .claim("name", PersonNames.of(user.username()))
                 .claim("locale", user.locale());
         if (user.teamId() != null) {
             claims.claim("team", user.teamId());

@@ -34,18 +34,20 @@ To build and test outside Docker (optional): JDK 21, Node 22, and `./mvnw` (Mave
 git pull                                 # latest code
 cd deployment
 docker compose up -d --build             # builds backend + UI images and starts everything
-./smoke.sh                               # 25 checks: sign-in -> claim -> approval -> payment -> notifications
+./smoke.sh                               # end-to-end check through the gateway: sign-in -> claim -> approval -> payment -> SETTLED
 ```
 
 Open http://localhost:8000 and sign in. Every seeded account has the password `ChangeMe123!`:
 
 | Username | Role | Market |
 |---|---|---|
-| `priya`, `tan` | Customer | SG |
-| `wong` / `aisyah` | Customer | HK / MY |
-| `arun`, `kumar` | Claims handler | SG |
-| `meera` | Team lead | SG |
-| `lee` | Manager | all markets |
+| `priya`, `tan` | Customer (`CUSTOMER`) | SG |
+| `wong` / `aisyah` | Customer (`CUSTOMER`) | HK / MY |
+| `arun`, `kumar` / `faiz` | Claim manager (`CLAIMS_ADJUSTER`) | SG / MY |
+| `meera` / `ho` | Claim manager (`CLAIMS_ADJUSTER`) | SG and MY / HK |
+| `lee` | Claim manager (`CLAIMS_ADJUSTER`) | all six markets |
+
+Every decision needs a second claim manager, so sign in as two of them (for example `arun` proposes, `meera` approves).
 
 Other local URLs: Swagger UI per service at http://localhost:8080/swagger-ui.html (claims), `:8081` (insights),
 `:8082` (notification); Kafka console at http://localhost:8090.
@@ -96,7 +98,7 @@ only the gateway is published on the host, and containers restart automatically.
 
 Set `OIDC_ISSUER_URI` on `gateway`, `claims-service`, `insights-service` and `notification-service`. Tokens
 are then validated against the provider's JWKS and must carry the claims `sub`, `roles`
-(`CLAIMANT` / `HANDLER` / `TEAM_LEAD` / `MANAGER`), `markets`, and for staff `team`. The UI's sign-in page uses
+(`CUSTOMER` or `CLAIMS_ADJUSTER`), `markets`, and for staff `team`. The UI's sign-in page uses
 `POST /auth/login`, so with an external provider the UI needs that provider's login flow added.
 
 ## 5. Updating to the latest code

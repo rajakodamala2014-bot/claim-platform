@@ -13,7 +13,7 @@ import java.util.Objects;
  * details per line of business and allocated the id and number.
  *
  * @param slaTarget       market SLA (from market_config), measured from submission, paused while awaiting info
- * @param claimedAmount   customer's estimate, optional
+ * @param claimedAmount   the amount the customer is claiming; required and greater than zero
  */
 public record NewClaim(
         ClaimId id,

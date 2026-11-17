@@ -33,10 +33,10 @@ import static com.claims.platform.insights.repository.impl.JdbcClaimSummaryRepos
 @Repository
 public class JdbcInsightsQueryRepository implements InsightsQueryRepository {
     /** Statuses in which someone still has work to do on the claim. */
-    private static final String WORKING = "('SUBMITTED','TRIAGED','ASSIGNED','UNDER_ASSESSMENT','AWAITING_INFO',"
+    private static final String WORKING = "('SUBMITTED','ASSIGNED','UNDER_ASSESSMENT','AWAITING_INFO',"
             + "'DECISION_PENDING','APPROVED','SETTLEMENT_IN_PROGRESS')";
     /** Statuses in which the SLA clock runs (until a decision), unless paused. */
-    private static final String SLA_RUNNING = "status IN ('SUBMITTED','TRIAGED','ASSIGNED','UNDER_ASSESSMENT','DECISION_PENDING') "
+    private static final String SLA_RUNNING = "status IN ('SUBMITTED','ASSIGNED','UNDER_ASSESSMENT','DECISION_PENDING') "
             + "AND NOT sla_paused";
     private static final String ROW_COLUMNS = "claim_id, claim_number, market_code, line_of_business, policy_number, status, "
             + "cover_status, handler_id, team_id, submitted_at, sla_due_at, sla_paused, reserve_outstanding_minor, currency, "
@@ -55,7 +55,7 @@ public class JdbcInsightsQueryRepository implements InsightsQueryRepository {
         Map<String, Object> p = new HashMap<>();
         p.put("markets", markets(f.markets()));
         switch (f.view()) {
-            case UNASSIGNED -> sql.append(" AND handler_id IS NULL AND status IN ('SUBMITTED','TRIAGED')");
+            case UNASSIGNED -> sql.append(" AND handler_id IS NULL AND status = 'SUBMITTED'");
             case MINE -> {
                 sql.append(" AND handler_id = :me AND status IN ").append(WORKING);
                 p.put("me", f.handlerId());
@@ -63,6 +63,14 @@ public class JdbcInsightsQueryRepository implements InsightsQueryRepository {
             case TEAM -> {
                 sql.append(" AND team_id = :team AND status IN ").append(WORKING);
                 p.put("team", f.teamId());
+            }
+            case PAID -> {
+                sql.append(" AND handler_id = :me AND status = 'SETTLED'");
+                p.put("me", f.handlerId());
+            }
+            case REJECTED -> {
+                sql.append(" AND handler_id = :me AND status = 'REJECTED'");
+                p.put("me", f.handlerId());
             }
         }
         if (f.lineOfBusiness() != null) {

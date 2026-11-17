@@ -85,7 +85,7 @@ class StaffApiTest {
     }
 
     private static JwtRequestPostProcessor arun() {
-        return staff("h-arun", "HANDLER", "SG");
+        return staff("h-arun", "CLAIMS_ADJUSTER", "SG");
     }
 
     private static <T> Outcome<T> outcome(T value, String status, long version) {
@@ -144,7 +144,7 @@ class StaffApiTest {
     @Test
     void customersCannotUseTheStaffSurface() throws Exception {
         mvc.perform(get("/staff/v1/claims/{id}", CLAIM).with(jwt().jwt(j -> j.subject("cust-priya"))
-                        .authorities(new SimpleGrantedAuthority("ROLE_CLAIMANT"))))
+                        .authorities(new SimpleGrantedAuthority("ROLE_CUSTOMER"))))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(claimQueryService);
     }
@@ -153,9 +153,9 @@ class StaffApiTest {
     void decisionWithinAuthorityIs200AboveIs202() throws Exception {
         Decision fin = decision(ApprovalRequirement.NONE, Decision.Status.FINAL);
         Decision waiting = decision(ApprovalRequirement.SUPERVISOR_APPROVAL, Decision.Status.AWAITING_APPROVAL);
-        when(claimHandlingService.proposeDecision(any(), any(), anyLong(), eq(Decision.Outcome.APPROVE), any(), any()))
+        when(claimHandlingService.proposeDecision(any(), any(), anyLong(), eq(Decision.Outcome.APPROVE), any(), any(), any()))
                 .thenReturn(outcome(fin, "APPROVED", 6)).thenReturn(outcome(waiting, "DECISION_PENDING", 6));
-        String body = "{\"outcome\":\"APPROVE\",\"amount\":{\"amount\":\"4200.00\",\"currency\":\"SGD\"}}";
+        String body = "{\"outcome\":\"APPROVE\",\"coverage\":\"FULL\",\"amount\":{\"amount\":\"4200.00\",\"currency\":\"SGD\"}}";
 
         mvc.perform(post("/staff/v1/claims/{id}/decisions", CLAIM).with(arun()).header("If-Match", "\"5\"")
                         .contentType(MediaType.APPLICATION_JSON).content(body))
@@ -174,13 +174,13 @@ class StaffApiTest {
     void approvalNeedsAnAmountAndAuthorityErrorsAre403() throws Exception {
         mvc.perform(post("/staff/v1/claims/{id}/decisions", CLAIM).with(arun()).header("If-Match", "\"5\"")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"outcome\":\"APPROVE\"}"))
-                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors[0].field").value("amount"));
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors[0].field").value("coverage"));
         when(claimHandlingService.reviewDecision(any(), any(), any(), anyLong(), any(), any()))
                 .thenThrow(new DomainException(ErrorCode.SELF_APPROVAL_NOT_ALLOWED, "own"))
                 .thenThrow(new DomainException(ErrorCode.AMOUNT_EXCEEDS_AUTHORITY, "too much"));
         for (String code : List.of("SELF_APPROVAL_NOT_ALLOWED", "AMOUNT_EXCEEDS_AUTHORITY")) {
             mvc.perform(post("/staff/v1/claims/{id}/decisions/{d}/approval", CLAIM, UUID.randomUUID())
-                            .with(staff("tl-meera", "TEAM_LEAD", "SG")).header("If-Match", "\"6\"")
+                            .with(staff("tl-meera", "CLAIMS_ADJUSTER", "SG")).header("If-Match", "\"6\"")
                             .contentType(MediaType.APPLICATION_JSON).content("{\"action\":\"APPROVE\"}"))
                     .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(code));
         }
@@ -213,12 +213,13 @@ class StaffApiTest {
     @Test
     void staffRegistrationIsScopedToTheCallersMarkets() throws Exception {
         when(claimIntakeService.registerClaimForCustomer(any(), any(), any(), any()))
-                .thenReturn(new SubmitClaimResponse(CLAIM, "SG-MTR-2026-000009", "TRIAGED", "CONFIRMED", false));
+                .thenReturn(new SubmitClaimResponse(CLAIM, "SG-MTR-2026-000009", "SUBMITTED", "CONFIRMED", false));
         String body = """
                 {"claimantId":"cust-priya","claimantName":"Priya Nair","policyNumber":"SG-MTR-POL-1001",
                  "lineOfBusiness":"MOTOR","incidentAt":"2026-11-13T09:00:00Z",
                  "incident":{"peril":"THEFT","description":"Stolen","location":"x","vehicleRegistration":"SBA1",
-                   "driverName":"Priya Nair","damageDescription":"gone"}}
+                   "driverName":"Priya Nair","damageDescription":"gone"},
+                 "claimedAmount":{"amount":"6000.00","currency":"SGD"}}
                 """;
 
         mvc.perform(post("/staff/v1/claims").with(arun()).header("Idempotency-Key", UUID.randomUUID())

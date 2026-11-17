@@ -15,14 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Authority limits per role / market / line of business.
- * <ul>
- *     <li>Proposal within the proposer's limit (inclusive) -> final straight away.</li>
- *     <li>Above it, or no limit configured -> a supervisor must approve.</li>
- *     <li>An approver must be a TEAM_LEAD/MANAGER whose own limit covers the amount; otherwise
- *     AMOUNT_EXCEEDS_AUTHORITY (it escalates to someone with a higher limit, e.g. a manager).</li>
- *     <li>"Proposer cannot approve their own decision" is enforced by the Claim aggregate.</li>
- * </ul>
+ * Every decision waits for a second claim manager. The configured limit is kept so a mismatched
+ * currency is still rejected. The proposer cannot approve their own decision; that rule lives on the claim.
  */
 public final class AuthorityPolicy {
     private record Key(Role role, MarketCode market, LineOfBusiness lineOfBusiness) {
@@ -43,36 +37,31 @@ public final class AuthorityPolicy {
         return Optional.ofNullable(limits.get(new Key(role, market, lineOfBusiness)));
     }
 
-    /** Does a decision of {@code amount} proposed by {@code proposer} need a supervisor's approval? */
+    /**
+     * A proposal is never final on its own. Another claim manager approves it.
+     * When a limit is configured, the amount must be in that limit's currency.
+     */
     public ApprovalRequirement requirementFor(Actor proposer, MarketCode market, LineOfBusiness lineOfBusiness, Money amount) {
         if (!proposer.role().isStaff()) {
             throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Only staff can propose decisions");
         }
-        return limitFor(proposer.role(), market, lineOfBusiness)
-                .filter(limit -> covers(limit, amount))
-                .map(limit -> ApprovalRequirement.NONE)
-                .orElse(ApprovalRequirement.SUPERVISOR_APPROVAL);
+        limitFor(proposer.role(), market, lineOfBusiness).ifPresent(limit -> {
+            if (!limit.currency().equals(amount.currency())) {
+                throw new DomainException(ErrorCode.CURRENCY_MISMATCH,
+                        "Authority limit is in " + limit.currency() + " but the amount is in " + amount.currency());
+            }
+        });
+        return ApprovalRequirement.SUPERVISOR_APPROVAL;
     }
 
-    /** Throws unless {@code approver} may approve a decision of {@code amount}. */
+    /**
+     * Another claims adjuster may approve a decision the proposer could not finalise.
+     * The amount ceiling applies when the decision is proposed, not again here.
+     */
     public void requireCanApprove(Actor approver, MarketCode market, LineOfBusiness lineOfBusiness, Money amount) {
         if (!approver.role().isSupervisor()) {
-            throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Only a team lead or manager can approve decisions");
-        }
-        Money limit = limitFor(approver.role(), market, lineOfBusiness)
-                .orElseThrow(() -> new DomainException(ErrorCode.AMOUNT_EXCEEDS_AUTHORITY,
-                        "No approval authority for " + market + " " + lineOfBusiness));
-        if (!covers(limit, amount)) {
-            throw new DomainException(ErrorCode.AMOUNT_EXCEEDS_AUTHORITY,
-                    "Amount " + amount + " exceeds your approval limit of " + limit);
+            throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Only a claims adjuster can approve decisions");
         }
     }
 
-    private static boolean covers(Money limit, Money amount) {
-        if (!limit.currency().equals(amount.currency())) {
-            throw new DomainException(ErrorCode.CURRENCY_MISMATCH,
-                    "Authority limit is in " + limit.currency() + " but the amount is in " + amount.currency());
-        }
-        return !amount.isGreaterThan(limit);
-    }
 }

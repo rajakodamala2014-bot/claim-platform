@@ -21,13 +21,12 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Exhaustive: every (from, to) pair of the 12 statuses (144 cases) is checked against this independent copy
+ * Exhaustive: every (from, to) pair of the statuses is checked against this independent copy
  * of the lifecycle from the specification, so an accidental edit of the production table fails here.
  */
 class ClaimStatusTest {
     private static final Map<ClaimStatus, Set<ClaimStatus>> SPEC = Map.ofEntries(
-            entry(SUBMITTED, EnumSet.of(TRIAGED, WITHDRAWN)),
-            entry(TRIAGED, EnumSet.of(ASSIGNED, WITHDRAWN)),
+            entry(SUBMITTED, EnumSet.of(ASSIGNED, WITHDRAWN)),
             entry(ASSIGNED, EnumSet.of(UNDER_ASSESSMENT, WITHDRAWN)),
             entry(UNDER_ASSESSMENT, EnumSet.of(AWAITING_INFO, DECISION_PENDING, WITHDRAWN)),
             entry(AWAITING_INFO, EnumSet.of(UNDER_ASSESSMENT, WITHDRAWN)),
@@ -90,7 +89,7 @@ class ClaimStatusTest {
     @Test
     void customerCanWithdrawOnlyBeforeADecision() {
         assertThat(Arrays.stream(values()).filter(ClaimStatus::isWithdrawable))
-                .containsExactlyInAnyOrder(SUBMITTED, TRIAGED, ASSIGNED, UNDER_ASSESSMENT, AWAITING_INFO);
+                .containsExactlyInAnyOrder(SUBMITTED, ASSIGNED, UNDER_ASSESSMENT, AWAITING_INFO);
     }
 
     @Test

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Background jobs</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-30%" width="120%" height="170%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="0.5" y="0.5" width="1399" height="619" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+  <path d="M200,92 L228,92" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,92 L428,92" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,92 L698,92" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,92 L1058,92" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M200,176 L228,176" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,176 L428,176" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,176 L698,176" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,176 L1058,176" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M200,260 L228,260" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,260 L428,260" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,260 L698,260" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,260 L1058,260" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M200,344 L228,344" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,344 L428,344" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,344 L698,344" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,344 L1058,344" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M200,428 L228,428" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,428 L428,428" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,428 L698,428" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,428 L1058,428" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M200,512 L228,512" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M400,512 L428,512" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M670,512 L698,512" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M1030,512 L1058,512" fill="none" stroke="#64748b" stroke-width="1.7" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <text x="115.0" y="40.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" dominant-baseline="central">Service</text>
+  <text x="315.0" y="40.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" dominant-baseline="central">Trigger</text>
+  <text x="550.0" y="40.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" dominant-baseline="central">Runs once via</text>
+  <text x="865.0" y="40.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" dominant-baseline="central">Work</text>
+  <text x="1215.0" y="40.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" dominant-baseline="central">Result</text>
+  <g filter="url(#shadow)"><rect x="30" y="64" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="92.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Claims</text>
+  <g filter="url(#shadow)"><rect x="230" y="64" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="92.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">every 500 ms</text>
+  <g filter="url(#shadow)"><rect x="430" y="64" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="92.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">advisory lock per batch</text>
+  <g filter="url(#shadow)"><rect x="700" y="64" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="92.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">publishBatch()</text>
+  <g filter="url(#shadow)"><rect x="1060" y="64" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="92.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">outbox rows published in seq order</text>
+  <g filter="url(#shadow)"><rect x="30" y="148" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="176.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Claims</text>
+  <g filter="url(#shadow)"><rect x="230" y="148" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="176.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">every 10 minutes</text>
+  <g filter="url(#shadow)"><rect x="430" y="148" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="176.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">JobLock lease</text>
+  <g filter="url(#shadow)"><rect x="700" y="148" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="176.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">retryPendingCoverChecks()</text>
+  <g filter="url(#shadow)"><rect x="1060" y="148" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="176.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">PENDING cover confirmed</text>
+  <g filter="url(#shadow)"><rect x="30" y="232" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Claims</text>
+  <g filter="url(#shadow)"><rect x="230" y="232" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">daily</text>
+  <g filter="url(#shadow)"><rect x="430" y="232" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">JobLock lease</text>
+  <g filter="url(#shadow)"><rect x="700" y="232" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="260.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">expireOverdueInformationRequests()</text>
+  <g filter="url(#shadow)"><rect x="1060" y="232" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">AWAITING_INFO → UNDER_ASSESSMENT</text>
+  <g filter="url(#shadow)"><rect x="30" y="316" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Claims</text>
+  <g filter="url(#shadow)"><rect x="230" y="316" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">daily</text>
+  <g filter="url(#shadow)"><rect x="430" y="316" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">JobLock lease</text>
+  <g filter="url(#shadow)"><rect x="700" y="316" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="344.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">closeClaimsAfterCoolingOff()</text>
+  <g filter="url(#shadow)"><rect x="1060" y="316" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">SETTLED · REJECTED · WITHDRAWN → CLOSED</text>
+  <g filter="url(#shadow)"><rect x="30" y="400" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Insights</text>
+  <g filter="url(#shadow)"><rect x="230" y="400" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">every 5 minutes</text>
+  <g filter="url(#shadow)"><rect x="430" y="400" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">advisory-lock leader</text>
+  <g filter="url(#shadow)"><rect x="700" y="400" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="428.0" font-family="Cascadia Mono, Consolas, Menlo, monospace" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">publishDueSlaAlerts()</text>
+  <g filter="url(#shadow)"><rect x="1060" y="400" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">SlaAtRisk / SlaBreached alerts</text>
+  <g filter="url(#shadow)"><rect x="30" y="484" width="170" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="115.0" y="512.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">Notification</text>
+  <g filter="url(#shadow)"><rect x="230" y="484" width="170" height="56" rx="28.0" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6"/></g>
+  <text x="315.0" y="512.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#4c1d95" text-anchor="middle" dominant-baseline="central">every 1 second</text>
+  <g filter="url(#shadow)"><rect x="430" y="484" width="240" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/></g>
+  <text x="550.0" y="512.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" dominant-baseline="central">FOR UPDATE SKIP LOCKED</text>
+  <g filter="url(#shadow)"><rect x="700" y="484" width="330" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/></g>
+  <text x="865.0" y="512.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">send PENDING notifications</text>
+  <g filter="url(#shadow)"><rect x="1060" y="484" width="310" height="56" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/></g>
+  <text x="1215.0" y="512.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle" dominant-baseline="central">SENT, or FAILED after 3 attempts</text>
+  <text x="30.0" y="590.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#475569" text-anchor="start" dominant-baseline="central">Claims jobs stop with claims.jobs.enabled=false and the relay with claims.outbox.relay.enabled=false. Integration tests call the service methods directly.</text>
+</svg>

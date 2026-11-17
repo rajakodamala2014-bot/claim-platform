@@ -34,6 +34,6 @@ tests {
     const body = res.getBody();
     expect(body.token_type).to.equal("Bearer");
     expect(body.sub).to.equal("m-lee");
-    expect(body.role).to.equal("MANAGER");
+    expect(body.role).to.equal("CLAIMS_ADJUSTER");
   });
 }

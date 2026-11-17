@@ -82,9 +82,9 @@ class ClaimsServiceIT {
         assertThat(token.get("token_type").asText()).isEqualTo("Bearer");
         assertThat(token.get("expires_in").asLong()).isEqualTo(8 * 60 * 60);
         assertThat(token.get("sub").asText()).isEqualTo("cust-priya");
-        assertThat(token.get("role").asText()).isEqualTo("CLAIMANT");
+        assertThat(token.get("role").asText()).isEqualTo("CUSTOMER");
         Jwt jwt = decoder().decode(token.get("access_token").asText());
-        assertThat(jwt.getClaimAsStringList("roles")).containsExactly("CLAIMANT");
+        assertThat(jwt.getClaimAsStringList("roles")).containsExactly("CUSTOMER");
         assertThat(jwt.getClaimAsStringList("markets")).containsExactly("SG");
         assertThat(jwt.getClaims()).doesNotContainKey("team");
 

@@ -17,7 +17,7 @@ public record RegisterClaimRequest(
         @NotNull LineOfBusiness lineOfBusiness,
         @NotNull Instant incidentAt,
         @NotNull @Valid IncidentRequest incident,
-        @Valid MoneyRequest claimedAmount,
+        @NotNull @Valid MoneyRequest claimedAmount,
         @Valid ContactRequest contact
 ) {
 }

@@ -139,6 +139,13 @@ services:
       <<: *depends-on-infra
       policy-system:
         condition: service_started
+    # Tomcat is listening only after Flyway. The UI must not send sign-in until then.
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/127.0.0.1/8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 50s
 
   insights-service:
     build:
@@ -171,6 +178,9 @@ services:
     image: claims-ui
     ports:
       - "3000:80"
+    depends_on:
+      gateway:
+        condition: service_healthy
 
   # API gateway (gateway-service): the only public entry point. Actuator is on :8001, not published.
   gateway:
@@ -187,11 +197,19 @@ services:
       UI_URL: http://claims-ui:80
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/127.0.0.1/8000"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
     depends_on:
-      - claims-service
-      - insights-service
-      - notification-service
-      - claims-ui
+      claims-service:
+        condition: service_healthy
+      insights-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
 
 volumes:
   postgres-data:

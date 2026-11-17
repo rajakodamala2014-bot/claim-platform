@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Every status-changing command, run against a claim in every status (12 x 9 = 108 cases). Where the command is
+ * Every status-changing command, run against a claim in every status. Where the command is
  * not allowed it must fail with CLAIM_INVALID_TRANSITION and leave the claim untouched: same status and
  * no events recorded. Commands run as a supervisor (or the owner) so only the state machine is under test.
  */
@@ -35,7 +35,6 @@ class ClaimCommandMatrixTest {
     }
 
     static final List<Command> COMMANDS = List.of(
-            new Command("confirmCover", EnumSet.of(SUBMITTED), c -> c.confirmCover(Actor.SYSTEM, at(500))),
             new Command("startAssessment", EnumSet.of(ASSIGNED), c -> c.startAssessment(MEERA, at(500))),
             new Command("requestInformation", EnumSet.of(UNDER_ASSESSMENT),
                     c -> c.requestInformation(UUID.randomUUID(), List.of("Photos"), at(10_000), MEERA, at(500))),
@@ -43,12 +42,12 @@ class ClaimCommandMatrixTest {
                     c -> c.proposeDecision(UUID.randomUUID(), Decision.Outcome.APPROVE, sgd("100"), null,
                             ApprovalRequirement.SUPERVISOR_APPROVAL, MEERA, at(500))),
             new Command("instructSettlement", EnumSet.of(APPROVED),
-                    c -> c.instructSettlement(UUID.randomUUID(), UUID.randomUUID(), PAYEE, sgd("100"), MEERA, at(500))),
-            new Command("withdraw", EnumSet.of(SUBMITTED, TRIAGED, ASSIGNED, UNDER_ASSESSMENT, AWAITING_INFO),
+                    c -> c.instructSettlement(UUID.randomUUID(), UUID.randomUUID(), PAYEE, sgd("100"), ARUN, at(500))),
+            new Command("withdraw", EnumSet.of(SUBMITTED, ASSIGNED, UNDER_ASSESSMENT, AWAITING_INFO),
                     c -> c.withdraw("No longer needed", PRIYA, at(500))),
             new Command("appeal", EnumSet.of(REJECTED), c -> c.appeal("New evidence", PRIYA, at(500))),
             new Command("close", EnumSet.of(SETTLED, REJECTED, WITHDRAWN), c -> c.close(at(500))),
-            new Command("assign (first pick-up)", EnumSet.of(TRIAGED),
+            new Command("assign (first pick-up)", EnumSet.of(SUBMITTED),
                     c -> c.assign("h-new", "team", MEERA, at(500)))
     );
 

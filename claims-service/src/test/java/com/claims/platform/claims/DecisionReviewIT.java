@@ -64,19 +64,17 @@ class DecisionReviewIT {
     ObjectMapper json;
 
     @Test
-    void rejectionWithinLimitIsFinalCustomerAppealsAndTeamLeadReturnsTheNextDecision() throws Exception {
+    void rejectionWaitsForAnotherManagerThenTheCustomerCanAppeal() throws Exception {
         String priya = token("priya"), arun = token("arun"), meera = token("meera");
         String claim = submitAsCustomer(priya);
         String base = "/staff/v1/claims/" + claim;
 
         String v = command(base + "/assignment", arun, "1", null, HttpStatus.OK);
         v = command(base + "/start-assessment", arun, v, null, HttpStatus.OK);
-        v = command(base + "/reserves", arun, v, Map.of("amount", money("5000.00"), "reason", "Initial estimate"), HttpStatus.OK);
-
         // a rejection needs a reason
         expect(HttpMethod.POST, base + "/decisions", arun, v, Map.of("outcome", "REJECT"), HttpStatus.BAD_REQUEST);
 
-        // S9 reject within the handler's limit (checked against the SGD 5,000 outstanding reserve): final, 200
+        // A rejection is final at once. It does not wait for another claim manager.
         JsonNode rejected = expect(HttpMethod.POST, base + "/decisions", arun, v,
                 Map.of("outcome", "REJECT", "reasonCode", "POLICY_EXCLUSION"), HttpStatus.OK);
         assertThat(rejected.get("status").asText()).isEqualTo("REJECTED");
@@ -99,10 +97,9 @@ class DecisionReviewIT {
         assertThat(workspace.at("/claim/handlerId").asText()).isEqualTo("h-arun");
         v = etag(reopened);
 
-        // reassessed: approval above the handler's SGD 10,000 limit waits for a team lead (202) ...
-        v = command(base + "/reserves", arun, v, Map.of("amount", money("12000.00"), "reason", "Reassessed"), HttpStatus.OK);
+        // reassessed: the covered amount waits for another claim manager
         JsonNode proposed = expect(HttpMethod.POST, base + "/decisions", arun, v,
-                Map.of("outcome", "APPROVE", "amount", money("12000.00")), HttpStatus.ACCEPTED);
+                Map.of("outcome", "APPROVE", "coverage", "PARTIAL", "amount", money("12000.00")), HttpStatus.ACCEPTED);
         assertThat(proposed.get("status").asText()).isEqualTo("DECISION_PENDING");
         String decisionId = proposed.at("/result/decisionId").asText();
         v = String.valueOf(proposed.get("version").asLong());
@@ -153,6 +150,7 @@ class DecisionReviewIT {
         headers.set(Headers.IDEMPOTENCY_KEY, UUID.randomUUID().toString());
         Map<String, Object> body = Map.of("policyNumber", "SG-MTR-POL-1001", "lineOfBusiness", "MOTOR",
                 "incidentAt", "2026-11-10T09:00:00Z",
+                "claimedAmount", Map.of("amount", "12000.00", "currency", "SGD"),
                 "incident", Map.of("peril", "COLLISION", "description", "Side swiped in car park", "location", "Tampines",
                         "vehicleRegistration", "SBA1234X", "driverName", "Priya Nair", "damageDescription", "Driver door",
                         "thirdParties", List.of(Map.of("name", "Ahmad Ali", "vehicleRegistration", "SKL4321M"))));

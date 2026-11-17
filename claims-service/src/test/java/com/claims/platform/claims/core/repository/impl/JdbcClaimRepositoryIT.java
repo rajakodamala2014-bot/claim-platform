@@ -118,7 +118,7 @@ class JdbcClaimRepositoryIT {
         assertThat(sql.queryForObject("SELECT sum(amount_minor) FROM handling.reserve_movement WHERE claim_id = ?",
                 Long.class, claimId)).isZero();
         assertThat(sql.queryForList("SELECT event_type FROM core.claim_event WHERE claim_id = ? ORDER BY seq", String.class, claimId))
-                .startsWith(EventTypes.CLAIM_SUBMITTED, EventTypes.CLAIM_TRIAGED, EventTypes.CLAIM_ASSIGNED)
+                .startsWith(EventTypes.CLAIM_SUBMITTED, EventTypes.CLAIM_ASSIGNED)
                 .endsWith(EventTypes.PAYMENT_CONFIRMED, EventTypes.CLAIM_SETTLED, EventTypes.RESERVE_CHANGED);
         assertThat(sql.queryForObject("SELECT payload->>'eventId' = id::text AND payload->>'claimId' = message_key "
                         + "FROM platform.outbox WHERE topic = 'claims.claim-events' AND message_key = ? LIMIT 1",
@@ -127,7 +127,7 @@ class JdbcClaimRepositoryIT {
 
     @Test
     void concurrentModificationIsDetected() {
-        Claim claim = ClaimFixture.inStatus(ClaimStatus.TRIAGED, SEQUENCE.incrementAndGet());
+        Claim claim = ClaimFixture.inStatus(ClaimStatus.SUBMITTED, SEQUENCE.incrementAndGet());
         save(claim);
         Claim first = repository.findById(claim.id()).orElseThrow();
         Claim second = repository.findById(claim.id()).orElseThrow();
@@ -159,10 +159,11 @@ class JdbcClaimRepositoryIT {
     @Test
     void claimantListIsKeysetPaginatedNewestFirstWithActionNeeded() {
         String claimant = "cust-page-" + UUID.randomUUID();
-        for (ClaimStatus status : List.of(ClaimStatus.TRIAGED, ClaimStatus.AWAITING_INFO, ClaimStatus.SUBMITTED)) {
+        for (ClaimStatus status : List.of(ClaimStatus.ASSIGNED, ClaimStatus.AWAITING_INFO, ClaimStatus.SUBMITTED)) {
             Claim claim = Claim.submit(withClaimant(claimant), Actor.claimant(claimant), at(SEQUENCE.intValue()));
             if (status != ClaimStatus.SUBMITTED) {
                 claim.confirmCover(Actor.SYSTEM, at(SEQUENCE.intValue()));
+                claim.assign(ARUN.id(), "t", ARUN, at(SEQUENCE.intValue()));
             }
             if (status == ClaimStatus.AWAITING_INFO) {
                 claim.assign(ARUN.id(), "t", ARUN, at(SEQUENCE.intValue()));
@@ -178,7 +179,7 @@ class JdbcClaimRepositoryIT {
         assertThat(first.items()).extracting(ClaimQueryRepository.ClaimSummary::status).containsExactly("SUBMITTED", "AWAITING_INFO");
         assertThat(first.items().get(1).actionNeeded()).isTrue();
         assertThat(first.nextCursor()).isNotNull();
-        assertThat(second.items()).extracting(ClaimQueryRepository.ClaimSummary::status).containsExactly("TRIAGED");
+        assertThat(second.items()).extracting(ClaimQueryRepository.ClaimSummary::status).containsExactly("ASSIGNED");
         assertThat(second.nextCursor()).isNull();
         assertThat(queries.findClaimsOfClaimant("nobody", PageRequest.of(null, 5)).items()).isEmpty();
     }
@@ -190,9 +191,9 @@ class JdbcClaimRepositoryIT {
         save(claim);
 
         assertThat(queries.events(claim.id(), false)).extracting(e -> e.type())
-                .containsExactly(EventTypes.CLAIM_SUBMITTED, EventTypes.COVER_DECLINED, EventTypes.CLAIM_TRIAGED);
+                .containsExactly(EventTypes.CLAIM_SUBMITTED, EventTypes.COVER_DECLINED);
         assertThat(queries.events(claim.id(), true)).extracting(e -> e.type())
-                .containsExactly(EventTypes.CLAIM_SUBMITTED, EventTypes.CLAIM_TRIAGED);
+                .containsExactly(EventTypes.CLAIM_SUBMITTED);
     }
 
     private int step(ClaimId id, Consumer<Claim> command) {

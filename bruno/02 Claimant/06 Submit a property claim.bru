@@ -50,6 +50,6 @@ tests {
   test("property claim is triaged", function () {
     expect(res.getStatus()).to.equal(201);
     expect(res.getBody().claimNumber).to.match(/^SG-PRP-/);
-    expect(res.getBody().status).to.equal("TRIAGED");
+    expect(res.getBody().status).to.equal("SUBMITTED");
   });
 }

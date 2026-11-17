@@ -37,6 +37,7 @@ class RoutingTest extends GatewayTestBase {
             "/claimant/v1/uploads,                               claims",
             "/claimant/v1/claims,                                claims",
             "/claimant/v1/claims/c-1/timeline,                   claims",
+            "/staff/v1/people,                                   claims",
             "/staff/v1/claims,                                   claims",
             "/staff/v1/claims/c-1,                               claims",
             "/staff/v1/claims/c-1/audit,                         claims",
@@ -76,10 +77,10 @@ class RoutingTest extends GatewayTestBase {
 
     @Test
     void forwardsMethodPathQueryAndBodyUnchanged() throws Exception {
-        get("/staff/v1/work-queue?view=mine&limit=20", token("staff-arun", "HANDLER"));
+        get("/staff/v1/work-queue?view=mine&limit=20", token("staff-arun", "CLAIMS_ADJUSTER"));
         INSIGHTS.verify(getRequestedFor(urlEqualTo("/staff/v1/work-queue?view=mine&limit=20")));
 
-        String claimant = token("cust-priya", "CLAIMANT");
+        String claimant = token("cust-priya", "CUSTOMER");
         send("POST", "/claimant/v1/claims", claimant, "{\"policyNumber\":\"SG-MTR-POL-1001\"}",
                 "Idempotency-Key", "key-1");
         CLAIMS.verify(postRequestedFor(urlEqualTo("/claimant/v1/claims"))
@@ -100,7 +101,7 @@ class RoutingTest extends GatewayTestBase {
     void rejectsBodiesOverTheLimitBeforeTheyReachAService() throws Exception {
         String tooLarge = "{\"description\":\"" + "x".repeat(100_000) + "\"}";
 
-        HttpResponse<String> response = send("POST", "/claimant/v1/claims", token("cust-priya", "CLAIMANT"), tooLarge);
+        HttpResponse<String> response = send("POST", "/claimant/v1/claims", token("cust-priya", "CUSTOMER"), tooLarge);
 
         assertThat(response.statusCode()).isEqualTo(413);
         assertThat(response.body()).contains("\"code\":\"PAYLOAD_TOO_LARGE\"");

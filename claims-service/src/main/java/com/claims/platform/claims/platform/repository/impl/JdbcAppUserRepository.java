@@ -6,6 +6,7 @@ import com.claims.platform.claims.platform.repository.AppUserRepository;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -23,9 +24,23 @@ public class JdbcAppUserRepository implements AppUserRepository {
                         FROM platform.app_user WHERE username = :username
                         """)
                 .param("username", username)
-                .query((rs, n) -> new AppUser(rs.getString("user_id"), rs.getString("username"), rs.getString("password_hash"),
-                        rs.getString("display_name"), rs.getString("role"), JdbcSupport.strings(rs, "markets"),
-                        rs.getString("team_id"), rs.getString("locale"), rs.getBoolean("enabled")))
+                .query(this::map)
                 .optional();
+    }
+
+    @Override
+    public List<AppUser> list() {
+        return jdbc.sql("""
+                        SELECT user_id, username, password_hash, display_name, role, markets, team_id, locale, enabled
+                        FROM platform.app_user ORDER BY username
+                        """)
+                .query(this::map)
+                .list();
+    }
+
+    private AppUser map(java.sql.ResultSet rs, int n) throws java.sql.SQLException {
+        return new AppUser(rs.getString("user_id"), rs.getString("username"), rs.getString("password_hash"),
+                rs.getString("display_name"), rs.getString("role"), JdbcSupport.strings(rs, "markets"),
+                rs.getString("team_id"), rs.getString("locale"), rs.getBoolean("enabled"));
     }
 }

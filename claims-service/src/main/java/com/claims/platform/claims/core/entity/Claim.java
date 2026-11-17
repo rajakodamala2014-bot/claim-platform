@@ -130,7 +130,7 @@ public final class Claim {
     public static Claim submit(NewClaim newClaim, Actor actor, Instant now) {
         Objects.requireNonNull(newClaim, "newClaim");
         if (newClaim.channel() == Channel.APP
-                && !(actor.role() == Role.CLAIMANT && actor.id().equals(newClaim.claimantId()))) {
+                && !(actor.role() == Role.CUSTOMER && actor.id().equals(newClaim.claimantId()))) {
             throw new DomainException(ErrorCode.NOT_CLAIM_OWNER, "Customers can only report claims for themselves");
         }
         if (newClaim.channel() == Channel.STAFF && !actor.role().isStaff()) {
@@ -151,40 +151,45 @@ public final class Claim {
         return claim;
     }
 
-    /** Policy system confirmed cover (inline at submission or by the retry job). */
+    /**
+     * Every customer is treated as covered. Cover is confirmed without a separate status:
+     * the claim stays {@link ClaimStatus#SUBMITTED} until a claim manager picks it up.
+     */
     public void confirmCover(Actor actor, Instant now) {
-        transitionTo(ClaimStatus.TRIAGED, now);
+        if (status != ClaimStatus.SUBMITTED) {
+            throw new DomainException(ErrorCode.CLAIM_INVALID_TRANSITION,
+                    "Cover can only be confirmed while the claim is SUBMITTED, not " + status);
+        }
         coverStatus = CoverStatus.CONFIRMED;
-        record(EventTypes.CLAIM_TRIAGED, CLAIMANT, actor, now, data("coverStatus", coverStatus.name()));
+        coverDeclineReason = null;
     }
 
-    /**
-     * Policy system says not covered. The claim is still triaged, flagged DECLINED, so it reaches a handler
-     * who reviews it (normally rejecting it) — the customer always gets a human decision.
-     */
+    /** Kept for a stored decline flag. It does not change the claim status. */
     public void declineCover(String reason, Actor actor, Instant now) {
         requireText(reason, "A cover decline reason is required");
-        transitionTo(ClaimStatus.TRIAGED, now);
+        if (status != ClaimStatus.SUBMITTED) {
+            throw new DomainException(ErrorCode.CLAIM_INVALID_TRANSITION,
+                    "Cover can only be recorded while the claim is SUBMITTED, not " + status);
+        }
         coverStatus = CoverStatus.DECLINED;
         coverDeclineReason = reason;
         record(EventTypes.COVER_DECLINED, INTERNAL, actor, now, data("reason", reason));
-        record(EventTypes.CLAIM_TRIAGED, CLAIMANT, actor, now, data("coverStatus", coverStatus.name()));
     }
 
     // ------------------------------------------------------------------ handling
 
     /**
-     * S4. A handler picks up an unassigned TRIAGED claim for themselves; a supervisor may assign it to anyone
+     * S4. A handler picks up an unassigned submitted claim for themselves; a supervisor may assign it to anyone
      * or reassign it later. A handler hitting an already-assigned claim gets CLAIM_ALREADY_ASSIGNED (409).
      */
     public void assign(String assigneeId, String assigneeTeamId, Actor actor, Instant now) {
         requireText(assigneeId, "Assignee is required");
         requireStaff(actor);
-        if (actor.role() == Role.HANDLER && !actor.id().equals(assigneeId)) {
-            throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Handlers can only pick up claims for themselves");
-        }
         if (handlerId != null) {
-            if (!actor.role().isSupervisor()) {
+            if (actor.id().equals(assigneeId)) {
+                if (handlerId.equals(assigneeId)) {
+                    return;
+                }
                 throw new DomainException(ErrorCode.CLAIM_ALREADY_ASSIGNED, "Claim " + number + " is already assigned");
             }
             if (status.isOutcomeReached()) {
@@ -355,6 +360,7 @@ public final class Claim {
                                         Actor actor, Instant now) {
         requireHandlerOrSupervisor(actor);
         status.requireTransitionTo(ClaimStatus.SETTLEMENT_IN_PROGRESS);
+        requireProposer(actor);
         requireClaimCurrency(amount);
         if (!amount.isPositive()) {
             throw new DomainException(ErrorCode.VALIDATION_FAILED, "Settlement amount must be positive");
@@ -373,6 +379,7 @@ public final class Claim {
     /** S12. Retry a FAILED payment, optionally with corrected bank details, as a new instruction. */
     public Settlement retrySettlement(UUID settlementId, UUID newInstructionId, Payee correctedPayee, Actor actor, Instant now) {
         requireHandlerOrSupervisor(actor);
+        requireProposer(actor);
         if (status != ClaimStatus.SETTLEMENT_IN_PROGRESS) {
             throw new DomainException(ErrorCode.CLAIM_INVALID_TRANSITION, "No settlement in progress (status " + status + ")");
         }
@@ -694,8 +701,8 @@ public final class Claim {
     }
 
     private void requireOwner(Actor actor) {
-        if (actor.role() != Role.CLAIMANT || !actor.id().equals(claimantId)) {
-            throw new DomainException(ErrorCode.NOT_CLAIM_OWNER, "Only the claimant can do this");
+        if (actor.role() != Role.CUSTOMER || !actor.id().equals(claimantId)) {
+            throw new DomainException(ErrorCode.NOT_CLAIM_OWNER, "Only the customer can do this");
         }
     }
 
@@ -707,15 +714,20 @@ public final class Claim {
 
     private static void requireSupervisor(Actor actor) {
         if (!actor.role().isSupervisor()) {
-            throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Team lead or manager role required");
+            throw new DomainException(ErrorCode.FORBIDDEN_ROLE, "Claims adjuster role required");
         }
     }
 
-    /** The assigned handler, or any supervisor (who can step in for an absent handler). */
+    /** Any claims adjuster may work a claim in a market they cover. Market checks happen before this. */
     private void requireHandlerOrSupervisor(Actor actor) {
         requireStaff(actor);
-        if (actor.role() == Role.HANDLER && !actor.id().equals(handlerId)) {
-            throw new DomainException(ErrorCode.NOT_ASSIGNED_HANDLER, "Only the assigned handler can do this");
+    }
+
+    /** Payment goes back to the manager who sent the claim for approval. */
+    private void requireProposer(Actor actor) {
+        if (decision == null || !actor.id().equals(decision.proposedBy())) {
+            throw new DomainException(ErrorCode.FORBIDDEN_ROLE,
+                    "Only the claim manager who sent this for approval can instruct payment");
         }
     }
 

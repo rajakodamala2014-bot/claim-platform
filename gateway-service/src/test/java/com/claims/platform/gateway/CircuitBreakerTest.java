@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "gateway.circuit-breaker.open-duration=1h"
 })
 class CircuitBreakerTest extends GatewayTestBase {
-    private final String handler = token("staff-arun", "HANDLER");
+    private final String handler = token("staff-arun", "CLAIMS_ADJUSTER");
 
     @Test
     void anUnreachableUpstreamIsAnsweredWith503ProblemJson() throws Exception {

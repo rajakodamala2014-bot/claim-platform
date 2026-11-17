@@ -11,7 +11,7 @@ import static java.util.Map.entry;
  * Claim lifecycle. The transition table below is the single source of truth; {@link Claim} is the only
  * code that changes a claim's status, and it always goes through {@link #requireTransitionTo}.
  * <pre>
- * SUBMITTED -> TRIAGED -> ASSIGNED -> UNDER_ASSESSMENT <-> AWAITING_INFO
+ * SUBMITTED -> ASSIGNED -> UNDER_ASSESSMENT <-> AWAITING_INFO
  * UNDER_ASSESSMENT -> DECISION_PENDING -> APPROVED -> SETTLEMENT_IN_PROGRESS -> SETTLED -> CLOSED
  * DECISION_PENDING -> REJECTED -> CLOSED          DECISION_PENDING -> UNDER_ASSESSMENT (decision returned)
  * REJECTED -> UNDER_ASSESSMENT (appeal)          SUBMITTED..AWAITING_INFO -> WITHDRAWN -> CLOSED
@@ -19,7 +19,6 @@ import static java.util.Map.entry;
  */
 public enum ClaimStatus {
     SUBMITTED,
-    TRIAGED,
     ASSIGNED,
     UNDER_ASSESSMENT,
     AWAITING_INFO,
@@ -32,8 +31,7 @@ public enum ClaimStatus {
     CLOSED;
 
     private static final Map<ClaimStatus, Set<ClaimStatus>> ALLOWED = Map.ofEntries(
-            entry(SUBMITTED, EnumSet.of(TRIAGED, WITHDRAWN)),
-            entry(TRIAGED, EnumSet.of(ASSIGNED, WITHDRAWN)),
+            entry(SUBMITTED, EnumSet.of(ASSIGNED, WITHDRAWN)),
             entry(ASSIGNED, EnumSet.of(UNDER_ASSESSMENT, WITHDRAWN)),
             entry(UNDER_ASSESSMENT, EnumSet.of(AWAITING_INFO, DECISION_PENDING, WITHDRAWN)),
             entry(AWAITING_INFO, EnumSet.of(UNDER_ASSESSMENT, WITHDRAWN)),

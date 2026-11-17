@@ -15,24 +15,20 @@ function user(roles: string[]): User {
 describe('decodeToken', () => {
   it('reads the role, markets and team the portal uses to choose a screen', () => {
     const decoded = decodeToken(token({
-      sub: 'h-arun', name: 'Arun Kumar', roles: ['HANDLER'], markets: ['SG'], team: 'team-sg-motor', locale: 'en-SG', exp: later,
+      sub: 'h-arun', name: 'Arun Kumar', roles: ['CLAIMS_ADJUSTER'], markets: ['SG'], team: 'team-sg-motor', locale: 'en-SG', exp: later,
     }));
 
-    expect(decoded).toMatchObject({ sub: 'h-arun', roles: ['HANDLER'], markets: ['SG'], team: 'team-sg-motor' });
+    expect(decoded).toMatchObject({ sub: 'h-arun', roles: ['CLAIMS_ADJUSTER'], markets: ['SG'], team: 'team-sg-motor' });
     expect(isStaff(decoded)).toBe(true);
     expect(isClaimant(decoded)).toBe(false);
-    expect(isSupervisor(decoded)).toBe(false);
+    expect(isSupervisor(decoded)).toBe(true);
   });
 
-  it('treats a team lead as a supervisor and an expired token as signed out', () => {
-    const lead = decodeToken(token({ sub: 'tl-meera', roles: ['TEAM_LEAD'], markets: ['SG', 'MY'], exp: later }));
-    expect(isSupervisor(lead)).toBe(true);
-    expect(isStaff(lead)).toBe(true);
-
-    expect(decodeToken(token({ sub: 'cust-priya', roles: ['CLAIMANT'], exp: 1 }))).toBeNull();
-    expect(isClaimant(null)).toBe(false);
-    expect(isStaff(user(['CLAIMANT']))).toBe(false);
-    expect(isSupervisor(user(['HANDLER']))).toBe(false);
-    expect(isSupervisor(user(['MANAGER']))).toBe(true);
+  it('treats an expired token as signed out', () => {
+    expect(decodeToken(token({ sub: 'cust-priya', roles: ['CUSTOMER'], exp: 1 }))).toBeNull();
+    expect(isClaimant(user(['CUSTOMER']))).toBe(true);
+    expect(isStaff(user(['CUSTOMER']))).toBe(false);
+    expect(isSupervisor(user(['CUSTOMER']))).toBe(false);
+    expect(isSupervisor(user(['CLAIMS_ADJUSTER']))).toBe(true);
   });
 });

@@ -1,0 +1,35 @@
+meta {
+  name: Another claim manager confirms the rejection
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{gateway}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "kumar",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body && body.access_token) {
+    bru.setVar("kumarToken", body.access_token);
+  }
+}
+
+tests {
+  test("kumar can sign in", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
